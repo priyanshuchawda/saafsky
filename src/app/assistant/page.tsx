@@ -144,35 +144,37 @@ export default function Assistant() {
           Ask SaafSky
         </button>
       </form>
-      <section className="plan scenario-result" aria-live="polite">
-        {status && <p>{status}</p>}
-        {turns.map((turn, index) => (
-          <div key={`${index}-${turn.question}`}>
-            <p>
-              <strong>You:</strong> {turn.question}
-            </p>
-            <p className="eyebrow">
-              {turn.reply.mode === "ai"
-                ? "AI EXPLANATION"
-                : "RULE-BASED FALLBACK"}
-            </p>
-            <p>{turn.reply.answer}</p>
-            <p className="fine">
-              {turn.reply.uncertainty} AI can make mistakes. Follow existing
-              medical advice and check official local conditions.
-            </p>
-          </div>
-        ))}
-        {turns.length > 0 && (
-          <button
-            className="action-button"
-            type="button"
-            onClick={clearConversation}
-          >
-            Clear conversation
-          </button>
-        )}
-      </section>
+      {(status || turns.length > 0) && (
+        <section className="plan scenario-result" aria-live="polite">
+          {status && <p>{status}</p>}
+          {turns.map((turn, index) => (
+            <div key={`${index}-${turn.question}`}>
+              <p>
+                <strong>You:</strong> {turn.question}
+              </p>
+              <p className="eyebrow">
+                {turn.reply.mode === "ai"
+                  ? "AI EXPLANATION"
+                  : "RULE-BASED FALLBACK"}
+              </p>
+              <p>{turn.reply.answer}</p>
+              <p className="fine">
+                {turn.reply.uncertainty} AI can make mistakes. Follow existing
+                medical advice and check official local conditions.
+              </p>
+            </div>
+          ))}
+          {turns.length > 0 && (
+            <button
+              className="action-button"
+              type="button"
+              onClick={clearConversation}
+            >
+              Clear conversation
+            </button>
+          )}
+        </section>
+      )}
       <footer>
         <Link href="/">← Back to dashboard</Link>
       </footer>

@@ -115,7 +115,9 @@ test("stale model values are not presented as current air measurements", async (
     }),
   );
   await page.goto("/", { waitUntil: "networkidle" });
-  await expect(page.getByRole("status")).toContainText("stale");
+  await expect(
+    page.getByRole("status").filter({ hasText: "stale" }),
+  ).toBeVisible();
   await expect(page.getByText("123.4", { exact: true })).toHaveCount(0);
   await expect(page.getByText("234.5", { exact: true })).toHaveCount(0);
   await expect(

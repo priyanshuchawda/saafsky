@@ -15,10 +15,14 @@ export function LocationSearch({
   const [results, setResults] = useState<City[]>([]);
   const [status, setStatus] = useState("");
   const request = useRef<AbortController | null>(null);
+  const input = useRef<HTMLInputElement | null>(null);
   useEffect(() => () => request.current?.abort(), []);
   async function search(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (query.trim().length < 2) return;
+    if (query.trim().length < 2) {
+      setStatus("Enter at least two characters to search for a city.");
+      return;
+    }
     request.current?.abort();
     const controller = new AbortController();
     request.current = controller;
@@ -33,8 +37,11 @@ export function LocationSearch({
       const data = locationSchema.parse(await response.json());
       if (controller.signal.aborted) return;
       setResults(data.results ?? []);
+      const count = data.results?.length ?? 0;
       setStatus(
-        data.results?.length ? "" : "No cities found. Try another search.",
+        count
+          ? `${count} ${count === 1 ? "city" : "cities"} found. Choose a result below.`
+          : "No cities found. Try another search.",
       );
     } catch (error) {
       if (!controller.signal.aborted)
@@ -51,6 +58,7 @@ export function LocationSearch({
       <div className="search">
         <input
           id="city"
+          ref={input}
           value={query}
           onChange={(event) => {
             request.current?.abort();
@@ -64,7 +72,7 @@ export function LocationSearch({
         />
         <button type="submit">Search</button>
       </div>
-      {status && <p role="status">{status}</p>}
+      <p role="status">{status}</p>
       {results.length > 0 && (
         <ul className="results">
           {results.map((city, index) => (
@@ -74,8 +82,9 @@ export function LocationSearch({
                 onClick={() => {
                   onSelect(city);
                   setResults([]);
-                  setStatus("");
+                  setStatus(`${city.name} selected.`);
                   setQuery("");
+                  input.current?.focus();
                 }}
               >
                 {city.name}
