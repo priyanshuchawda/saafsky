@@ -1,7 +1,9 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
-import { isFresh } from "@/lib/freshness";
+import { useAirQuality } from "@/hooks/use-air-quality";
+import { LocationSearch } from "@/components/location-search";
+import type { City } from "@/types/air";
 import {
   advice,
   category,
@@ -9,24 +11,6 @@ import {
   upcomingForecast,
   type Profile,
 } from "@/lib/air";
-type City = {
-  name: string;
-  country?: string;
-  admin1?: string;
-  latitude: number;
-  longitude: number;
-};
-type Air = {
-  current?: {
-    time?: string;
-    us_aqi?: number | null;
-    pm2_5?: number | null;
-    pm10?: number | null;
-  };
-  hourly?: { time?: string[]; us_aqi?: (number | null)[] };
-  timezone?: string;
-  utc_offset_seconds: number;
-};
 const initial: City = {
   name: "Delhi",
   country: "India",
@@ -35,83 +19,34 @@ const initial: City = {
 };
 export default function Home() {
   const [city, setCity] = useState(initial);
-  const [query, setQuery] = useState("");
-  const [results, setResults] = useState<City[]>([]);
   const [profile, setProfile] = useState<Profile>("adult");
-  const [air, setAir] = useState<Air | null>(null);
-  const [status, setStatus] = useState("Loading air quality…");
-  const [locationStatus, setLocationStatus] = useState("");
-  const searchController = useRef<AbortController | null>(null);
-  const [updated, setUpdated] = useState("");
-  const [fresh, setFresh] = useState(false);
-  useEffect(() => {
-    const controller = new AbortController();
-    fetch(`/api/air?lat=${city.latitude}&lon=${city.longitude}`, {
-      signal: controller.signal,
-    })
-      .then(async (r) => {
-        if (!r.ok) throw new Error();
-        return r.json();
-      })
-      .then((body: { data: Air; retrievedAt: string }) => {
-        setAir(body.data);
-        setUpdated(body.retrievedAt);
-        const current = isFresh(body.retrievedAt, body.data.current?.time ?? "", body.data.utc_offset_seconds, Date.now());
-        setFresh(current);
-        setStatus(
-          !current
-            ? "The model data or retrieval time is stale or unavailable. Check a local official source for current conditions."
-            : "",
-        );
-      })
-      .catch(() => {
-        if (!controller.signal.aborted) {
-          setAir(null);
-          setFresh(false);
-          setStatus("Air data is unavailable. Please try again later.");
-        }
-      });
-    return () => controller.abort();
-  }, [city]);
-  useEffect(() => {
-    if (!air || !updated) return;
-    const timer = window.setInterval(() => {
-      if (!isFresh(updated, air.current?.time ?? "", air.utc_offset_seconds, Date.now())) {
-        setFresh(false);
-        setStatus("The model data or retrieval time is stale or unavailable. Check a local official source for current conditions.");
-      }
-    }, 60_000);
-    return () => window.clearInterval(timer);
-  }, [air, updated]);
-  async function search(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (query.trim().length < 2) return;
-    searchController.current?.abort();
-    const controller = new AbortController();
-    searchController.current = controller;
-    setResults([]);
-    setLocationStatus("Searching for cities…");
-    try {
-      const r = await fetch(`/api/locations?q=${encodeURIComponent(query)}`, { signal: controller.signal });
-      if (!r.ok) throw new Error();
-      const body = (await r.json()) as { results?: City[] };
-      setResults(body.results ?? []);
-      setLocationStatus(body.results?.length ? "" : "No cities found. Try another search.");
-    } catch {
-      if (!controller.signal.aborted) setLocationStatus("City search is unavailable. Please try again.");
-    }
-  }
+  const state = useAirQuality(city);
+  const air = state.kind === "success" ? state.data : null;
+  const updated = state.kind === "success" ? state.retrievedAt : "";
+  const fresh = state.kind === "success" && state.fresh;
+  const status =
+    state.kind === "loading"
+      ? "Loading air quality…"
+      : state.kind === "error"
+        ? "Air data is unavailable. Please try again later."
+        : !state.fresh
+          ? "The model data or retrieval time is stale or unavailable. Check a local official source for current conditions."
+          : "";
   const aqi =
-    fresh && typeof air?.current?.us_aqi === "number" &&
+    fresh &&
+    typeof air?.current?.us_aqi === "number" &&
     Number.isFinite(air.current.us_aqi)
       ? air.current.us_aqi
       : null;
   const times = air?.hourly?.time ?? [];
   const values = air?.hourly?.us_aqi ?? [];
-  const upcoming = fresh ? upcomingForecast(times, values, air?.current?.time ?? "") : [];
-  const lowest = fresh && air?.current?.time
-    ? lowestForecastPeriod(times, values, air.current.time)
-    : null;
+  const upcoming = fresh
+    ? upcomingForecast(times, values, air?.current?.time ?? "")
+    : [];
+  const lowest =
+    fresh && air?.current?.time
+      ? lowestForecastPeriod(times, values, air.current.time)
+      : null;
   return (
     <main className="shell">
       <header className="top">
@@ -146,44 +81,7 @@ export default function Home() {
         </div>
       </section>
       <section className="toolbar" aria-label="Location and household">
-        <form onSubmit={search}>
-          <label htmlFor="city">YOUR LOCATION</label>
-          <div className="search">
-            <input
-              id="city"
-              value={query}
-              onChange={(e) => { searchController.current?.abort(); setResults([]); setLocationStatus(""); setQuery(e.target.value); }}
-              placeholder="Search for a city"
-              minLength={2}
-              maxLength={80}
-            />
-            <button>Search</button>
-          </div>
-          {locationStatus && <p role="status">{locationStatus}</p>}
-          {results.length > 0 && (
-            <ul className="results">
-              {results.map((c, i) => (
-                <li key={`${c.latitude}-${c.longitude}-${i}`}>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setStatus("Loading air quality…");
-                      setAir(null);
-                      setCity(c);
-                      setResults([]);
-                      setLocationStatus("");
-                      setQuery("");
-                    }}
-                  >
-                    {c.name}
-                    {c.admin1 ? `, ${c.admin1}` : ""}
-                    {c.country ? `, ${c.country}` : ""}
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
-        </form>
+        <LocationSearch onSelect={setCity} />
         <div className="profile">
           <label htmlFor="profile">YOUR HOUSEHOLD</label>
           <select
