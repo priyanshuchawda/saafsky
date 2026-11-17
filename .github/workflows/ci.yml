@@ -1,10 +1,23 @@
 name: Checks
+
 on:
   push:
+    branches: [main]
   pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: checks-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  check:
+  quality:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -13,6 +26,12 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run lint
-      - run: npm test
-      - run: npm run build
       - run: npm run typecheck
+      - run: npm run test:coverage
+      - run: npm run build
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Production browser tests
+        run: npm run test:e2e:production
+      - name: Public API protection tests
+        run: npm run test:protection

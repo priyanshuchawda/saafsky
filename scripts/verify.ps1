@@ -6,7 +6,7 @@ $ErrorActionPreference = "Stop"
 $checks = @(
   @{ Name = "ESLint"; Args = @("run", "lint") },
   @{ Name = "TypeScript"; Args = @("run", "typecheck") },
-  @{ Name = "Unit tests"; Args = @("test") },
+  @{ Name = "Unit tests and coverage"; Args = @("run", "test:coverage") },
   @{ Name = "Production build"; Args = @("run", "build") }
 )
 
@@ -31,7 +31,13 @@ foreach ($check in $checks) {
     exit $exitCode
   }
 
-  $lines | Select-Object -Last 5 | ForEach-Object { Write-Output $_ }
+  if ($check.Name -eq "Unit tests and coverage") {
+    $lines |
+      Select-String -Pattern "^ℹ tests |^ℹ pass |^ℹ fail |^ℹ all files" |
+      ForEach-Object { Write-Output $_.Line }
+  } else {
+    $lines | Select-Object -Last 5 | ForEach-Object { Write-Output $_ }
+  }
 }
 
 Write-Output "Verification complete."

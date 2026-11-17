@@ -1,6 +1,5 @@
 import { Redis } from "@upstash/redis";
 import { Ratelimit } from "@upstash/ratelimit";
-import { NextResponse } from "next/server";
 import { trustedClientKey } from "@/server/client-key";
 import { decideLimits } from "@/server/rate-limit-result";
 import type { LimitDecision } from "@/server/rate-limit-result";
@@ -58,21 +57,4 @@ export async function checkPublicRequest(
   } catch {
     return { allowed: false, reason: "unavailable" };
   }
-}
-
-export function rateLimitResponse(
-  decision: Exclude<Decision, { allowed: true }>,
-): NextResponse {
-  return decision.reason === "limited"
-    ? NextResponse.json(
-        { error: "Request limit reached. Please try later." },
-        {
-          status: 429,
-          headers: { "Retry-After": String(decision.retryAfter ?? 60) },
-        },
-      )
-    : NextResponse.json(
-        { error: "Request protection is temporarily unavailable." },
-        { status: 503 },
-      );
 }

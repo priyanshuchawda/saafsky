@@ -9,6 +9,23 @@ export type LimitDecision =
   | { allowed: true }
   | { allowed: false; reason: "limited" | "unavailable"; retryAfter?: number };
 
+export function rateLimitResponse(
+  decision: Exclude<LimitDecision, { allowed: true }>,
+): Response {
+  return decision.reason === "limited"
+    ? Response.json(
+        { error: "Request limit reached. Please try later." },
+        {
+          status: 429,
+          headers: { "Retry-After": String(decision.retryAfter ?? 60) },
+        },
+      )
+    : Response.json(
+        { error: "Request protection is temporarily unavailable." },
+        { status: 503 },
+      );
+}
+
 export function decideLimits(
   results: readonly LimitResult[],
   now: number,

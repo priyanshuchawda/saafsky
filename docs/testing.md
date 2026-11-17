@@ -1,24 +1,39 @@
 # Testing and verification
 
-Requires Node.js 22.18 or newer. From the repository root:
+SaafSky uses fast, offline unit tests, provider-injected API tests, production-browser journeys, and a separate public-mode protection suite. Automated checks do not require Gemini credentials or consume provider quotas.
+
+Requires Node.js 22.18 or newer. Install dependencies and run the core checks from the repository root:
 
 ```sh
 npm ci
-npm test
-npm run test:coverage
 npm run lint
-npm run build
 npm run typecheck
+npm run test:coverage
+npm run build
+```
+
+The unit suite covers domain calculations, AQI boundaries, freshness and time zones, recommendation policy, indoor advice, planner constraints, emissions arithmetic, request schemas, bounded request bodies, rate-limit decisions, and provider failures. API endpoint tests inject provider and limiter dependencies so success, validation, rate-limit, and upstream-error responses stay deterministic and free of live network calls.
+
+The coverage report measures modules loaded by the unit suite. Browser and protection tests complement it by validating rendered pages, API responses, keyboard and mobile behavior, security headers, and public-mode fail-closed behavior.
+
+Run the browser suites with:
+
+```sh
 npx playwright install chromium
 npm run test:e2e
 npm run test:e2e:production
 npm run test:protection
 ```
 
-Unit tests use Node's test runner and cover domain calculations, input schemas, timestamps, recommendation and planner behavior, provider validation, request limits and response handling. Browser tests use Playwright with mocked external responses for user journeys, error states, headers and accessibility checks. They do not require a Gemini key. Tests cover representative cases, not every possible provider failure, browser, assistive technology or security threat.
+The default browser suite uses a development server. The production suite runs the built application and checks user journeys, responsive layouts at 320px, 390px, and desktop widths, assistant fallback, accessibility, and error states. The protection suite starts a separate production server with public mode enabled and credentials blank, then verifies that API requests fail closed before provider access.
 
-`test:coverage` uses Node's experimental coverage report for files loaded by the unit tests. Its aggregate excludes unimported files, including pages and HTTP routes, so it is not whole-application coverage. Review individual decision and validation files and their uncovered branches when adding tests; browser and protection tests provide complementary behavior checks.
+On Windows, `scripts/verify.ps1` provides a concise local release check:
 
-The default browser suite starts a development server. After `npm run build`, the production command starts the built application and runs the same browser tests. The protection suite starts a separate production server with public mode enabled and credentials deliberately blank, then verifies that the HTTP endpoints fail closed without making provider calls. Deployment-specific smoke tests are still needed before release. A separate manual live-service check is useful for provider credentials, quotas and response changes, but consumes free-tier requests and should not be part of routine tests. Never print keys or private user input in test output.
+```powershell
+.\scripts\verify.ps1
+.\scripts\verify.ps1 -Browser
+```
 
-GitHub Actions is intentionally disabled. Run checks locally until the owner chooses to enable the workflow for a final pre-release verification. Results apply to the exact code and environment tested; do not describe an older run as evidence for a newer commit.
+The browser option runs production browser journeys and public API protection after lint, typecheck, coverage, and build. Provider smoke checks are performed separately when validating live credentials and provider availability; keeping those checks outside the routine suite preserves deterministic runs and free-tier quotas.
+
+GitHub Actions remains disabled during iterative development. Run the local release check against the exact commit prepared for deployment.
