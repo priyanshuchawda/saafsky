@@ -105,3 +105,32 @@ test("planner handles threshold boundaries and midnight without crossing constra
     "unavailable",
   );
 });
+
+test("planner excludes windows that overlap fixed commitments but permits touching boundaries", () => {
+  const input = {
+    start: "2026-01-01T08:00",
+    end: "2026-01-01T12:00",
+    durationHours: 1,
+    sensitive: false,
+    essential: true,
+    busy: [{ start: "2026-01-01T09:30", end: "2026-01-01T10:30" }],
+  };
+  const result = findActivityWindow(hours, input);
+  assert.equal(result.kind, "available");
+  if (result.kind === "available")
+    assert.equal(result.start, "2026-01-01T08:00");
+  const boundary = findActivityWindow(hours, {
+    ...input,
+    busy: [{ start: "2026-01-01T10:00", end: "2026-01-01T11:00" }],
+  });
+  assert.equal(boundary.kind, "available");
+  if (boundary.kind === "available")
+    assert.equal(boundary.start, "2026-01-01T09:00");
+  assert.equal(
+    findActivityWindow(hours, {
+      ...input,
+      busy: [{ start: "2026-01-01T10:00", end: "2026-01-01T09:00" }],
+    }).kind,
+    "unavailable",
+  );
+});

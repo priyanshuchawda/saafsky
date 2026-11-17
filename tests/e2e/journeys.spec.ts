@@ -118,8 +118,12 @@ test("stale model values are not presented as current air measurements", async (
   await expect(page.getByRole("status")).toContainText("stale");
   await expect(page.getByText("123.4", { exact: true })).toHaveCount(0);
   await expect(page.getByText("234.5", { exact: true })).toHaveCount(0);
-  await expect(page.getByText("Reduce indoor smoke", { exact: true })).toBeVisible();
-  await expect(page.getByText("Check current conditions", { exact: true })).toBeVisible();
+  await expect(
+    page.getByText("Reduce indoor smoke", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByText("Check current conditions", { exact: true }),
+  ).toBeVisible();
 });
 
 test("planner respects activity duration and distinguishes elevated conditions", async ({
@@ -157,6 +161,14 @@ test("planner respects activity duration and distinguishes elevated conditions",
   await page.getByLabel("LATEST TIME (EXCLUSIVE)").fill(time(4));
   await page.getByLabel("TIME NEEDED").selectOption("2");
   await expect(page.getByText(/peak US AQI 90/)).toBeVisible();
+  await page.getByLabel("FIXED COMMITMENT START (OPTIONAL)").fill(time(1));
+  await expect(page.getByText(/Enter both commitment times/)).toBeVisible();
+  await page.getByLabel("FIXED COMMITMENT END (OPTIONAL)").fill(time(2));
+  await expect(
+    page.getByText(/All complete forecast windows exceed/),
+  ).toBeVisible();
+  await page.getByLabel("FIXED COMMITMENT START (OPTIONAL)").fill("");
+  await page.getByLabel("FIXED COMMITMENT END (OPTIONAL)").fill("");
   await page.getByLabel("LATEST TIME (EXCLUSIVE)").fill(time(1));
   await page.getByLabel("TIME NEEDED").selectOption("1");
   await expect(

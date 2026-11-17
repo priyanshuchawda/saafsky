@@ -6,6 +6,7 @@ type Constraints = {
   durationHours: number;
   sensitive: boolean;
   essential: boolean;
+  busy?: { start: string; end: string }[];
 };
 type Candidate = { start: string; end: string; peakAqi: number };
 export type ActivityWindow =
@@ -43,6 +44,14 @@ export function findActivityWindow(
     constraints.durationHours > 4
   )
     return { kind: "unavailable" };
+  const busy: { start: number; end: number }[] = [];
+  for (const interval of constraints.busy ?? []) {
+    const busyStart = parseWallTime(interval.start);
+    const busyEnd = parseWallTime(interval.end);
+    if (busyStart === null || busyEnd === null || busyEnd <= busyStart)
+      return { kind: "unavailable" };
+    busy.push({ start: busyStart, end: busyEnd });
+  }
   const values = new Map<number, number | null>();
   const duplicates = new Set<number>();
   for (const hour of hours) {
@@ -55,6 +64,8 @@ export function findActivityWindow(
   for (const time of [...values.keys()].sort((a, b) => a - b)) {
     const finish = time + constraints.durationHours * HOUR_MS;
     if (time < start || finish > end) continue;
+    if (busy.some((interval) => time < interval.end && finish > interval.start))
+      continue;
     const period: number[] = [];
     for (let i = 0; i < constraints.durationHours; i++) {
       const instant = time + i * HOUR_MS,

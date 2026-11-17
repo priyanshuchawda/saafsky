@@ -17,6 +17,8 @@ export default function Planner() {
   const [end, setEnd] = useState("");
   const [durationHours, setDurationHours] = useState(1);
   const [essential, setEssential] = useState(false);
+  const [busyStart, setBusyStart] = useState("");
+  const [busyEnd, setBusyEnd] = useState("");
   const [profile, setProfile] = useHousehold();
   const state = useAirQuality(city);
   const air = state.kind === "success" && state.fresh ? state.data : null;
@@ -28,12 +30,17 @@ export default function Planner() {
     air && localNow
       ? upcomingForecast(air.hourly.time, air.hourly.us_aqi, localNow)
       : [];
+  const partialCommitment = Boolean(busyStart) !== Boolean(busyEnd);
+  const invalidCommitment = Boolean(
+    busyStart && busyEnd && busyEnd <= busyStart,
+  );
   const result = findActivityWindow(hours, {
     start,
     end,
     durationHours,
     essential,
     sensitive: profile.sensitive || profile.children,
+    busy: busyStart && busyEnd ? [{ start: busyStart, end: busyEnd }] : [],
   });
   const steps = generateDailyPlan(air?.current.us_aqi ?? null, profile);
   return (
@@ -135,7 +142,37 @@ export default function Planner() {
             <option value="essential">No, it is essential</option>
           </select>
         </div>
+        <div className="profile">
+          <label htmlFor="busy-start">FIXED COMMITMENT START (OPTIONAL)</label>
+          <input
+            id="busy-start"
+            type="datetime-local"
+            value={busyStart}
+            aria-describedby={
+              invalidCommitment ? "busy-help busy-error" : "busy-help"
+            }
+            aria-invalid={invalidCommitment}
+            onChange={(event) => setBusyStart(event.target.value)}
+          />
+        </div>
+        <div className="profile">
+          <label htmlFor="busy-end">FIXED COMMITMENT END (OPTIONAL)</label>
+          <input
+            id="busy-end"
+            type="datetime-local"
+            value={busyEnd}
+            aria-describedby={
+              invalidCommitment ? "busy-help busy-error" : "busy-help"
+            }
+            aria-invalid={invalidCommitment}
+            onChange={(event) => setBusyEnd(event.target.value)}
+          />
+        </div>
       </div>
+      <p id="busy-help" className="fine">
+        Add both times in the selected city’s local time to keep an outing clear
+        of a fixed commitment.
+      </p>
       <section className="plan scenario-result" aria-live="polite">
         <p className="eyebrow">YOUR DAILY PLAN</p>
         <h2>
@@ -171,7 +208,17 @@ export default function Planner() {
         {state.kind === "success" && !state.fresh && (
           <p>The forecast is stale, so it cannot be used for planning.</p>
         )}
+        {partialCommitment && (
+          <p>Enter both commitment times to include it in the comparison.</p>
+        )}
+        {invalidCommitment && (
+          <p id="busy-error">
+            Choose a commitment end time after its start time.
+          </p>
+        )}
         {air &&
+          !partialCommitment &&
+          !invalidCommitment &&
           start &&
           end &&
           (result.kind === "available" || result.kind === "elevated" ? (
