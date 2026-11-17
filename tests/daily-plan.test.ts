@@ -21,6 +21,9 @@ test("daily plan does not treat missing air data as safe", () => {
   assert.ok(
     generateDailyPlan(null, profile)[0]?.actionIds.includes("air-unavailable"),
   );
+  assert.ok(
+    generateDailyPlan(null, profile)[2]?.actionIds.includes("indoor-smoke"),
+  );
 });
 
 test("very unhealthy air retains both essential travel and exertion precautions", () => {

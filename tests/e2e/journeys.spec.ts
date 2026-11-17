@@ -118,6 +118,8 @@ test("stale model values are not presented as current air measurements", async (
   await expect(page.getByRole("status")).toContainText("stale");
   await expect(page.getByText("123.4", { exact: true })).toHaveCount(0);
   await expect(page.getByText("234.5", { exact: true })).toHaveCount(0);
+  await expect(page.getByText("Reduce indoor smoke", { exact: true })).toBeVisible();
+  await expect(page.getByText("Check current conditions", { exact: true })).toBeVisible();
 });
 
 test("planner respects activity duration and distinguishes elevated conditions", async ({

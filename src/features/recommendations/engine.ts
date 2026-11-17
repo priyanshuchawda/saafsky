@@ -15,6 +15,21 @@ export type Recommendation = {
   evidenceIds: string[];
 };
 
+function indoorSmokeAdvice(profile: HouseholdProfile): Recommendation {
+  return {
+    id: "indoor-smoke",
+    title: "Reduce indoor smoke",
+    description: "Reduce indoor smoke and use cooking exhaust where available.",
+    priority: profile.cookingSmoke ? "medium" : "low",
+    category: "indoor",
+    reasonCodes: [
+      "indoor_source_control",
+      ...(profile.cookingSmoke ? ["cooking_smoke"] : []),
+    ],
+    evidenceIds: ["epa-indoor"],
+  };
+}
+
 export function generateRecommendations(
   aqi: number | null,
   profile: HouseholdProfile,
@@ -32,6 +47,7 @@ export function generateRecommendations(
         reasonCodes: ["missing_air_data"],
         evidenceIds: ["airnow-aqi"],
       },
+      indoorSmokeAdvice(profile),
     ];
   }
   const vulnerable = profile.sensitive || profile.children;
@@ -96,17 +112,6 @@ export function generateRecommendations(
       reasonCodes: ["outdoor_commute", "elevated_aqi"],
       evidenceIds: ["airnow-aqi", "epa-near-road"],
     });
-  actions.push({
-    id: "indoor-smoke",
-    title: "Reduce indoor smoke",
-    description: "Reduce indoor smoke and use cooking exhaust where available.",
-    priority: profile.cookingSmoke ? "medium" : "low",
-    category: "indoor",
-    reasonCodes: [
-      "indoor_source_control",
-      ...(profile.cookingSmoke ? ["cooking_smoke"] : []),
-    ],
-    evidenceIds: ["epa-indoor"],
-  });
+  actions.push(indoorSmokeAdvice(profile));
   return actions;
 }

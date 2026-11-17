@@ -22,7 +22,7 @@ test("sensitive households receive stronger precautions at AQI 120", () => {
 test("unknown data is not treated as safe and exposed commutes are considered", () => {
   assert.deepEqual(
     generateRecommendations(null, adult).map((action) => action.id),
-    ["air-unavailable"],
+    ["air-unavailable", "indoor-smoke"],
   );
   const actions = generateRecommendations(180, { ...adult, commute: "bike" });
   assert.ok(actions.some((action) => action.id === "commute-exposure"));
@@ -32,6 +32,17 @@ test("unknown data is not treated as safe and exposed commutes are considered", 
         action.evidenceIds.length > 0 && action.reasonCodes.length > 0,
     ),
   );
+});
+
+test("indoor smoke guidance remains personalized when outdoor data is unavailable", () => {
+  for (const aqi of [null, Number.NaN, -1]) {
+    const actions = generateRecommendations(aqi, { ...adult, cookingSmoke: true });
+    assert.equal(actions[0]?.id, "air-unavailable");
+    assert.equal(actions[1]?.id, "indoor-smoke");
+    assert.equal(actions[1]?.priority, "medium");
+    assert.ok(actions[1]?.reasonCodes.includes("cooking_smoke"));
+    assert.ok(!actions.some((action) => action.id === "monitor-conditions"));
+  }
 });
 
 test("planned outdoor exercise and cooking smoke affect actions", () => {
