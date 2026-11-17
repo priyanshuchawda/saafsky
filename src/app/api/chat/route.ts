@@ -7,6 +7,7 @@ import { isFresh } from "@/lib/freshness";
 import { generateRecommendations } from "@/features/recommendations/engine";
 import { explainPlan } from "@/server/chat";
 import { allowPublicRequest } from "@/server/rate-limit";
+import { readBoundedJson, RequestBodyTooLarge } from "@/lib/request-body";
 
 const input = z
   .object({
@@ -17,16 +18,11 @@ const input = z
   })
   .strict();
 export async function POST(request: Request) {
-  const length = Number(request.headers.get("content-length") ?? 0);
-  if (length > 4096)
-    return NextResponse.json({ error: "Request too large" }, { status: 413 });
   let parsed;
   try {
-    const body = await request.text();
-    if (body.length > 4096)
-      return NextResponse.json({ error: "Request too large" }, { status: 413 });
-    parsed = input.safeParse(JSON.parse(body));
-  } catch {
+    parsed = input.safeParse(await readBoundedJson(request, 4096));
+  } catch (error) {
+    if (error instanceof RequestBodyTooLarge) return NextResponse.json({ error: "Request too large" }, { status: 413 });
     return NextResponse.json({ error: "Invalid request" }, { status: 400 });
   }
   if (!parsed.success)

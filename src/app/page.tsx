@@ -190,6 +190,8 @@ export default function Home() {
           <a href="https://open-meteo.com/en/docs/air-quality-api">
             Open-Meteo
           </a>
+          {" / "}
+          <a href="https://atmosphere.copernicus.eu/">Copernicus Atmosphere Monitoring Service (CAMS)</a>
           . Forecast time:{" "}
           {air?.current?.time?.replace("T", " ") ?? "unavailable"}. Retrieved:{" "}
           {updated ? new Date(updated).toLocaleString() : "unavailable"}.

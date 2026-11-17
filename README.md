@@ -19,3 +19,15 @@ Gemini is optional. Set `GEMINI_API_KEY`, `GEMINI_MODEL`, `UPSTASH_REDIS_REST_UR
 Air, location, and chat endpoints use global shared rate limits when Upstash is configured. On Vercel they fail closed when the limiter is absent or unavailable. Set `SAAFSKY_PUBLIC=true` on other public hosts to enforce the same requirement. The limits are shared across visitors, so a busy demo can temporarily block everyone; this is not a per-user identity system. The app still needs broader accessibility, route, and browser testing before public release. GitHub Actions is intentionally disabled.
 
 Open-Meteo responses are cached by Next.js for 30 minutes for air data and 24 hours for locations. Cache availability and sharing depend on the deployment environment; there is no uptime guarantee.
+
+## Architecture and decision policy
+
+The browser calls Next.js route handlers. City search and air data use Open-Meteo; responses are validated with Zod. A pure recommendation function uses the US AQI and general household context to select stable action IDs. The assistant receives the server-generated actions and a minimal forecast summary, and validates the AI's action references before returning its answer. The dashboard and planner do not depend on Gemini.
+
+Air data is modeled, not a local measurement. The dashboard rejects guidance based on data if retrieval or model timestamps are stale. The outing planner compares available forecast hours in a user-selected local time window; the lowest forecast is not necessarily safe. The indoor advisor has no sensor and cannot determine actual indoor air quality. The app does not provide medical advice or calculate India's CPCB AQI.
+
+The impact page uses a 2025 UK local-bus passenger-kilometre factor from the linked government methodology as a clearly labeled proxy. Users enter a baseline factor, including their own occupancy assumptions. Walking and cycling are treated as zero direct vehicle emissions; lifecycle emissions, induced travel and individual exposure are excluded. Results should not be interpreted as measured Indian transport emissions or changes in local AQI.
+
+## Release status
+
+This is a hackathon prototype, not a clinically reviewed safety product. It needs more extensive policy review, accessible interaction testing, and production monitoring. Rate limits are global, not per user. Public hosting requires a free Upstash database that the owner controls; temporary test databases expire. Open-Meteo's free service and Vercel Hobby are subject to non-commercial eligibility and usage limits. Keep billing disabled for a zero-cost Gemini project and never commit `.env.local` or API keys.
