@@ -6,6 +6,7 @@ import { isFresh } from "@/lib/freshness";
 import { generateRecommendations } from "@/features/recommendations/engine";
 import { explainPlan } from "@/server/chat";
 import { checkPublicRequest, rateLimitResponse } from "@/server/rate-limit";
+import { decideLimits } from "@/server/rate-limit-result";
 import { readBoundedJson, RequestBodyTooLarge } from "@/lib/request-body";
 import { hasAllowedJsonOrigin } from "@/lib/request-origin";
 import { chatInputSchema } from "@/lib/schemas";
@@ -77,7 +78,8 @@ export async function POST(request: Request) {
       daily.limit("global"),
       minute.limit("global"),
     ]);
-    if (!day.success || !short.success) return NextResponse.json(fallback);
+    if (!decideLimits([day, short], Date.now()).allowed)
+      return NextResponse.json(fallback);
     return NextResponse.json({
       ...(await explainPlan(question, aqi, actions, history)),
       mode: "ai",

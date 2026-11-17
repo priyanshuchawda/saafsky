@@ -2,10 +2,10 @@ import { Redis } from "@upstash/redis";
 import { Ratelimit } from "@upstash/ratelimit";
 import { NextResponse } from "next/server";
 import { trustedClientKey } from "@/server/client-key";
+import { decideLimits } from "@/server/rate-limit-result";
+import type { LimitDecision } from "@/server/rate-limit-result";
 
-type Decision =
-  | { allowed: true }
-  | { allowed: false; reason: "limited" | "unavailable"; retryAfter?: number };
+type Decision = LimitDecision;
 type Scope = "air" | "locations" | "chat";
 
 /** Global budgets protect upstream quotas; Vercel requests also receive per-client caps. */
@@ -54,21 +54,7 @@ export async function checkPublicRequest(
         checks.push(perDay.limit(client));
       }
     }
-    const results = await Promise.all(checks);
-    const rejected = results.filter((result) => !result.success);
-    if (rejected.length)
-      return {
-        allowed: false,
-        reason: "limited",
-        retryAfter: Math.max(
-          1,
-          Math.ceil(
-            (Math.max(...rejected.map((result) => result.reset)) - Date.now()) /
-              1000,
-          ),
-        ),
-      };
-    return { allowed: true };
+    return decideLimits(await Promise.all(checks), Date.now());
   } catch {
     return { allowed: false, reason: "unavailable" };
   }
