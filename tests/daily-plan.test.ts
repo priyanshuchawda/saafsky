@@ -22,3 +22,11 @@ test("daily plan does not treat missing air data as safe", () => {
     generateDailyPlan(null, profile)[0]?.actionIds.includes("air-unavailable"),
   );
 });
+
+test("very unhealthy air retains both essential travel and exertion precautions", () => {
+  const morning = generateDailyPlan(250, profile)[0];
+  assert.ok(morning?.actionIds.includes("essential-trips"));
+  assert.ok(morning?.actionIds.includes("reduce-outdoor-exertion"));
+  assert.match(morning?.detail ?? "", /essential trips/i);
+  assert.match(morning?.detail ?? "", /strenuous outdoor activity/i);
+});

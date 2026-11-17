@@ -15,7 +15,7 @@ export function generateDailyPlan(
   profile: HouseholdProfile,
 ): DailyStep[] {
   const actions = generateRecommendations(aqi, profile);
-  const health = actions.find((action) => action.category === "health");
+  const health = actions.filter((action) => action.category === "health");
   const indoor = actions.find((action) => action.category === "indoor");
   const commute = actions.find((action) => action.id === "commute-exposure");
   return [
@@ -23,8 +23,10 @@ export function generateDailyPlan(
       id: "morning",
       period: "Morning",
       title: "Check conditions before leaving",
-      detail: health?.description ?? "Check local conditions before leaving.",
-      actionIds: health ? [health.id] : [],
+      detail:
+        health.map((action) => action.description).join(" ") ||
+        "Check local conditions before leaving.",
+      actionIds: health.map((action) => action.id),
     },
     {
       id: "daytime",
