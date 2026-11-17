@@ -1,4 +1,23 @@
 @import "tailwindcss";
+.quick-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 20px;
+  padding-block: 8px;
+  border-bottom: 1px solid #d7ded1;
+}
+.quick-nav a {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+.quick-nav a:hover {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
 .skip-link {
   position: absolute;
   z-index: 10;

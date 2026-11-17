@@ -8,6 +8,7 @@ import { planOutdoorWindow } from "@/features/planner/plan";
 import { generateDailyPlan } from "@/features/planner/daily";
 import type { HouseholdProfile } from "@/features/recommendations/engine";
 import { category, upcomingForecast } from "@/lib/air";
+import { localMinuteAt } from "@/lib/freshness";
 import { useCity, useHousehold } from "@/hooks/use-preferences";
 
 export default function Planner() {
@@ -17,9 +18,14 @@ export default function Planner() {
   const [profile, setProfile] = useHousehold();
   const state = useAirQuality(city);
   const air = state.kind === "success" && state.fresh ? state.data : null;
-  const hours = air
-    ? upcomingForecast(air.hourly.time, air.hourly.us_aqi, air.current.time)
-    : [];
+  const localNow =
+    state.kind === "success"
+      ? localMinuteAt(state.checkedAt, state.data.timezone)
+      : null;
+  const hours =
+    air && localNow
+      ? upcomingForecast(air.hourly.time, air.hourly.us_aqi, localNow)
+      : [];
   const result = planOutdoorWindow(hours, start, end);
   const steps = generateDailyPlan(air?.current.us_aqi ?? null, profile);
   return (

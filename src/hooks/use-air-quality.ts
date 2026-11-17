@@ -7,7 +7,13 @@ import type { Air, City } from "@/types/air";
 type AirState =
   | { kind: "loading" }
   | { kind: "error" }
-  | { kind: "success"; data: Air; retrievedAt: string; fresh: boolean };
+  | {
+      kind: "success";
+      data: Air;
+      retrievedAt: string;
+      fresh: boolean;
+      checkedAt: number;
+    };
 
 export function useAirQuality(city: City): AirState {
   const key = `${city.latitude},${city.longitude}`;
@@ -27,6 +33,7 @@ export function useAirQuality(city: City): AirState {
         return response.json() as Promise<{ data: Air; retrievedAt: string }>;
       })
       .then(({ data, retrievedAt }) => {
+        const now = Date.now();
         if (!controller.signal.aborted)
           setResult({
             key,
@@ -34,11 +41,12 @@ export function useAirQuality(city: City): AirState {
               kind: "success",
               data,
               retrievedAt,
+              checkedAt: now,
               fresh: isFresh(
                 retrievedAt,
                 data.current.time,
                 data.utc_offset_seconds,
-                Date.now(),
+                now,
               ),
             },
           });
@@ -53,20 +61,24 @@ export function useAirQuality(city: City): AirState {
     const state = result.key === key ? result.state : null;
     if (!state || state.kind !== "success" || !state.fresh) return;
     const timer = window.setInterval(() => {
-      if (
-        !isFresh(
-          state.retrievedAt,
-          state.data.current.time,
-          state.data.utc_offset_seconds,
-          Date.now(),
-        )
-      ) {
-        setResult((previous) =>
-          previous.key === key && previous.state.kind === "success"
-            ? { ...previous, state: { ...previous.state, fresh: false } }
-            : previous,
-        );
-      }
+      const now = Date.now();
+      setResult((previous) =>
+        previous.key === key && previous.state.kind === "success"
+          ? {
+              ...previous,
+              state: {
+                ...previous.state,
+                checkedAt: now,
+                fresh: isFresh(
+                  previous.state.retrievedAt,
+                  previous.state.data.current.time,
+                  previous.state.data.utc_offset_seconds,
+                  now,
+                ),
+              },
+            }
+          : previous,
+      );
     }, 60_000);
     return () => window.clearInterval(timer);
   }, [result, key]);

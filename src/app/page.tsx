@@ -4,6 +4,7 @@ import { useAirQuality } from "@/hooks/use-air-quality";
 import { LocationSearch } from "@/components/location-search";
 import { useCity, useHousehold } from "@/hooks/use-preferences";
 import { generateRecommendations } from "@/features/recommendations/engine";
+import { localMinuteAt } from "@/lib/freshness";
 import { category, lowestForecastPeriod, upcomingForecast } from "@/lib/air";
 export default function Home() {
   const [city, setCity] = useCity();
@@ -29,13 +30,13 @@ export default function Home() {
   const recommendations = generateRecommendations(aqi, profile);
   const times = air?.hourly?.time ?? [];
   const values = air?.hourly?.us_aqi ?? [];
-  const upcoming = fresh
-    ? upcomingForecast(times, values, air?.current?.time ?? "")
-    : [];
-  const lowest =
-    fresh && air?.current?.time
-      ? lowestForecastPeriod(times, values, air.current.time)
+  const localNow =
+    state.kind === "success"
+      ? localMinuteAt(state.checkedAt, state.data.timezone)
       : null;
+  const upcoming = fresh ? upcomingForecast(times, values, localNow ?? "") : [];
+  const lowest =
+    fresh && localNow ? lowestForecastPeriod(times, values, localNow) : null;
   return (
     <main id="main-content" tabIndex={-1} className="shell">
       <header className="top">
@@ -50,6 +51,13 @@ export default function Home() {
           Explore scenarios ↗
         </Link>
       </header>
+      <nav aria-label="Explore SaafSky" className="quick-nav">
+        <Link href="/planner">Daily planner</Link>
+        <Link href="/indoor">Indoor air</Link>
+        <Link href="/impact">Commute impact</Link>
+        <Link href="/assistant">Ask SaafSky</Link>
+        <Link href="/settings">My preferences</Link>
+      </nav>
       <section className="intro">
         <div>
           <p className="eyebrow">A BETTER DAY STARTS HERE ✳</p>
@@ -176,7 +184,7 @@ export default function Home() {
         </div>
         {lowest && (
           <p className="forecast-note">
-            Lowest forecast in the next 24 hours:{" "}
+            Lowest forecast among the next 24 available hourly periods:{" "}
             <strong>{lowest.time.replace("T", " ")}</strong> · US AQI{" "}
             {Math.round(lowest.aqi)}. This is a comparison, not a guarantee of
             safe conditions.
