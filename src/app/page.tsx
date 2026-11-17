@@ -201,6 +201,7 @@ export default function Home() {
         <span>A calmer way to navigate the air around you.</span>
         <Link href="/impact">Compare commute impact ↗</Link>
         <Link href="/assistant">Ask SaafSky ↗</Link>
+        <Link href="/indoor">Indoor air guide ↗</Link>
       </footer>
     </main>
   );

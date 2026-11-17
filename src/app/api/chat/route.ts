@@ -6,6 +6,7 @@ import { loadAir } from "@/server/air-provider";
 import { isFresh } from "@/lib/freshness";
 import { generateRecommendations } from "@/features/recommendations/engine";
 import { explainPlan } from "@/server/chat";
+import { allowPublicRequest } from "@/server/rate-limit";
 
 const input = z
   .object({
@@ -30,6 +31,11 @@ export async function POST(request: Request) {
   }
   if (!parsed.success)
     return NextResponse.json({ error: "Invalid request" }, { status: 400 });
+  if (!(await allowPublicRequest("chat")))
+    return NextResponse.json(
+      { error: "Request limit reached or protection unavailable." },
+      { status: 503 },
+    );
   const { question, latitude, longitude, sensitive } = parsed.data;
   let aqi: number | null = null;
   try {
