@@ -18,3 +18,17 @@ export function advice(aqi: number | null, profile: Profile): string[] {
   if (aqi > 200) actions.unshift("Keep essential trips short where practical and follow your existing medical advice.");
   return actions;
 }
+
+export function lowestForecastPeriod(times: string[], values: (number | null)[], currentTime: string): { time: string; aqi: number } | null {
+  let best: { time: string; aqi: number } | null = null;
+  let considered = 0;
+  for (let index = 0; index < times.length && considered < 24; index++) {
+    const time = times[index];
+    const value = values[index];
+    if (!time || time < currentTime) continue;
+    considered++;
+    if (typeof value !== "number" || !Number.isFinite(value) || value < 0) continue;
+    if (!best || value < best.aqi) best = { time, aqi: value };
+  }
+  return best;
+}
