@@ -36,6 +36,21 @@
   color: var(--ink);
   min-height: 48px;
 }
+.impact-form {
+  flex-wrap: wrap;
+}
+.impact-form .profile {
+  min-width: 190px;
+}
+.impact-form input {
+  border: 1px solid #d4ddd0;
+  background: white;
+  border-radius: 6px;
+  padding: 13px;
+  width: 100%;
+  color: var(--ink);
+  min-height: 48px;
+}
 .demo-link + .demo-link {
   margin-left: 0;
 }

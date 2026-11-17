@@ -199,6 +199,7 @@ export default function Home() {
       <footer>
         <strong>✳ saafsky.</strong>
         <span>A calmer way to navigate the air around you.</span>
+        <Link href="/impact">Compare commute impact ↗</Link>
       </footer>
     </main>
   );
