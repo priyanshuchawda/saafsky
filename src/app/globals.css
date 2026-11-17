@@ -1,4 +1,21 @@
 @import "tailwindcss";
+.skip-link {
+  position: absolute;
+  z-index: 10;
+  top: 8px;
+  left: 8px;
+  padding: 12px;
+  background: #18372f;
+  color: white;
+  transform: translateY(-150%);
+}
+.skip-link:focus {
+  transform: translateY(0);
+}
+textarea:focus-visible {
+  outline: 3px solid #4b875d;
+  outline-offset: 3px;
+}
 .scenario > .eyebrow {
   margin-top: 65px;
 }
@@ -11,7 +28,7 @@
 .scenario footer {
   margin-top: 40px;
 }
-.demo-link {
+.nav-link {
   margin-left: auto;
   border: 1px solid #bfcfc0;
   border-radius: 30px;
@@ -40,7 +57,7 @@
   flex-wrap: wrap;
 }
 .impact-form .profile {
-  min-width: 190px;
+  min-width: min(190px, 100%);
 }
 .impact-form input {
   border: 1px solid #d4ddd0;
@@ -68,7 +85,7 @@
   border-radius: 6px;
   padding: 13px 20px;
 }
-.demo-link + .demo-link {
+.nav-link + .nav-link {
   margin-left: 0;
 }
 @media (max-width: 700px) {
@@ -78,7 +95,7 @@
   .top .brand {
     font-size: 21px;
   }
-  .demo-link {
+  .nav-link {
     font-size: 11px;
     padding: 8px;
   }
@@ -336,7 +353,8 @@ h3 em {
   font-size: 10px;
   font-weight: 400;
 }
-.plan h3 {
+.plan h3,
+.plan h2 {
   font-size: 35px;
   line-height: 1.05;
   margin: 35px 0 12px;
@@ -441,5 +459,54 @@ a:focus-visible {
   }
   footer {
     flex-wrap: wrap;
+  }
+}
+
+:root {
+  --muted: #435e50;
+}
+.eyebrow,
+.plan li span,
+.hours span,
+.hours small,
+.fine {
+  color: #405d4c;
+}
+h1 em,
+h3 em,
+.plan h2 em,
+.brand span {
+  color: #4a7340;
+}
+.aq > p,
+.muted {
+  color: #365745;
+}
+.eyebrow,
+.toolbar label,
+.hours span,
+.hours small,
+.pollutants,
+.pollutants small {
+  font-size: 12px;
+}
+.fine,
+.plan li span {
+  font-size: 13px;
+}
+@media (max-width: 700px) {
+  .top {
+    gap: 8px;
+    min-height: 65px;
+    height: auto;
+    flex-wrap: wrap;
+    padding-block: 10px;
+  }
+  .top .brand {
+    font-size: 21px;
+  }
+  .nav-link {
+    font-size: 11px;
+    padding: 8px;
   }
 }

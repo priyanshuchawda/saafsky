@@ -37,7 +37,7 @@ export default function Assistant() {
     }
   }
   return (
-    <main className="shell scenario">
+    <main id="main-content" tabIndex={-1} className="shell scenario">
       <header className="top">
         <Link className="brand" href="/">
           ✳ saafsky<span>.</span>

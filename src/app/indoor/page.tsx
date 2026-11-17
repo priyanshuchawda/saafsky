@@ -7,7 +7,7 @@ export default function IndoorAdvisor() {
   const [purifier, setPurifier] = useState(false);
   const [outdoorPoor, setOutdoorPoor] = useState(false);
   return (
-    <main className="shell scenario">
+    <main id="main-content" tabIndex={-1} className="shell scenario">
       <header className="top">
         <Link className="brand" href="/">
           ✳ saafsky<span>.</span>
@@ -59,9 +59,9 @@ export default function IndoorAdvisor() {
       </div>
       <section className="plan scenario-result" aria-live="polite">
         <p className="eyebrow">YOUR INDOOR ACTIONS</p>
-        <h3>
+        <h2>
           Small steps for a <em>cleaner room.</em>
-        </h3>
+        </h2>
         <ol>
           <li>
             <span>01</span>

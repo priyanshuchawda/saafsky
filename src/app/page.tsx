@@ -37,17 +37,17 @@ export default function Home() {
       ? lowestForecastPeriod(times, values, air.current.time)
       : null;
   return (
-    <main className="shell">
+    <main id="main-content" tabIndex={-1} className="shell">
       <header className="top">
         <Link className="brand" href="/">
           ✳ saafsky<span>.</span>
         </Link>
         <p>A little clarity for the air you breathe</p>
-        <Link className="demo-link" href="/planner">
+        <Link className="nav-link" href="/planner">
           Plan an outing ↗
         </Link>
-        <Link className="demo-link" href="/scenarios">
-          Try a demo ↗
+        <Link className="nav-link" href="/scenarios">
+          Explore scenarios ↗
         </Link>
       </header>
       <section className="intro">

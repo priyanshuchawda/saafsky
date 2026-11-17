@@ -35,21 +35,21 @@ function subscribe(callback: () => void): () => void {
 }
 function readCity(): string {
   try {
-    return localStorage.getItem(cityKey) ?? fallbackCity;
+    return localStorage.getItem(cityKey) ?? defaultCityJson;
   } catch {
     return fallbackCity;
   }
 }
 function readSensitive(): string {
   try {
-    return sessionStorage.getItem(sensitiveKey) ?? fallbackSensitive;
+    return sessionStorage.getItem(sensitiveKey) ?? "false";
   } catch {
     return fallbackSensitive;
   }
 }
 function readHousehold(): string {
   try {
-    return sessionStorage.getItem(householdKey) ?? fallbackHousehold;
+    return sessionStorage.getItem(householdKey) ?? defaultHouseholdJson;
   } catch {
     return fallbackHousehold;
   }
@@ -173,6 +173,10 @@ export function clearPreferences(): void {
   fallbackHousehold = defaultHouseholdJson;
   try {
     localStorage.removeItem(cityKey);
+  } catch {
+    /* Storage is optional. */
+  }
+  try {
     sessionStorage.removeItem(sensitiveKey);
     sessionStorage.removeItem(householdKey);
   } catch {

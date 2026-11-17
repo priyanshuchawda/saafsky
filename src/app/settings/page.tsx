@@ -13,7 +13,7 @@ export default function Settings() {
   const [profile, setProfile] = useHousehold();
   const [message, setMessage] = useState("");
   return (
-    <main className="shell scenario">
+    <main id="main-content" tabIndex={-1} className="shell scenario">
       <header className="top">
         <Link className="brand" href="/">
           ✳ saafsky<span>.</span>
@@ -25,7 +25,7 @@ export default function Settings() {
         Make it <em>yours.</em>
       </h1>
       <section className="plan">
-        <h3>Saved preferences</h3>
+        <h2>Saved preferences</h2>
         <p>
           Selected city: <strong>{city.name}</strong>
         </p>

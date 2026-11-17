@@ -21,7 +21,7 @@ export default function Scenarios() {
     cookingSmoke: false,
   });
   return (
-    <main className="shell scenario">
+    <main id="main-content" tabIndex={-1} className="shell scenario">
       <header className="top">
         <Link className="brand" href="/">
           ✳ saafsky<span>.</span>
@@ -100,9 +100,9 @@ export default function Scenarios() {
         </article>
         <article className="plan">
           <p className="eyebrow">EXAMPLE ACTION PLAN</p>
-          <h3>
+          <h2>
             What changes <em>today?</em>
-          </h3>
+          </h2>
           <ol>
             {actions.map((item, i) => (
               <li key={item.id}>

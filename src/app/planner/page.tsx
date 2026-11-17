@@ -23,7 +23,7 @@ export default function Planner() {
   const result = planOutdoorWindow(hours, start, end);
   const steps = generateDailyPlan(air?.current.us_aqi ?? null, profile);
   return (
-    <main className="shell scenario">
+    <main id="main-content" tabIndex={-1} className="shell scenario">
       <header className="top">
         <Link className="brand" href="/">
           ✳ saafsky<span>.</span>
@@ -96,9 +96,9 @@ export default function Planner() {
       </div>
       <section className="plan scenario-result" aria-live="polite">
         <p className="eyebrow">YOUR DAILY PLAN</p>
-        <h3>
+        <h2>
           Morning to <em>evening.</em>
-        </h3>
+        </h2>
         <ol>
           {steps.map((step) => (
             <li key={step.id}>
@@ -117,9 +117,9 @@ export default function Planner() {
       </section>
       <section className="plan scenario-result" aria-live="polite">
         <p className="eyebrow">FORECAST FOR {city.name.toUpperCase()}</p>
-        <h3>
+        <h2>
           Your available <em>window.</em>
-        </h3>
+        </h2>
         <p className="muted">
           Enter both times in {air?.timezone ?? "the city’s local time"}. Only
           upcoming forecast hours are compared.

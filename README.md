@@ -1,6 +1,6 @@
 # SaafSky
 
-An early-stage air quality companion for a non-commercial hackathon. The dashboard uses Open-Meteo geocoding and modelled air quality estimates. US AQI is not India's CPCB AQI, and forecasts are not local sensor measurements.
+SaafSky is an air quality and daily planning companion. The dashboard uses Open-Meteo geocoding and modelled air quality estimates. US AQI is not India's CPCB AQI, and forecasts are not local sensor measurements.
 
 ## Run locally
 
@@ -10,6 +10,8 @@ Requires Node.js 22.18 or newer. Run `npm ci`, then `npm run dev` and open http:
 
 Run `npm test`, `npm run lint`, `npm run typecheck`, and `npm run build`. To run the mocked browser journeys, install Chromium with `npx playwright install chromium` and run `npm run test:e2e`; these tests do not call Gemini.
 
+The browser suite includes automated axe checks of the initial state of each page, a skip-link keyboard check, and a 320px overflow check. These automated checks do not establish full accessibility compliance; assistive technology and additional interaction states still require manual testing.
+
 ## Current state and plan
 
 The app includes city lookup, cached and validated air forecasts, stale-data checks, a basic rule-based plan, an offline scenario at `/scenarios`, an outing-window comparison at `/planner`, an indoor-air advisor at `/indoor`, a factor-based emissions comparison at `/impact`, and an assistant at `/assistant`. The assistant uses a deterministic fallback unless Gemini and shared rate-limiter credentials are configured. Recommendations are general information and not medical advice.
@@ -18,7 +20,7 @@ The selected city is saved in browser local storage. Household sensitivity, chil
 
 Gemini is optional. Set `GEMINI_API_KEY`, `GEMINI_MODEL`, `UPSTASH_REDIS_REST_URL`, and `UPSTASH_REDIS_REST_TOKEN` in `.env.local`. Without both Upstash credentials the assistant never calls Gemini. A global limit of 3 requests per minute and 20 per day applies when configured; rate-limit errors fail closed to the fallback. Verify that the Google and Upstash projects are on free tiers before enabling them. Free-tier Gemini content may be used by Google to improve products; the interface asks users not to enter personal or medical details. AI output is schema-checked and action references are validated, but free text can still be wrong.
 
-Air, location, and chat endpoints use global shared rate limits when Upstash is configured. On Vercel they fail closed when the limiter is absent or unavailable. Set `SAAFSKY_PUBLIC=true` on other public hosts to enforce the same requirement. The limits are shared across visitors, so a busy demo can temporarily block everyone; this is not a per-user identity system. The app still needs broader accessibility, route, and browser testing before public release. GitHub Actions is intentionally disabled.
+Air, location, and chat endpoints use global shared rate limits when Upstash is configured. On Vercel they fail closed when the limiter is absent or unavailable. Set `SAAFSKY_PUBLIC=true` on other public hosts to enforce the same requirement. The limits are shared across visitors, so heavy usage can temporarily block everyone; this is not a per-user identity system. The app still needs broader accessibility, route, and browser testing before public release. GitHub Actions is intentionally disabled.
 
 Open-Meteo responses are cached by Next.js for 30 minutes for air data and 24 hours for locations. Cache availability and sharing depend on the deployment environment; there is no uptime guarantee.
 
@@ -32,4 +34,4 @@ The impact page uses a 2025 UK local-bus passenger-kilometre factor from the lin
 
 ## Release status
 
-This is a hackathon prototype, not a clinically reviewed safety product. It needs more extensive policy review, accessible interaction testing, and production monitoring. Rate limits are global, not per user. Public hosting requires a free Upstash database that the owner controls; temporary test databases expire. Open-Meteo's free service and Vercel Hobby are subject to non-commercial eligibility and usage limits. Keep billing disabled for a zero-cost Gemini project and never commit `.env.local` or API keys.
+SaafSky is not a clinically reviewed safety product. It needs more extensive policy review, accessible interaction testing, and production monitoring. Rate limits are global, not per user. Public hosting requires a free Upstash database that the owner controls; temporary test databases expire. Open-Meteo's free service and Vercel Hobby are subject to non-commercial eligibility and usage limits. Keep billing disabled for a zero-cost Gemini project and never commit `.env.local` or API keys.

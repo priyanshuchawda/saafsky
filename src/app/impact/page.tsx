@@ -28,7 +28,7 @@ export default function Impact() {
       )
     : null;
   return (
-    <main className="shell scenario">
+    <main id="main-content" tabIndex={-1} className="shell scenario">
       <header className="top">
         <Link className="brand" href="/">
           ✳ saafsky<span>.</span>
@@ -117,10 +117,10 @@ export default function Impact() {
         <p className="eyebrow">MONTHLY ESTIMATE</p>
         {result ? (
           <>
-            <h3>
+            <h2>
               {Math.abs(result.difference).toFixed(2)} kg{" "}
               <em>CO₂e {result.difference >= 0 ? "less" : "more"}.</em>
-            </h3>
+            </h2>
             <p>
               Baseline {result.baseline.toFixed(2)} kg · Alternative{" "}
               {result.alternative.toFixed(2)} kg
