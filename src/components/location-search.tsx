@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import type { City } from "@/types/air";
 import { locationSchema } from "@/lib/schemas";
+import { RateLimitError, throwIfHttpError } from "@/lib/api-errors";
 
 export function LocationSearch({
   onSelect,
@@ -28,16 +29,20 @@ export function LocationSearch({
         `/api/locations?q=${encodeURIComponent(query)}`,
         { signal: controller.signal },
       );
-      if (!response.ok) throw new Error("Location search failed");
+      throwIfHttpError(response);
       const data = locationSchema.parse(await response.json());
       if (controller.signal.aborted) return;
       setResults(data.results ?? []);
       setStatus(
         data.results?.length ? "" : "No cities found. Try another search.",
       );
-    } catch {
+    } catch (error) {
       if (!controller.signal.aborted)
-        setStatus("City search is unavailable. Please try again.");
+        setStatus(
+          error instanceof RateLimitError
+            ? error.message
+            : "City search is unavailable. Please try again.",
+        );
     }
   }
   return (

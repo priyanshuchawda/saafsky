@@ -3,11 +3,12 @@
 import { useEffect, useState } from "react";
 import { isFresh } from "@/lib/freshness";
 import { airResponseSchema } from "@/lib/schemas";
+import { RateLimitError, throwIfHttpError } from "@/lib/api-errors";
 import type { Air, City } from "@/types/air";
 
 type AirState =
   | { kind: "loading" }
-  | { kind: "error" }
+  | { kind: "error"; message: string }
   | {
       kind: "success";
       data: Air;
@@ -30,7 +31,7 @@ export function useAirQuality(city: City): AirState {
       signal: controller.signal,
     })
       .then(async (response) => {
-        if (!response.ok) throw new Error("Air data unavailable");
+        throwIfHttpError(response);
         return airResponseSchema.parse(await response.json());
       })
       .then(({ data, retrievedAt }) => {
@@ -52,9 +53,18 @@ export function useAirQuality(city: City): AirState {
             },
           });
       })
-      .catch(() => {
+      .catch((error: unknown) => {
         if (!controller.signal.aborted)
-          setResult({ key, state: { kind: "error" } });
+          setResult({
+            key,
+            state: {
+              kind: "error",
+              message:
+                error instanceof RateLimitError
+                  ? error.message
+                  : "Air data is unavailable. Please try again later.",
+            },
+          });
       });
     return () => controller.abort();
   }, [city.latitude, city.longitude, key]);

@@ -18,7 +18,7 @@ export default function Home() {
     state.kind === "loading"
       ? "Loading air quality…"
       : state.kind === "error"
-        ? "Air data is unavailable. Please try again later."
+        ? state.message
         : !state.fresh
           ? "The model data or retrieval time is stale or unavailable. Check a local official source for current conditions."
           : "";

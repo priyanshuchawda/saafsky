@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import { LocationSearch } from "@/components/location-search";
 import { assistantResponseSchema } from "@/features/assistant/validate";
+import { RateLimitError, throwIfHttpError } from "@/lib/api-errors";
 import { useCity, useHousehold } from "@/hooks/use-preferences";
 
 type Reply = { answer: string; uncertainty: string; mode: "ai" | "fallback" };
@@ -45,7 +46,7 @@ export default function Assistant() {
         }),
         signal: controller.signal,
       });
-      if (!response.ok) throw new Error();
+      throwIfHttpError(response);
       const result = assistantResponseSchema.parse(await response.json());
       if (controller.signal.aborted) return;
       setTurns((previous) =>
@@ -63,10 +64,12 @@ export default function Assistant() {
       );
       setQuestion("");
       setStatus("");
-    } catch {
+    } catch (error) {
       if (!controller.signal.aborted)
         setStatus(
-          "The assistant is unavailable. Please use the dashboard plan instead.",
+          error instanceof RateLimitError
+            ? error.message
+            : "The assistant is unavailable. Please use the dashboard plan instead.",
         );
     }
   }

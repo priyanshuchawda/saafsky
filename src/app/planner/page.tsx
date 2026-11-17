@@ -167,9 +167,7 @@ export default function Planner() {
           upcoming forecast hours are compared.
         </p>
         {state.kind === "loading" && <p>Loading forecast…</p>}
-        {state.kind === "error" && (
-          <p>Forecast unavailable. Try again later.</p>
-        )}
+        {state.kind === "error" && <p>{state.message}</p>}
         {state.kind === "success" && !state.fresh && (
           <p>The forecast is stale, so it cannot be used for planning.</p>
         )}

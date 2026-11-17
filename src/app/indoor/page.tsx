@@ -86,9 +86,11 @@ export default function IndoorAdvisor() {
       </div>
       <p className="fine" role="status">
         {outdoorMode === "auto"
-          ? aqi === null
-            ? `Current outdoor data for ${city.name} is unavailable or stale.`
-            : `Outdoor model estimate for ${city.name}: US AQI ${Math.round(aqi)}. This is not an indoor measurement.`
+          ? airState.kind === "error"
+            ? airState.message
+            : aqi === null
+              ? `Current outdoor data for ${city.name} is unavailable or stale.`
+              : `Outdoor model estimate for ${city.name}: US AQI ${Math.round(aqi)}. This is not an indoor measurement.`
           : "Using your selected outdoor-air context."}
       </p>
       <section className="plan scenario-result" aria-live="polite">
