@@ -94,7 +94,7 @@ export function generateRecommendations(
       priority: "medium",
       category: "transport",
       reasonCodes: ["outdoor_commute", "elevated_aqi"],
-      evidenceIds: ["airnow-aqi"],
+      evidenceIds: ["airnow-aqi", "epa-near-road"],
     });
   actions.push({
     id: "indoor-smoke",

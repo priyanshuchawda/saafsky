@@ -8,6 +8,18 @@ test("scenario changes for children and outdoor commuters", async ({
   await expect(
     page.getByText("Reduce outdoor exertion", { exact: true }),
   ).toBeVisible();
+  const action = page
+    .locator(".plan > ol > li")
+    .filter({ hasText: "Reduce outdoor exertion" });
+  await action.getByText("Why this action?").click();
+  await expect(
+    action.getByText(
+      "The household includes a child or someone more sensitive to air pollution.",
+    ),
+  ).toBeVisible();
+  await expect(
+    action.getByRole("link", { name: "AirNow: US AQI basics" }),
+  ).toHaveAttribute("href", "https://www.airnow.gov/aqi/aqi-basics/");
   await page.getByLabel("ILLUSTRATIVE US AQI").selectOption("180");
   await page.getByLabel("COMMUTE", { exact: true }).selectOption("bike");
   await expect(

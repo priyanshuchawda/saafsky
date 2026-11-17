@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { useAirQuality } from "@/hooks/use-air-quality";
 import { LocationSearch } from "@/components/location-search";
+import { ActionReason } from "@/components/action-reason";
 import { useCity, useHousehold } from "@/hooks/use-preferences";
 import { generateRecommendations } from "@/features/recommendations/engine";
 import { localMinuteAt } from "@/lib/freshness";
@@ -154,16 +155,7 @@ export default function Home() {
                 <div>
                   <strong>{item.title}</strong>
                   <p>{item.description}</p>
-                  <a
-                    className="fine"
-                    href={
-                      item.evidenceIds.includes("epa-indoor")
-                        ? "https://www.epa.gov/indoor-air-quality-iaq/improving-indoor-air-quality"
-                        : "https://www.airnow.gov/aqi/aqi-basics/"
-                    }
-                  >
-                    Why this advice? View guidance ↗
-                  </a>
+                  <ActionReason action={item} />
                 </div>
               </li>
             ))}

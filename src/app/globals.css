@@ -1,4 +1,27 @@
 @import "tailwindcss";
+.action-reason {
+  margin-top: 8px;
+  font-size: 13px;
+  color: #284c39;
+}
+.action-reason summary {
+  cursor: pointer;
+  font-weight: 600;
+  min-height: 32px;
+}
+.action-reason summary:focus-visible {
+  outline: 3px solid #4b875d;
+  outline-offset: 3px;
+}
+.plan .action-reason ul {
+  list-style: disc;
+  padding-left: 18px;
+}
+.plan .action-reason li {
+  display: list-item;
+  border: 0;
+  padding: 2px 0;
+}
 .quick-nav {
   display: flex;
   flex-wrap: wrap;

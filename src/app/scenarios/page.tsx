@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { ActionReason } from "@/components/action-reason";
 import { category, type Profile } from "@/lib/air";
 import {
   generateRecommendations,
@@ -110,6 +111,7 @@ export default function Scenarios() {
                 <div>
                   <strong>{item.title}</strong>
                   <p>{item.description}</p>
+                  <ActionReason action={item} />
                 </div>
               </li>
             ))}

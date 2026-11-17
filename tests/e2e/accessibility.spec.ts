@@ -91,3 +91,19 @@ test("assistant response remains accessible after a conversation", async ({
     })),
   ).toEqual([]);
 });
+
+test("expanded recommendation explanations remain accessible", async ({
+  page,
+}) => {
+  await page.goto("/scenarios", { waitUntil: "networkidle" });
+  await page.getByText("Why this action?").first().click();
+  const results = await new AxeBuilder({ page })
+    .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
+    .analyze();
+  expect(
+    results.violations.map((violation) => ({
+      id: violation.id,
+      targets: violation.nodes.map((node) => node.target),
+    })),
+  ).toEqual([]);
+});
