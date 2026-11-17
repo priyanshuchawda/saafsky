@@ -27,6 +27,30 @@
   font-size: 13px;
   line-height: 1.6;
 }
+.profile input[type="datetime-local"] {
+  border: 1px solid #d4ddd0;
+  background: white;
+  border-radius: 6px;
+  padding: 13px;
+  width: 100%;
+  color: var(--ink);
+  min-height: 48px;
+}
+.demo-link + .demo-link {
+  margin-left: 0;
+}
+@media (max-width: 700px) {
+  .top {
+    gap: 6px;
+  }
+  .top .brand {
+    font-size: 21px;
+  }
+  .demo-link {
+    font-size: 11px;
+    padding: 8px;
+  }
+}
 :root {
   --ink: #18372f;
   --muted: #64776e;

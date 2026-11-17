@@ -54,6 +54,9 @@ export default function Home() {
           ✳ saafsky<span>.</span>
         </Link>
         <p>A little clarity for the air you breathe</p>
+        <Link className="demo-link" href="/planner">
+          Plan an outing ↗
+        </Link>
         <Link className="demo-link" href="/scenarios">
           Try a demo ↗
         </Link>

@@ -1,0 +1,106 @@
+"use client";
+
+import Link from "next/link";
+import { useState } from "react";
+import { LocationSearch } from "@/components/location-search";
+import { useAirQuality } from "@/hooks/use-air-quality";
+import { planOutdoorWindow } from "@/features/planner/plan";
+import { category, upcomingForecast } from "@/lib/air";
+import type { City } from "@/types/air";
+
+export default function Planner() {
+  const [city, setCity] = useState<City>({
+    name: "Delhi",
+    country: "India",
+    latitude: 28.6519,
+    longitude: 77.2315,
+  });
+  const [start, setStart] = useState("");
+  const [end, setEnd] = useState("");
+  const state = useAirQuality(city);
+  const air = state.kind === "success" && state.fresh ? state.data : null;
+  const hours = air
+    ? upcomingForecast(air.hourly.time, air.hourly.us_aqi, air.current.time)
+    : [];
+  const result = planOutdoorWindow(hours, start, end);
+  return (
+    <main className="shell scenario">
+      <header className="top">
+        <Link className="brand" href="/">
+          ✳ saafsky<span>.</span>
+        </Link>
+        <p>Find a lower forecast period</p>
+      </header>
+      <p className="eyebrow">PLAN A NECESSARY OUTING</p>
+      <h1>
+        Find a <em>better window.</em>
+      </h1>
+      <p className="lead">
+        Compare forecast hours within a time window you choose. This is an
+        estimate, not a guarantee of safe air.
+      </p>
+      <div className="toolbar">
+        <LocationSearch onSelect={setCity} />
+        <div className="profile">
+          <label htmlFor="window-start">EARLIEST TIME</label>
+          <input
+            id="window-start"
+            type="datetime-local"
+            value={start}
+            onChange={(event) => setStart(event.target.value)}
+          />
+        </div>
+        <div className="profile">
+          <label htmlFor="window-end">LATEST TIME (EXCLUSIVE)</label>
+          <input
+            id="window-end"
+            type="datetime-local"
+            value={end}
+            onChange={(event) => setEnd(event.target.value)}
+          />
+        </div>
+      </div>
+      <section className="plan scenario-result" aria-live="polite">
+        <p className="eyebrow">FORECAST FOR {city.name.toUpperCase()}</p>
+        <h3>
+          Your available <em>window.</em>
+        </h3>
+        <p className="muted">
+          Enter both times in {air?.timezone ?? "the city’s local time"}. Only
+          upcoming forecast hours are compared.
+        </p>
+        {state.kind === "loading" && <p>Loading forecast…</p>}
+        {state.kind === "error" && (
+          <p>Forecast unavailable. Try again later.</p>
+        )}
+        {state.kind === "success" && !state.fresh && (
+          <p>The forecast is stale, so it cannot be used for planning.</p>
+        )}
+        {air &&
+          start &&
+          end &&
+          (result.kind === "available" ? (
+            <p>
+              Lowest available forecast:{" "}
+              <strong>{result.time.replace("T", " ")}</strong> · US AQI{" "}
+              {Math.round(result.aqi)} ({category(result.aqi)}), across{" "}
+              {result.considered} available hours. Even the lowest period may be
+              unhealthy; consider postponing nonessential outdoor activity.
+            </p>
+          ) : (
+            <p>
+              No usable forecast falls within this window. Check the dates and
+              times or choose another window.
+            </p>
+          ))}
+        <p className="fine">
+          Model forecast: Open-Meteo / CAMS. Local conditions may differ. This
+          tool does not measure personal exposure or provide medical advice.
+        </p>
+      </section>
+      <footer>
+        <Link href="/">← Back to dashboard</Link>
+      </footer>
+    </main>
+  );
+}
