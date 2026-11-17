@@ -32,6 +32,16 @@ Air data is modeled, not a local measurement. The dashboard rejects guidance bas
 
 The impact page offers 2025 UK average petrol-car and local-bus factors as clearly labeled proxies; the car factor is divided by the number of occupants. Users can instead enter a sourced passenger-kilometre factor. Walking and cycling are treated as zero direct vehicle emissions; lifecycle emissions, induced travel and individual exposure are excluded. Results should not be interpreted as measured Indian transport emissions or changes in local AQI.
 
+## Product documentation
+
+- [Architecture and data flow](docs/architecture.md)
+- [Data sources and impact methodology](docs/data-sources.md)
+- [Recommendation and planning policy](docs/decision-policy.md)
+- [Security and privacy](docs/security-privacy.md)
+- [Accessibility and known gaps](docs/accessibility.md)
+- [Testing and verification](docs/testing.md)
+- [Reporting a security concern](SECURITY.md)
+
 ## Release status
 
 SaafSky is not a clinically reviewed safety product. It needs more extensive policy review, accessible interaction testing, and production monitoring. Public hosting requires a free Upstash database that the owner controls; temporary test databases expire. Open-Meteo's free service and Vercel Hobby are subject to non-commercial eligibility and usage limits. Keep billing disabled for a zero-cost Gemini project and never commit `.env.local` or API keys.
