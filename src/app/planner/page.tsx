@@ -5,6 +5,8 @@ import { useState } from "react";
 import { LocationSearch } from "@/components/location-search";
 import { useAirQuality } from "@/hooks/use-air-quality";
 import { planOutdoorWindow } from "@/features/planner/plan";
+import { generateDailyPlan } from "@/features/planner/daily";
+import type { HouseholdProfile } from "@/features/recommendations/engine";
 import { category, upcomingForecast } from "@/lib/air";
 import type { City } from "@/types/air";
 
@@ -17,12 +19,21 @@ export default function Planner() {
   });
   const [start, setStart] = useState("");
   const [end, setEnd] = useState("");
+  const [sensitive, setSensitive] = useState(false);
+  const [commute, setCommute] = useState<HouseholdProfile["commute"]>("none");
   const state = useAirQuality(city);
   const air = state.kind === "success" && state.fresh ? state.data : null;
   const hours = air
     ? upcomingForecast(air.hourly.time, air.hourly.us_aqi, air.current.time)
     : [];
   const result = planOutdoorWindow(hours, start, end);
+  const steps = generateDailyPlan(air?.current.us_aqi ?? null, {
+    sensitive,
+    children: false,
+    commute,
+    outdoorExercise: false,
+    cookingSmoke: false,
+  });
   return (
     <main className="shell scenario">
       <header className="top">
@@ -42,6 +53,35 @@ export default function Planner() {
       <div className="toolbar">
         <LocationSearch onSelect={setCity} />
         <div className="profile">
+          <label htmlFor="plan-profile">HOUSEHOLD</label>
+          <select
+            id="plan-profile"
+            value={sensitive ? "sensitive" : "general"}
+            onChange={(event) =>
+              setSensitive(event.target.value === "sensitive")
+            }
+          >
+            <option value="general">General guidance</option>
+            <option value="sensitive">Sensitive household member</option>
+          </select>
+        </div>
+        <div className="profile">
+          <label htmlFor="plan-commute">COMMUTE</label>
+          <select
+            id="plan-commute"
+            value={commute}
+            onChange={(event) =>
+              setCommute(event.target.value as HouseholdProfile["commute"])
+            }
+          >
+            <option value="none">None selected</option>
+            <option value="walk">Walk</option>
+            <option value="bike">Bicycle</option>
+            <option value="public">Public transport</option>
+            <option value="car">Car</option>
+          </select>
+        </div>
+        <div className="profile">
           <label htmlFor="window-start">EARLIEST TIME</label>
           <input
             id="window-start"
@@ -60,6 +100,27 @@ export default function Planner() {
           />
         </div>
       </div>
+      <section className="plan scenario-result" aria-live="polite">
+        <p className="eyebrow">YOUR DAILY PLAN</p>
+        <h3>
+          Morning to <em>evening.</em>
+        </h3>
+        <ol>
+          {steps.map((step) => (
+            <li key={step.id}>
+              <span>{step.period}</span>
+              <div>
+                <strong>{step.title}</strong>
+                <p>{step.detail}</p>
+              </div>
+            </li>
+          ))}
+        </ol>
+        <p className="fine">
+          These are general suggestions and can change as conditions change.
+          Essential commitments and medical advice take priority.
+        </p>
+      </section>
       <section className="plan scenario-result" aria-live="polite">
         <p className="eyebrow">FORECAST FOR {city.name.toUpperCase()}</p>
         <h3>
