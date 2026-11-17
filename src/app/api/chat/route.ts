@@ -73,7 +73,8 @@ export async function POST(request: Request) {
         process.env.UPSTASH_REDIS_REST_TOKEN,
       ),
       checkAiBudget,
-      explain: (aqi, actions) => explainPlan(question, aqi, actions, history),
+      explain: (aqi, actions) =>
+        explainPlan(question, aqi, actions, history, checkAiBudget),
     }),
   );
 }
