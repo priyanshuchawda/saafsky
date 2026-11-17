@@ -8,27 +8,20 @@ import { planOutdoorWindow } from "@/features/planner/plan";
 import { generateDailyPlan } from "@/features/planner/daily";
 import type { HouseholdProfile } from "@/features/recommendations/engine";
 import { category, upcomingForecast } from "@/lib/air";
-import { useCity, useSensitivity } from "@/hooks/use-preferences";
+import { useCity, useHousehold } from "@/hooks/use-preferences";
 
 export default function Planner() {
   const [city, setCity] = useCity();
   const [start, setStart] = useState("");
   const [end, setEnd] = useState("");
-  const [sensitive, setSensitive] = useSensitivity();
-  const [commute, setCommute] = useState<HouseholdProfile["commute"]>("none");
+  const [profile, setProfile] = useHousehold();
   const state = useAirQuality(city);
   const air = state.kind === "success" && state.fresh ? state.data : null;
   const hours = air
     ? upcomingForecast(air.hourly.time, air.hourly.us_aqi, air.current.time)
     : [];
   const result = planOutdoorWindow(hours, start, end);
-  const steps = generateDailyPlan(air?.current.us_aqi ?? null, {
-    sensitive,
-    children: false,
-    commute,
-    outdoorExercise: false,
-    cookingSmoke: false,
-  });
+  const steps = generateDailyPlan(air?.current.us_aqi ?? null, profile);
   return (
     <main className="shell scenario">
       <header className="top">
@@ -51,9 +44,12 @@ export default function Planner() {
           <label htmlFor="plan-profile">HOUSEHOLD</label>
           <select
             id="plan-profile"
-            value={sensitive ? "sensitive" : "general"}
+            value={profile.sensitive ? "sensitive" : "general"}
             onChange={(event) =>
-              setSensitive(event.target.value === "sensitive")
+              setProfile({
+                ...profile,
+                sensitive: event.target.value === "sensitive",
+              })
             }
           >
             <option value="general">General guidance</option>
@@ -64,9 +60,12 @@ export default function Planner() {
           <label htmlFor="plan-commute">COMMUTE</label>
           <select
             id="plan-commute"
-            value={commute}
+            value={profile.commute}
             onChange={(event) =>
-              setCommute(event.target.value as HouseholdProfile["commute"])
+              setProfile({
+                ...profile,
+                commute: event.target.value as HouseholdProfile["commute"],
+              })
             }
           >
             <option value="none">None selected</option>

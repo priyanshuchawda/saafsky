@@ -4,12 +4,13 @@ import { useState } from "react";
 import {
   clearPreferences,
   useCity,
-  useSensitivity,
+  useHousehold,
 } from "@/hooks/use-preferences";
+import type { HouseholdProfile } from "@/features/recommendations/engine";
 
 export default function Settings() {
   const [city] = useCity();
-  const [sensitive] = useSensitivity();
+  const [profile, setProfile] = useHousehold();
   const [message, setMessage] = useState("");
   return (
     <main className="shell scenario">
@@ -31,13 +32,84 @@ export default function Settings() {
         <p>
           Household guidance:{" "}
           <strong>
-            {sensitive ? "Sensitive household member" : "General guidance"}
+            {profile.sensitive
+              ? "Sensitive household member"
+              : "General guidance"}
           </strong>
         </p>
+        <div className="toolbar impact-form">
+          <div className="profile">
+            <label htmlFor="setting-children">CHILDREN IN HOUSEHOLD</label>
+            <select
+              id="setting-children"
+              value={profile.children ? "yes" : "no"}
+              onChange={(event) =>
+                setProfile({
+                  ...profile,
+                  children: event.target.value === "yes",
+                })
+              }
+            >
+              <option value="no">No</option>
+              <option value="yes">Yes</option>
+            </select>
+          </div>
+          <div className="profile">
+            <label htmlFor="setting-commute">USUAL COMMUTE</label>
+            <select
+              id="setting-commute"
+              value={profile.commute}
+              onChange={(event) =>
+                setProfile({
+                  ...profile,
+                  commute: event.target.value as HouseholdProfile["commute"],
+                })
+              }
+            >
+              <option value="none">Not selected</option>
+              <option value="walk">Walk</option>
+              <option value="bike">Bicycle</option>
+              <option value="public">Public transport</option>
+              <option value="car">Car</option>
+            </select>
+          </div>
+          <div className="profile">
+            <label htmlFor="setting-exercise">OUTDOOR EXERCISE</label>
+            <select
+              id="setting-exercise"
+              value={profile.outdoorExercise ? "yes" : "no"}
+              onChange={(event) =>
+                setProfile({
+                  ...profile,
+                  outdoorExercise: event.target.value === "yes",
+                })
+              }
+            >
+              <option value="no">Not selected</option>
+              <option value="yes">Usually exercise outdoors</option>
+            </select>
+          </div>
+          <div className="profile">
+            <label htmlFor="setting-smoke">INDOOR COOKING SMOKE</label>
+            <select
+              id="setting-smoke"
+              value={profile.cookingSmoke ? "yes" : "no"}
+              onChange={(event) =>
+                setProfile({
+                  ...profile,
+                  cookingSmoke: event.target.value === "yes",
+                })
+              }
+            >
+              <option value="no">No or unsure</option>
+              <option value="yes">Usually present</option>
+            </select>
+          </div>
+        </div>
         <p className="fine">
-          The city is stored in this browser. The sensitive-household selection
-          is kept for this browser tab session only. Chat messages are not saved
-          by the app. Browser settings may also clear this data.
+          The city is stored in this browser. Household and lifestyle choices
+          are kept for this browser tab session only. Chat messages are not
+          saved by the app. Browser settings may also clear this data.
         </p>
         <button
           className="action-button"

@@ -2,18 +2,12 @@
 import Link from "next/link";
 import { useAirQuality } from "@/hooks/use-air-quality";
 import { LocationSearch } from "@/components/location-search";
-import { useCity, useSensitivity } from "@/hooks/use-preferences";
-import {
-  advice,
-  category,
-  lowestForecastPeriod,
-  upcomingForecast,
-  type Profile,
-} from "@/lib/air";
+import { useCity, useHousehold } from "@/hooks/use-preferences";
+import { generateRecommendations } from "@/features/recommendations/engine";
+import { category, lowestForecastPeriod, upcomingForecast } from "@/lib/air";
 export default function Home() {
   const [city, setCity] = useCity();
-  const [sensitive, setSensitive] = useSensitivity();
-  const profile: Profile = sensitive ? "sensitive" : "adult";
+  const [profile, setProfile] = useHousehold();
   const state = useAirQuality(city);
   const air = state.kind === "success" ? state.data : null;
   const updated = state.kind === "success" ? state.retrievedAt : "";
@@ -32,6 +26,7 @@ export default function Home() {
     Number.isFinite(air.current.us_aqi)
       ? air.current.us_aqi
       : null;
+  const recommendations = generateRecommendations(aqi, profile);
   const times = air?.hourly?.time ?? [];
   const values = air?.hourly?.us_aqi ?? [];
   const upcoming = fresh
@@ -83,8 +78,13 @@ export default function Home() {
           <label htmlFor="profile">YOUR HOUSEHOLD</label>
           <select
             id="profile"
-            value={profile}
-            onChange={(e) => setSensitive(e.target.value === "sensitive")}
+            value={profile.sensitive ? "sensitive" : "adult"}
+            onChange={(e) =>
+              setProfile({
+                ...profile,
+                sensitive: e.target.value === "sensitive",
+              })
+            }
           >
             <option value="adult">General guidance</option>
             <option value="sensitive">Sensitive household member</option>
@@ -140,10 +140,23 @@ export default function Home() {
             Based on the current estimate and your household selection.
           </p>
           <ol>
-            {advice(aqi, profile).map((item, i) => (
-              <li key={item}>
+            {recommendations.map((item, i) => (
+              <li key={item.id}>
                 <span>0{i + 1}</span>
-                {item}
+                <div>
+                  <strong>{item.title}</strong>
+                  <p>{item.description}</p>
+                  <a
+                    className="fine"
+                    href={
+                      item.evidenceIds.includes("epa-indoor")
+                        ? "https://www.epa.gov/indoor-air-quality-iaq/improving-indoor-air-quality"
+                        : "https://www.airnow.gov/aqi/aqi-basics/"
+                    }
+                  >
+                    Why this advice? View guidance ↗
+                  </a>
+                </div>
               </li>
             ))}
           </ol>

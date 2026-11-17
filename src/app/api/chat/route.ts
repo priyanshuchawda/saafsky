@@ -8,13 +8,14 @@ import { generateRecommendations } from "@/features/recommendations/engine";
 import { explainPlan } from "@/server/chat";
 import { allowPublicRequest } from "@/server/rate-limit";
 import { readBoundedJson, RequestBodyTooLarge } from "@/lib/request-body";
+import { householdSchema } from "@/lib/schemas";
 
 const input = z
   .object({
     question: z.string().trim().min(1).max(500),
     latitude: z.number().finite().min(-90).max(90),
     longitude: z.number().finite().min(-180).max(180),
-    sensitive: z.boolean(),
+    profile: householdSchema,
   })
   .strict();
 export async function POST(request: Request) {
@@ -22,7 +23,8 @@ export async function POST(request: Request) {
   try {
     parsed = input.safeParse(await readBoundedJson(request, 4096));
   } catch (error) {
-    if (error instanceof RequestBodyTooLarge) return NextResponse.json({ error: "Request too large" }, { status: 413 });
+    if (error instanceof RequestBodyTooLarge)
+      return NextResponse.json({ error: "Request too large" }, { status: 413 });
     return NextResponse.json({ error: "Invalid request" }, { status: 400 });
   }
   if (!parsed.success)
@@ -32,7 +34,7 @@ export async function POST(request: Request) {
       { error: "Request limit reached or protection unavailable." },
       { status: 503 },
     );
-  const { question, latitude, longitude, sensitive } = parsed.data;
+  const { question, latitude, longitude, profile } = parsed.data;
   let aqi: number | null = null;
   try {
     const { data, retrievedAt } = await loadAir(
@@ -51,13 +53,7 @@ export async function POST(request: Request) {
   } catch {
     /* Deterministic fallback handles missing environmental data. */
   }
-  const actions = generateRecommendations(aqi, {
-    sensitive,
-    children: false,
-    commute: "none",
-    outdoorExercise: false,
-    cookingSmoke: false,
-  });
+  const actions = generateRecommendations(aqi, profile);
   const fallback = {
     answer: actions.map((action) => action.description).join(" "),
     referencedActionIds: actions.map((action) => action.id),

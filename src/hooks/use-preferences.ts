@@ -1,6 +1,7 @@
 "use client";
 import { useSyncExternalStore } from "react";
 import type { City } from "@/types/air";
+import type { HouseholdProfile } from "@/features/recommendations/engine";
 
 const defaultCity: City = {
   name: "Delhi",
@@ -11,9 +12,18 @@ const defaultCity: City = {
 const defaultCityJson = JSON.stringify(defaultCity);
 const cityKey = "saafsky:city";
 const sensitiveKey = "saafsky:sensitive";
+const householdKey = "saafsky:household";
 const eventName = "saafsky:preferences";
 let fallbackCity = defaultCityJson;
 let fallbackSensitive = "false";
+const defaultHousehold = {
+  children: false,
+  outdoorExercise: false,
+  commute: "none",
+  cookingSmoke: false,
+} as const;
+const defaultHouseholdJson = JSON.stringify(defaultHousehold);
+let fallbackHousehold = defaultHouseholdJson;
 
 function subscribe(callback: () => void): () => void {
   window.addEventListener("storage", callback);
@@ -35,6 +45,13 @@ function readSensitive(): string {
     return sessionStorage.getItem(sensitiveKey) ?? fallbackSensitive;
   } catch {
     return fallbackSensitive;
+  }
+}
+function readHousehold(): string {
+  try {
+    return sessionStorage.getItem(householdKey) ?? fallbackHousehold;
+  } catch {
+    return fallbackHousehold;
   }
 }
 function notify(): void {
@@ -100,12 +117,64 @@ export function useSensitivity(): [boolean, (sensitive: boolean) => void] {
     },
   ];
 }
+export function useHousehold(): [
+  HouseholdProfile,
+  (profile: HouseholdProfile) => void,
+] {
+  const [sensitive, setSensitive] = useSensitivity();
+  const raw = useSyncExternalStore(
+    subscribe,
+    readHousehold,
+    () => defaultHouseholdJson,
+  );
+  let rest: Omit<HouseholdProfile, "sensitive"> = defaultHousehold;
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    if (
+      parsed &&
+      typeof parsed === "object" &&
+      "children" in parsed &&
+      typeof parsed.children === "boolean" &&
+      "outdoorExercise" in parsed &&
+      typeof parsed.outdoorExercise === "boolean" &&
+      "cookingSmoke" in parsed &&
+      typeof parsed.cookingSmoke === "boolean" &&
+      "commute" in parsed &&
+      typeof parsed.commute === "string" &&
+      ["none", "walk", "bike", "public", "car"].includes(parsed.commute)
+    ) {
+      rest = {
+        children: parsed.children,
+        outdoorExercise: parsed.outdoorExercise,
+        cookingSmoke: parsed.cookingSmoke,
+        commute: parsed.commute as HouseholdProfile["commute"],
+      };
+    }
+  } catch {
+    /* Invalid stored preferences revert to safe defaults. */
+  }
+  return [
+    { ...rest, sensitive },
+    (profile) => {
+      const { sensitive: nextSensitive, ...other } = profile;
+      fallbackHousehold = JSON.stringify(other);
+      try {
+        sessionStorage.setItem(householdKey, fallbackHousehold);
+      } catch {
+        /* Use in-memory state. */
+      }
+      setSensitive(nextSensitive);
+    },
+  ];
+}
 export function clearPreferences(): void {
   fallbackCity = defaultCityJson;
   fallbackSensitive = "false";
+  fallbackHousehold = defaultHouseholdJson;
   try {
     localStorage.removeItem(cityKey);
     sessionStorage.removeItem(sensitiveKey);
+    sessionStorage.removeItem(householdKey);
   } catch {
     /* Storage is optional. */
   }

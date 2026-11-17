@@ -39,13 +39,15 @@ export function generateRecommendations(
     actions.push({
       id: "reduce-outdoor-exertion",
       title: "Reduce outdoor exertion",
-      description:
-        "Reduce prolonged or strenuous outdoor activity; consider an indoor alternative.",
+      description: profile.outdoorExercise
+        ? "Move planned strenuous outdoor exercise indoors or postpone it if practical; reduce prolonged outdoor activity."
+        : "Reduce prolonged or strenuous outdoor activity; consider an indoor alternative.",
       priority: "high",
       category: "health",
       reasonCodes: [
         "elevated_aqi",
         ...(vulnerable ? ["sensitive_household"] : []),
+        ...(profile.outdoorExercise ? ["outdoor_exercise"] : []),
       ],
       evidenceIds: ["airnow-aqi"],
     });

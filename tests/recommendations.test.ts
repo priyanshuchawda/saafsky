@@ -33,3 +33,20 @@ test("unknown data is not treated as safe and exposed commutes are considered", 
     ),
   );
 });
+
+test("planned outdoor exercise and cooking smoke affect actions", () => {
+  const actions = generateRecommendations(180, {
+    ...adult,
+    outdoorExercise: true,
+    cookingSmoke: true,
+  });
+  const exercise = actions.find(
+    (action) => action.id === "reduce-outdoor-exertion",
+  );
+  assert.match(exercise?.description ?? "", /exercise indoors/);
+  assert.ok(exercise?.reasonCodes.includes("outdoor_exercise"));
+  assert.equal(
+    actions.find((action) => action.id === "indoor-smoke")?.priority,
+    "medium",
+  );
+});

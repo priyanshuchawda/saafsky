@@ -3,12 +3,12 @@ import Link from "next/link";
 import { useState } from "react";
 import type { FormEvent } from "react";
 import { LocationSearch } from "@/components/location-search";
-import { useCity, useSensitivity } from "@/hooks/use-preferences";
+import { useCity, useHousehold } from "@/hooks/use-preferences";
 
 type Reply = { answer: string; uncertainty: string; mode: "ai" | "fallback" };
 export default function Assistant() {
   const [city, setCity] = useCity();
-  const [sensitive, setSensitive] = useSensitivity();
+  const [profile, setProfile] = useHousehold();
   const [question, setQuestion] = useState("");
   const [reply, setReply] = useState<Reply | null>(null);
   const [status, setStatus] = useState("");
@@ -24,7 +24,7 @@ export default function Assistant() {
           question,
           latitude: city.latitude,
           longitude: city.longitude,
-          sensitive,
+          profile,
         }),
       });
       if (!response.ok) throw new Error();
@@ -63,8 +63,10 @@ export default function Assistant() {
           <label htmlFor="sensitive">HOUSEHOLD</label>
           <select
             id="sensitive"
-            value={sensitive ? "yes" : "no"}
-            onChange={(e) => setSensitive(e.target.value === "yes")}
+            value={profile.sensitive ? "yes" : "no"}
+            onChange={(e) =>
+              setProfile({ ...profile, sensitive: e.target.value === "yes" })
+            }
           >
             <option value="no">General guidance</option>
             <option value="yes">Sensitive household member</option>

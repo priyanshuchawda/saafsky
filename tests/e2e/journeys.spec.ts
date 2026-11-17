@@ -55,6 +55,18 @@ test("city and sensitivity follow the user and can be cleared", async ({
   await expect(page.getByLabel("HOUSEHOLD")).toHaveValue("sensitive");
   await expect(page.getByText("FORECAST FOR PUNE")).toBeVisible();
   await page.goto("/settings", { waitUntil: "networkidle" });
+  await page.getByLabel("CHILDREN IN HOUSEHOLD").selectOption("yes");
+  await page.getByLabel("OUTDOOR EXERCISE").selectOption("yes");
+  expect(
+    await page.evaluate(() => localStorage.getItem("saafsky:household")),
+  ).toBeNull();
+  await page.goto("/", { waitUntil: "networkidle" });
+  await expect(
+    page.getByText("Move planned strenuous outdoor exercise indoors", {
+      exact: false,
+    }),
+  ).toBeVisible();
+  await page.goto("/settings", { waitUntil: "networkidle" });
   await page.getByRole("button", { name: "Clear preferences" }).click();
   await expect(page.getByText("Preferences cleared.")).toBeVisible();
   await expect(page.getByText("Delhi", { exact: true })).toBeVisible();
