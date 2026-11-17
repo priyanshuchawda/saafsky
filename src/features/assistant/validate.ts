@@ -5,6 +5,9 @@ const outputSchema = z.object({
   referencedActionIds: z.array(z.string()).max(8),
   uncertainty: z.string().max(400),
 });
+export const assistantResponseSchema = outputSchema.extend({
+  mode: z.enum(["ai", "fallback"]),
+});
 export function validateAssistantReply(
   raw: string,
   actionIds: string[],

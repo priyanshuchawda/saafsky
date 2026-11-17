@@ -8,7 +8,9 @@ export async function explainPlan(
   actions: Recommendation[],
   history: { role: "user" | "assistant"; text: string }[],
 ): Promise<ReturnType<typeof validateAssistantReply>> {
-  const client = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) throw new Error("Gemini is not configured");
+  const client = new GoogleGenAI({ apiKey });
   const interaction = await client.interactions.create(
     {
       model: process.env.GEMINI_MODEL || "gemini-3.5-flash-lite",

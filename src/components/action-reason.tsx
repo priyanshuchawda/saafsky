@@ -4,13 +4,17 @@ import {
   reasonDescriptions,
 } from "@/features/recommendations/evidence";
 
+function isDefined<T>(value: T | undefined): value is T {
+  return value !== undefined;
+}
+
 export function ActionReason({ action }: { action: Recommendation }) {
   const reasons = action.reasonCodes
     .map((code) => reasonDescriptions[code])
-    .filter(Boolean);
+    .filter(isDefined);
   const evidence = action.evidenceIds
     .map((id) => evidenceCatalog[id])
-    .filter(Boolean);
+    .filter(isDefined);
   return (
     <details className="action-reason">
       <summary>Why this action?</summary>

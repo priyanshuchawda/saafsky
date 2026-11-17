@@ -70,6 +70,7 @@ test("assistant response remains accessible after a conversation", async ({
     route.fulfill({
       json: {
         mode: "fallback",
+        referencedActionIds: [],
         answer: "Check local conditions.",
         uncertainty: "AI is unavailable.",
       },

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import { LocationSearch } from "@/components/location-search";
+import { assistantResponseSchema } from "@/features/assistant/validate";
 import { useCity, useHousehold } from "@/hooks/use-preferences";
 
 type Reply = { answer: string; uncertainty: string; mode: "ai" | "fallback" };
@@ -45,18 +46,7 @@ export default function Assistant() {
         signal: controller.signal,
       });
       if (!response.ok) throw new Error();
-      const result: unknown = await response.json();
-      if (
-        !result ||
-        typeof result !== "object" ||
-        !("answer" in result) ||
-        typeof result.answer !== "string" ||
-        !("uncertainty" in result) ||
-        typeof result.uncertainty !== "string" ||
-        !("mode" in result) ||
-        (result.mode !== "ai" && result.mode !== "fallback")
-      )
-        throw new Error("Invalid response");
+      const result = assistantResponseSchema.parse(await response.json());
       if (controller.signal.aborted) return;
       setTurns((previous) =>
         [
@@ -64,9 +54,9 @@ export default function Assistant() {
           {
             question: text,
             reply: {
-              answer: result.answer as string,
-              uncertainty: result.uncertainty as string,
-              mode: result.mode as Reply["mode"],
+              answer: result.answer,
+              uncertainty: result.uncertainty,
+              mode: result.mode,
             },
           },
         ].slice(-5),

@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import type { City } from "@/types/air";
+import { locationSchema } from "@/lib/schemas";
 
 export function LocationSearch({
   onSelect,
@@ -28,7 +29,7 @@ export function LocationSearch({
         { signal: controller.signal },
       );
       if (!response.ok) throw new Error("Location search failed");
-      const data = (await response.json()) as { results?: City[] };
+      const data = locationSchema.parse(await response.json());
       if (controller.signal.aborted) return;
       setResults(data.results ?? []);
       setStatus(

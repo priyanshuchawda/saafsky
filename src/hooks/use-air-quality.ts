@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { isFresh } from "@/lib/freshness";
+import { airResponseSchema } from "@/lib/schemas";
 import type { Air, City } from "@/types/air";
 
 type AirState =
@@ -30,7 +31,7 @@ export function useAirQuality(city: City): AirState {
     })
       .then(async (response) => {
         if (!response.ok) throw new Error("Air data unavailable");
-        return response.json() as Promise<{ data: Air; retrievedAt: string }>;
+        return airResponseSchema.parse(await response.json());
       })
       .then(({ data, retrievedAt }) => {
         const now = Date.now();

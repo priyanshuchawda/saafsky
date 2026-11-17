@@ -2,10 +2,36 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   airSchema,
+  airResponseSchema,
   chatInputSchema,
   householdSchema,
   locationSchema,
 } from "../src/lib/schemas.ts";
+
+test("browser-facing air response validates retrieval time and payload", () => {
+  const data = {
+    timezone: "UTC",
+    utc_offset_seconds: 0,
+    current: {
+      time: "2026-01-01T12:00",
+      us_aqi: null,
+      pm2_5: null,
+      pm10: null,
+    },
+    hourly: { time: [], us_aqi: [] },
+  };
+  assert.equal(
+    airResponseSchema.safeParse({
+      data,
+      retrievedAt: "2026-01-01T12:00:00.000Z",
+    }).success,
+    true,
+  );
+  assert.equal(
+    airResponseSchema.safeParse({ data, retrievedAt: "yesterday" }).success,
+    false,
+  );
+});
 
 test("chat history is bounded and rejects unexpected roles", () => {
   const profile = {
