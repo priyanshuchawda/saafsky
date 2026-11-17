@@ -6,6 +6,8 @@ import { airResponseSchema } from "@/lib/schemas";
 import { RateLimitError, throwIfHttpError } from "@/lib/api-errors";
 import type { Air, City } from "@/types/air";
 
+const REFRESH_INTERVAL_MS = 30 * 60_000;
+
 type AirState =
   | { kind: "loading" }
   | { kind: "error"; message: string }
@@ -26,52 +28,78 @@ export function useAirQuality(city: City): AirState {
   const state: AirState =
     result.key === key ? result.state : { kind: "loading" };
   useEffect(() => {
-    const controller = new AbortController();
-    fetch(`/api/air?lat=${city.latitude}&lon=${city.longitude}`, {
-      signal: controller.signal,
-    })
-      .then(async (response) => {
-        throwIfHttpError(response);
-        return airResponseSchema.parse(await response.json());
+    let controller: AbortController | null = null;
+    let lastAttempt = 0;
+    let disposed = false;
+    function refresh() {
+      if (disposed || controller) return;
+      lastAttempt = Date.now();
+      const current = new AbortController();
+      controller = current;
+      fetch(`/api/air?lat=${city.latitude}&lon=${city.longitude}`, {
+        signal: current.signal,
       })
-      .then(({ data, retrievedAt }) => {
-        const now = Date.now();
-        if (!controller.signal.aborted)
-          setResult({
-            key,
-            state: {
-              kind: "success",
-              data,
-              retrievedAt,
-              checkedAt: now,
-              fresh: isFresh(
+        .then(async (response) => {
+          throwIfHttpError(response);
+          return airResponseSchema.parse(await response.json());
+        })
+        .then(({ data, retrievedAt }) => {
+          const now = Date.now();
+          if (!current.signal.aborted)
+            setResult({
+              key,
+              state: {
+                kind: "success",
+                data,
                 retrievedAt,
-                data.current.time,
-                data.utc_offset_seconds,
-                now,
-              ),
-            },
-          });
-      })
-      .catch((error: unknown) => {
-        if (!controller.signal.aborted)
-          setResult({
-            key,
-            state: {
-              kind: "error",
-              message:
-                error instanceof RateLimitError
-                  ? error.message
-                  : "Air data is unavailable. Please try again later.",
-            },
-          });
-      });
-    return () => controller.abort();
+                checkedAt: now,
+                fresh: isFresh(
+                  retrievedAt,
+                  data.current.time,
+                  data.utc_offset_seconds,
+                  now,
+                ),
+              },
+            });
+        })
+        .catch((error: unknown) => {
+          if (!current.signal.aborted)
+            setResult({
+              key,
+              state: {
+                kind: "error",
+                message:
+                  error instanceof RateLimitError
+                    ? error.message
+                    : "Air data is unavailable. Please try again later.",
+              },
+            });
+        })
+        .finally(() => {
+          if (controller === current) controller = null;
+        });
+    }
+    function refreshWhenVisible() {
+      if (
+        document.visibilityState === "visible" &&
+        Date.now() - lastAttempt >= REFRESH_INTERVAL_MS
+      )
+        refresh();
+    }
+    refresh();
+    const timer = window.setInterval(refreshWhenVisible, 60_000);
+    document.addEventListener("visibilitychange", refreshWhenVisible);
+    return () => {
+      disposed = true;
+      controller?.abort();
+      window.clearInterval(timer);
+      document.removeEventListener("visibilitychange", refreshWhenVisible);
+    };
   }, [city.latitude, city.longitude, key]);
   useEffect(() => {
     const state = result.key === key ? result.state : null;
     if (!state || state.kind !== "success" || !state.fresh) return;
-    const timer = window.setInterval(() => {
+    function updateFreshness() {
       const now = Date.now();
       setResult((previous) =>
         previous.key === key && previous.state.kind === "success"
@@ -90,8 +118,13 @@ export function useAirQuality(city: City): AirState {
             }
           : previous,
       );
-    }, 60_000);
-    return () => window.clearInterval(timer);
+    }
+    const timer = window.setInterval(updateFreshness, 60_000);
+    document.addEventListener("visibilitychange", updateFreshness);
+    return () => {
+      window.clearInterval(timer);
+      document.removeEventListener("visibilitychange", updateFreshness);
+    };
   }, [result, key]);
   return state;
 }

@@ -2,6 +2,15 @@
 
 SaafSky is an air quality and daily planning companion. The dashboard uses Open-Meteo geocoding and modelled air quality estimates. US AQI is not India's CPCB AQI, and forecasts are not local sensor measurements.
 
+## Make a clearer plan for your day
+
+- **Understand your air:** See a city-level estimate, pollutant readings and upcoming forecast periods in one place. The dashboard refreshes while it is open.
+- **Plan around your household:** Get practical guidance shaped by sensitivities, children, exercise and commute choices, with reasons and supporting sources.
+- **Choose a useful outing window:** Compare complete forecast periods against your available time and whether the trip is flexible or essential.
+- **Improve indoor habits:** Explore practical ways to manage cooking smoke, ventilation and filtration.
+- **Compare commute choices:** Estimate emissions differences with transparent factors and see the exposure tradeoffs.
+- **Ask a follow-up:** Get an AI explanation when available, with a rule-based fallback to keep the core experience useful.
+
 ## Run locally
 
 Requires Node.js 22.18 or newer. Run `npm ci`, then `npm run dev` and open http://localhost:3000. No API key is required for the dashboard. Open-Meteo's free API is subject to its non-commercial terms and usage limits.
