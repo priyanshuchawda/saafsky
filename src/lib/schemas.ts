@@ -3,6 +3,7 @@ import { z } from "zod";
 const pollutant = z.number().finite().nonnegative().nullable();
 export const airSchema = z.object({
   timezone: z.string(),
+  utc_offset_seconds: z.number().int().min(-50400).max(50400),
   current: z.object({ time: z.string(), us_aqi: pollutant, pm2_5: pollutant, pm10: pollutant }),
   hourly: z.object({ time: z.array(z.string()), us_aqi: z.array(pollutant) }),
 }).refine(data => data.hourly.time.length === data.hourly.us_aqi.length, "Hourly series must have equal lengths");
