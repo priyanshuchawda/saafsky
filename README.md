@@ -8,7 +8,7 @@ Requires Node.js 22.18 or newer. Run `npm ci`, then `npm run dev` and open http:
 
 ## Checks
 
-Run `npm test`, `npm run lint`, `npm run typecheck`, and `npm run build`. To run the mocked browser journeys, install Chromium with `npx playwright install chromium` and run `npm run test:e2e`; these tests do not call Gemini.
+Run `npm test`, `npm run lint`, `npm run typecheck`, and `npm run build`. To run the mocked browser journeys, install Chromium with `npx playwright install chromium` and run `npm run test:e2e`. After building, run `npm run test:e2e:production` to test the production server. These tests do not call Gemini.
 
 The browser suite includes automated axe checks of the initial state of each page, a skip-link keyboard check, and a 320px overflow check. These automated checks do not establish full accessibility compliance; assistive technology and additional interaction states still require manual testing.
 
