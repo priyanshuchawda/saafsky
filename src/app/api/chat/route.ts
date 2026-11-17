@@ -8,6 +8,7 @@ import { generateRecommendations } from "@/features/recommendations/engine";
 import { explainPlan } from "@/server/chat";
 import { allowPublicRequest } from "@/server/rate-limit";
 import { readBoundedJson, RequestBodyTooLarge } from "@/lib/request-body";
+import { hasAllowedJsonOrigin } from "@/lib/request-origin";
 import { householdSchema } from "@/lib/schemas";
 
 const input = z
@@ -19,6 +20,7 @@ const input = z
   })
   .strict();
 export async function POST(request: Request) {
+  if (!hasAllowedJsonOrigin(request)) return NextResponse.json({ error: "Invalid request origin or content type." }, { status: 403 });
   let parsed;
   try {
     parsed = input.safeParse(await readBoundedJson(request, 4096));
