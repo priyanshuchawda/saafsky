@@ -19,7 +19,11 @@ export async function checkPublicRequest(
       ? { allowed: true }
       : { allowed: false, reason: "unavailable" };
   const onVercel = Boolean(process.env.VERCEL);
-  const client = trustedClientKey(request.headers, onVercel, token);
+  const client = trustedClientKey(
+    request.headers,
+    onVercel,
+    process.env.RATE_LIMIT_HASH_SECRET ?? "",
+  );
   if (onVercel && !client) return { allowed: false, reason: "unavailable" };
   try {
     const redis = Redis.fromEnv();
