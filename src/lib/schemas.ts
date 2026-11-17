@@ -10,6 +10,25 @@ export const householdSchema = z
     cookingSmoke: z.boolean(),
   })
   .strict();
+export const chatInputSchema = z
+  .object({
+    question: z.string().trim().min(1).max(500),
+    latitude: z.number().finite().min(-90).max(90),
+    longitude: z.number().finite().min(-180).max(180),
+    profile: householdSchema,
+    history: z
+      .array(
+        z
+          .object({
+            role: z.enum(["user", "assistant"]),
+            text: z.string().max(500),
+          })
+          .strict(),
+      )
+      .max(4)
+      .default([]),
+  })
+  .strict();
 export const airSchema = z
   .object({
     timezone: z.string(),

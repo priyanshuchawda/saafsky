@@ -62,3 +62,32 @@ test("pages fit a narrow mobile viewport", async ({ page }) => {
     ).toBeLessThanOrEqual(320);
   }
 });
+
+test("assistant response remains accessible after a conversation", async ({
+  page,
+}) => {
+  await page.route("**/api/chat", (route) =>
+    route.fulfill({
+      json: {
+        mode: "fallback",
+        answer: "Check local conditions.",
+        uncertainty: "AI is unavailable.",
+      },
+    }),
+  );
+  await page.goto("/assistant", { waitUntil: "networkidle" });
+  await page
+    .getByLabel("YOUR QUESTION ABOUT DELHI")
+    .fill("How should I plan my trip?");
+  await page.getByRole("button", { name: "Ask SaafSky" }).click();
+  await expect(page.getByText("RULE-BASED FALLBACK")).toBeVisible();
+  const results = await new AxeBuilder({ page })
+    .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
+    .analyze();
+  expect(
+    results.violations.map((violation) => ({
+      id: violation.id,
+      targets: violation.nodes.map((node) => node.target),
+    })),
+  ).toEqual([]);
+});

@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { z } from "zod";
 import { Redis } from "@upstash/redis";
 import { Ratelimit } from "@upstash/ratelimit";
 import { loadAir } from "@/server/air-provider";
@@ -9,21 +8,17 @@ import { explainPlan } from "@/server/chat";
 import { allowPublicRequest } from "@/server/rate-limit";
 import { readBoundedJson, RequestBodyTooLarge } from "@/lib/request-body";
 import { hasAllowedJsonOrigin } from "@/lib/request-origin";
-import { householdSchema } from "@/lib/schemas";
+import { chatInputSchema } from "@/lib/schemas";
 
-const input = z
-  .object({
-    question: z.string().trim().min(1).max(500),
-    latitude: z.number().finite().min(-90).max(90),
-    longitude: z.number().finite().min(-180).max(180),
-    profile: householdSchema,
-  })
-  .strict();
 export async function POST(request: Request) {
-  if (!hasAllowedJsonOrigin(request)) return NextResponse.json({ error: "Invalid request origin or content type." }, { status: 403 });
+  if (!hasAllowedJsonOrigin(request))
+    return NextResponse.json(
+      { error: "Invalid request origin or content type." },
+      { status: 403 },
+    );
   let parsed;
   try {
-    parsed = input.safeParse(await readBoundedJson(request, 4096));
+    parsed = chatInputSchema.safeParse(await readBoundedJson(request, 12_288));
   } catch (error) {
     if (error instanceof RequestBodyTooLarge)
       return NextResponse.json({ error: "Request too large" }, { status: 413 });
@@ -36,7 +31,7 @@ export async function POST(request: Request) {
       { error: "Request limit reached or protection unavailable." },
       { status: 503 },
     );
-  const { question, latitude, longitude, profile } = parsed.data;
+  const { question, latitude, longitude, profile, history } = parsed.data;
   let aqi: number | null = null;
   try {
     const { data, retrievedAt } = await loadAir(
@@ -87,7 +82,7 @@ export async function POST(request: Request) {
     ]);
     if (!day.success || !short.success) return NextResponse.json(fallback);
     return NextResponse.json({
-      ...(await explainPlan(question, aqi, actions)),
+      ...(await explainPlan(question, aqi, actions, history)),
       mode: "ai",
     });
   } catch {

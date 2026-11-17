@@ -75,15 +75,17 @@ test("city and sensitivity follow the user and can be cleared", async ({
 test("assistant shows deterministic fallback without calling Gemini", async ({
   page,
 }) => {
-  await page.route("**/api/chat", (route) =>
-    route.fulfill({
+  const requests: unknown[] = [];
+  await page.route("**/api/chat", (route) => {
+    requests.push(route.request().postDataJSON());
+    return route.fulfill({
       json: {
         mode: "fallback",
         answer: "Check local conditions.",
         uncertainty: "AI is unavailable.",
       },
-    }),
-  );
+    });
+  });
   await page.goto("/assistant", { waitUntil: "networkidle" });
   await page
     .getByLabel("YOUR QUESTION ABOUT DELHI")
@@ -91,6 +93,19 @@ test("assistant shows deterministic fallback without calling Gemini", async ({
   await page.getByRole("button", { name: "Ask SaafSky" }).click();
   await expect(page.getByText("RULE-BASED FALLBACK")).toBeVisible();
   await expect(page.getByText("Check local conditions.")).toBeVisible();
+  await page
+    .getByLabel("YOUR QUESTION ABOUT DELHI")
+    .fill("What about tomorrow?");
+  await page.getByRole("button", { name: "Ask SaafSky" }).click();
+  await expect(page.getByText("RULE-BASED FALLBACK")).toHaveCount(2);
+  expect(requests[1]).toMatchObject({
+    history: [
+      { role: "user", text: "How should I plan a trip?" },
+      { role: "assistant", text: "Check local conditions." },
+    ],
+  });
+  await page.getByRole("button", { name: "Clear conversation" }).click();
+  await expect(page.getByText("RULE-BASED FALLBACK")).toHaveCount(0);
 });
 
 test("impact calculator displays a sourced-factor comparison", async ({
