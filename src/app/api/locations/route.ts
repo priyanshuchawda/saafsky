@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { locationSchema } from "@/lib/schemas";
 
 export async function GET(request: Request) {
   const query = new URL(request.url).searchParams.get("q")?.trim() ?? "";
@@ -8,6 +9,6 @@ export async function GET(request: Request) {
     url.search = new URLSearchParams({ name: query, count: "8", language: "en", format: "json" }).toString();
     const response = await fetch(url, { next: { revalidate: 86400 }, signal: AbortSignal.timeout(8000) });
     if (!response.ok) throw new Error("Provider error");
-    return NextResponse.json(await response.json());
+    return NextResponse.json(locationSchema.parse(await response.json()));
   } catch { return NextResponse.json({ error: "Location search is unavailable." }, { status: 503 }); }
 }

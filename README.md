@@ -12,6 +12,6 @@ Run `npm test`, `npm run lint`, `npm run typecheck`, and `npm run build`.
 
 ## Current state and plan
 
-The first increment includes city lookup, cached forecast requests, basic household-sensitive rules and tests. Upcoming work includes runtime validation, reliable freshness metadata, a richer evidence-reviewed rule catalog, demo fixtures, Gemini with a server-only key and privacy controls, shared rate limiting, an emissions calculator, accessibility and end-to-end checks, and deployment. The current recommendations are general information and not medical advice.
+The first increments include city lookup, cached forecast requests, provider-response validation, basic household-sensitive rules and tests. Upcoming work includes stale-data warnings, a richer evidence-reviewed rule catalog, demo fixtures, Gemini with a server-only key and privacy controls, shared rate limiting, an emissions calculator, accessibility and end-to-end checks, and deployment. The current recommendations are general information and not medical advice.
 
 Open-Meteo responses are cached by Next.js for 30 minutes for air data and 24 hours for locations. Cache availability and sharing depend on the deployment environment; there is no uptime guarantee.
