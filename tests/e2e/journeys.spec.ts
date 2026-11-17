@@ -34,7 +34,13 @@ test("city and sensitivity follow the user and can be cleared", async ({
     route.fulfill({
       json: {
         results: [
-          { name: "Pune", country: "India", latitude: 18.52, longitude: 73.85 },
+          {
+            name: "Pune",
+            admin1: "Maharashtra",
+            country: "India",
+            latitude: 18.52,
+            longitude: 73.85,
+          },
         ],
       },
     }),
@@ -61,12 +67,15 @@ test("city and sensitivity follow the user and can be cleared", async ({
   await page.goto("/", { waitUntil: "networkidle" });
   await page.getByLabel("YOUR LOCATION").fill("Pune");
   await page.getByRole("button", { name: "Search", exact: true }).click();
-  await page.getByRole("button", { name: "Pune, India" }).click();
+  await page.getByRole("button", { name: "Pune, Maharashtra, India" }).click();
   await page.getByLabel("YOUR HOUSEHOLD").selectOption("sensitive");
   await page.goto("/planner", { waitUntil: "networkidle" });
   await expect(page.getByLabel("HOUSEHOLD")).toHaveValue("sensitive");
   await expect(page.getByText("FORECAST FOR PUNE")).toBeVisible();
   await page.goto("/settings", { waitUntil: "networkidle" });
+  await expect(
+    page.getByText("Pune, Maharashtra, India", { exact: true }),
+  ).toBeVisible();
   await page.getByLabel("CHILDREN IN HOUSEHOLD").selectOption("yes");
   await page.getByLabel("OUTDOOR EXERCISE").selectOption("yes");
   expect(
@@ -81,7 +90,119 @@ test("city and sensitivity follow the user and can be cleared", async ({
   await page.goto("/settings", { waitUntil: "networkidle" });
   await page.getByRole("button", { name: "Clear preferences" }).click();
   await expect(page.getByText("Preferences cleared.")).toBeVisible();
-  await expect(page.getByText("Delhi", { exact: true })).toBeVisible();
+  await expect(page.getByText("Delhi, India", { exact: true })).toBeVisible();
+});
+
+test("stale model values are not presented as current air measurements", async ({
+  page,
+}) => {
+  await page.route("**/api/air?**", (route) =>
+    route.fulfill({
+      json: {
+        retrievedAt: new Date().toISOString(),
+        data: {
+          timezone: "UTC",
+          utc_offset_seconds: 0,
+          current: {
+            time: "2020-01-01T10:00",
+            us_aqi: 180,
+            pm2_5: 123.4,
+            pm10: 234.5,
+          },
+          hourly: { time: [], us_aqi: [] },
+        },
+      },
+    }),
+  );
+  await page.goto("/", { waitUntil: "networkidle" });
+  await expect(page.getByRole("status")).toContainText("stale");
+  await expect(page.getByText("123.4", { exact: true })).toHaveCount(0);
+  await expect(page.getByText("234.5", { exact: true })).toHaveCount(0);
+});
+
+test("planner respects activity duration and distinguishes elevated conditions", async ({
+  page,
+}) => {
+  const now = new Date();
+  const firstHour =
+    Math.floor(now.getTime() / 3_600_000) * 3_600_000 + 3_600_000;
+  const time = (index: number) =>
+    new Date(firstHour + index * 3_600_000).toISOString().slice(0, 16);
+  await page.route("**/api/air?**", (route) =>
+    route.fulfill({
+      json: {
+        retrievedAt: now.toISOString(),
+        data: {
+          timezone: "UTC",
+          utc_offset_seconds: 0,
+          current: {
+            time: now.toISOString().slice(0, 16),
+            us_aqi: 120,
+            pm2_5: 40,
+            pm10: 60,
+          },
+          hourly: {
+            time: [time(0), time(1), time(2), time(3)],
+            us_aqi: [120, 80, 90, 180],
+          },
+        },
+      },
+    }),
+  );
+  await page.goto("/planner", { waitUntil: "networkidle" });
+  await page.getByLabel("HOUSEHOLD").selectOption("sensitive");
+  await page.getByLabel("EARLIEST TIME").fill(time(0));
+  await page.getByLabel("LATEST TIME (EXCLUSIVE)").fill(time(4));
+  await page.getByLabel("TIME NEEDED").selectOption("2");
+  await expect(page.getByText(/peak US AQI 90/)).toBeVisible();
+  await page.getByLabel("LATEST TIME (EXCLUSIVE)").fill(time(1));
+  await page.getByLabel("TIME NEEDED").selectOption("1");
+  await expect(
+    page.getByText(/All complete forecast windows exceed/),
+  ).toBeVisible();
+  await page
+    .getByLabel("CAN THE OUTING BE POSTPONED?")
+    .selectOption("essential");
+  await expect(page.getByText(/All complete options exceed/)).toBeVisible();
+});
+
+test("indoor advice uses the selected outdoor estimate without claiming an indoor measurement", async ({
+  page,
+}) => {
+  const now = new Date();
+  await page.route("**/api/air?**", (route) =>
+    route.fulfill({
+      json: {
+        retrievedAt: now.toISOString(),
+        data: {
+          timezone: "UTC",
+          utc_offset_seconds: 0,
+          current: {
+            time: now.toISOString().slice(0, 16),
+            us_aqi: 120,
+            pm2_5: 40,
+            pm10: 60,
+          },
+          hourly: { time: [], us_aqi: [] },
+        },
+      },
+    }),
+  );
+  await page.goto("/indoor", { waitUntil: "networkidle" });
+  await expect(
+    page.getByText(/Outdoor model estimate for Delhi: US AQI 120/),
+  ).toBeVisible();
+  await expect(
+    page.getByText(/Reduce polluted outdoor air entry/),
+  ).toBeVisible();
+  await page.getByLabel("COOKING SMOKE?").selectOption("yes");
+  await expect(
+    page.getByText(/Reduce cooking smoke where possible/),
+  ).toBeVisible();
+  await page.getByLabel("OUTDOOR AIR CONTEXT").selectOption("unknown");
+  await expect(
+    page.getByText(/Check current outdoor conditions and maintain/),
+  ).toBeVisible();
 });
 
 test("assistant shows deterministic fallback without calling Gemini", async ({
@@ -93,6 +214,7 @@ test("assistant shows deterministic fallback without calling Gemini", async ({
     return route.fulfill({
       json: {
         mode: "fallback",
+        referencedActionIds: [],
         answer: "Check local conditions.",
         uncertainty: "AI is unavailable.",
       },
@@ -124,6 +246,12 @@ test("impact calculator displays a sourced-factor comparison", async ({
   page,
 }) => {
   await page.goto("/impact", { waitUntil: "networkidle" });
+  await expect(page.getByRole("heading", { name: /11\.77 kg/ })).toBeVisible();
+  await page.getByLabel("PEOPLE IN CAR").fill("2");
+  await expect(
+    page.getByRole("heading", { name: /4\.50 kg.*more/ }),
+  ).toBeVisible();
+  await page.getByLabel("CURRENT TRAVEL").selectOption("custom");
   await page.getByLabel("BASELINE FACTOR (KG CO₂E / PASSENGER-KM)").fill("0.2");
   await expect(page.getByRole("heading", { name: /19\.23 kg/ })).toBeVisible();
 });

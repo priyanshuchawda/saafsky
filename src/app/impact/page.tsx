@@ -4,6 +4,8 @@ import { useState } from "react";
 import {
   monthlyImpact,
   UK_BUS_KG_PER_PASSENGER_KM,
+  UK_PETROL_CAR_KG_PER_VEHICLE_KM,
+  petrolCarPassengerFactor,
   type Mode,
 } from "@/features/sustainability/calculate";
 
@@ -11,22 +13,33 @@ export default function Impact() {
   const [distance, setDistance] = useState("10");
   const [days, setDays] = useState("20");
   const [baseline, setBaseline] = useState("");
+  const [baselineMode, setBaselineMode] = useState<"car" | "custom">("car");
+  const [occupants, setOccupants] = useState("1");
   const [custom, setCustom] = useState("");
   const [mode, setMode] = useState<Mode>("bus");
+  const baselineFactor =
+    baselineMode === "car"
+      ? occupants.trim()
+        ? petrolCarPassengerFactor(Number(occupants))
+        : null
+      : baseline.trim()
+        ? Number(baseline)
+        : null;
   const complete =
     distance.trim() !== "" &&
     days.trim() !== "" &&
-    baseline.trim() !== "" &&
+    baselineFactor !== null &&
     (mode !== "custom" || custom.trim() !== "");
-  const result = complete
-    ? monthlyImpact(
-        Number(distance),
-        Number(days),
-        Number(baseline),
-        mode,
-        mode === "custom" ? Number(custom) : 0,
-      )
-    : null;
+  const result =
+    complete && baselineFactor !== null
+      ? monthlyImpact(
+          Number(distance),
+          Number(days),
+          baselineFactor,
+          mode,
+          mode === "custom" ? Number(custom) : 0,
+        )
+      : null;
   return (
     <main id="main-content" tabIndex={-1} className="shell scenario">
       <header className="top">
@@ -40,10 +53,37 @@ export default function Impact() {
         Compare your <em>choices.</em>
       </h1>
       <p className="lead">
-        Estimate attributed travel emissions with your own baseline factor.
-        Results depend on the factors and occupancy you choose.
+        Estimate attributed travel emissions using a UK proxy or your own
+        sourced factor. Results depend on the factors and occupancy you choose.
       </p>
       <div className="toolbar impact-form">
+        <div className="profile">
+          <label htmlFor="baseline-mode">CURRENT TRAVEL</label>
+          <select
+            id="baseline-mode"
+            value={baselineMode}
+            onChange={(event) =>
+              setBaselineMode(event.target.value as "car" | "custom")
+            }
+          >
+            <option value="car">Average UK petrol car (proxy)</option>
+            <option value="custom">Use my own factor</option>
+          </select>
+        </div>
+        {baselineMode === "car" && (
+          <div className="profile">
+            <label htmlFor="occupants">PEOPLE IN CAR</label>
+            <input
+              id="occupants"
+              type="number"
+              min="1"
+              max="8"
+              step="1"
+              value={occupants}
+              onChange={(event) => setOccupants(event.target.value)}
+            />
+          </div>
+        )}
         <div className="profile">
           <label htmlFor="distance">DAILY ROUND-TRIP DISTANCE (KM)</label>
           <input
@@ -68,21 +108,23 @@ export default function Impact() {
             onChange={(e) => setDays(e.target.value)}
           />
         </div>
-        <div className="profile">
-          <label htmlFor="baseline">
-            BASELINE FACTOR (KG CO₂E / PASSENGER-KM)
-          </label>
-          <input
-            id="baseline"
-            type="number"
-            min="0"
-            max="10"
-            step="any"
-            value={baseline}
-            onChange={(e) => setBaseline(e.target.value)}
-            placeholder="Enter a sourced factor"
-          />
-        </div>
+        {baselineMode === "custom" && (
+          <div className="profile">
+            <label htmlFor="baseline">
+              BASELINE FACTOR (KG CO₂E / PASSENGER-KM)
+            </label>
+            <input
+              id="baseline"
+              type="number"
+              min="0"
+              max="10"
+              step="any"
+              value={baseline}
+              onChange={(e) => setBaseline(e.target.value)}
+              placeholder="Enter a sourced factor"
+            />
+          </div>
+        )}
         <div className="profile">
           <label htmlFor="mode">ALTERNATIVE</label>
           <select
@@ -130,13 +172,15 @@ export default function Impact() {
           <p>Enter a valid baseline factor and inputs to see a comparison.</p>
         )}
         <p className="fine">
-          The bus factor is {UK_BUS_KG_PER_PASSENGER_KM} kg CO₂e per
-          passenger-km, using 2025 UK average occupancy. It is a UK proxy, not
-          an India-specific estimate. Walking and cycling are assigned zero
-          direct vehicle emissions; food, vehicle manufacture and infrastructure
-          are excluded. A baseline vehicle-km factor must be divided by
-          occupants before entering it here. An emissions difference does not
-          predict local AQI or health impact.
+          The average petrol car factor is {UK_PETROL_CAR_KG_PER_VEHICLE_KM} kg
+          CO₂e per vehicle-km, divided by the number of occupants. The bus
+          factor is {UK_BUS_KG_PER_PASSENGER_KM} kg CO₂e per passenger-km, using
+          2025 UK average occupancy. It is a UK proxy, not an India-specific
+          estimate. Walking and cycling are assigned zero direct vehicle
+          emissions; food, vehicle manufacture and infrastructure are excluded.
+          A baseline vehicle-km factor must be divided by occupants before
+          entering it here. An emissions difference does not predict local AQI
+          or health impact.
         </p>
         <p className="fine">
           Walking or cycling near traffic can increase pollution exposure during
@@ -144,6 +188,10 @@ export default function Impact() {
           alternatives. Source:{" "}
           <a href="https://assets.publishing.service.gov.uk/media/6846b0870392ed9b784c0187/2025-GHG-CF-methodology-paper.pdf">
             UK government 2025 methodology, table 25
+          </a>
+          {" and "}
+          <a href="https://www.gov.uk/government/publications/greenhouse-gas-reporting-conversion-factors-2025">
+            2025 conversion factors
           </a>
           .
         </p>

@@ -1,11 +1,33 @@
 "use client";
 import Link from "next/link";
 import { useState } from "react";
+import { useCity, useHousehold } from "@/hooks/use-preferences";
+import { useAirQuality } from "@/hooks/use-air-quality";
+import {
+  generateIndoorAdvice,
+  outdoorCondition,
+  type OutdoorCondition,
+} from "@/features/indoor/advice";
 
 export default function IndoorAdvisor() {
-  const [smoke, setSmoke] = useState(false);
+  const [city] = useCity();
+  const [profile, setProfile] = useHousehold();
+  const airState = useAirQuality(city);
   const [purifier, setPurifier] = useState(false);
-  const [outdoorPoor, setOutdoorPoor] = useState(false);
+  const [outdoorMode, setOutdoorMode] = useState<"auto" | OutdoorCondition>(
+    "auto",
+  );
+  const aqi =
+    airState.kind === "success" && airState.fresh
+      ? airState.data.current.us_aqi
+      : null;
+  const condition =
+    outdoorMode === "auto" ? outdoorCondition(aqi) : outdoorMode;
+  const actions = generateIndoorAdvice(
+    profile.cookingSmoke,
+    purifier,
+    condition,
+  );
   return (
     <main id="main-content" tabIndex={-1} className="shell scenario">
       <header className="top">
@@ -24,11 +46,13 @@ export default function IndoorAdvisor() {
       </p>
       <div className="toolbar">
         <div className="profile">
-          <label htmlFor="smoke">COOKING OR OTHER INDOOR SMOKE?</label>
+          <label htmlFor="smoke">COOKING SMOKE?</label>
           <select
             id="smoke"
-            value={smoke ? "yes" : "no"}
-            onChange={(e) => setSmoke(e.target.value === "yes")}
+            value={profile.cookingSmoke ? "yes" : "no"}
+            onChange={(e) =>
+              setProfile({ ...profile, cookingSmoke: e.target.value === "yes" })
+            }
           >
             <option value="no">Not selected</option>
             <option value="yes">Yes</option>
@@ -46,60 +70,42 @@ export default function IndoorAdvisor() {
           </select>
         </div>
         <div className="profile">
-          <label htmlFor="outdoor">IS OUTDOOR AIR POOR?</label>
+          <label htmlFor="outdoor">OUTDOOR AIR CONTEXT</label>
           <select
             id="outdoor"
-            value={outdoorPoor ? "yes" : "no"}
-            onChange={(e) => setOutdoorPoor(e.target.value === "yes")}
+            value={outdoorMode}
+            onChange={(e) =>
+              setOutdoorMode(e.target.value as "auto" | OutdoorCondition)
+            }
           >
-            <option value="no">No or unsure</option>
-            <option value="yes">Yes</option>
+            <option value="auto">Use selected city</option>
+            <option value="elevated">Outdoor air is poor</option>
+            <option value="unknown">Not sure</option>
           </select>
         </div>
       </div>
+      <p className="fine" role="status">
+        {outdoorMode === "auto"
+          ? aqi === null
+            ? `Current outdoor data for ${city.name} is unavailable or stale.`
+            : `Outdoor model estimate for ${city.name}: US AQI ${Math.round(aqi)}. This is not an indoor measurement.`
+          : "Using your selected outdoor-air context."}
+      </p>
       <section className="plan scenario-result" aria-live="polite">
         <p className="eyebrow">YOUR INDOOR ACTIONS</p>
         <h2>
           Small steps for a <em>cleaner room.</em>
         </h2>
         <ol>
-          <li>
-            <span>01</span>
-            <div>
-              <strong>Reduce indoor sources</strong>
-              <p>
-                {smoke
-                  ? "Reduce cooking smoke where possible and use an exhaust fan vented outdoors while cooking."
-                  : "Avoid unnecessary indoor smoke from candles, incense, smoking and other sources."}
-              </p>
-            </div>
-          </li>
-          <li>
-            <span>02</span>
-            <div>
-              <strong>
-                {purifier
-                  ? "Use your purifier effectively"
-                  : "Choose a cleaner-air room"}
-              </strong>
-              <p>
-                {purifier
-                  ? "Use a suitably sized particle-filtering purifier and maintain its filter. Avoid devices that produce ozone."
-                  : "Spend time in a comfortable room with fewer indoor smoke sources; filtration can help if it is available."}
-              </p>
-            </div>
-          </li>
-          <li>
-            <span>03</span>
-            <div>
-              <strong>Balance ventilation and safety</strong>
-              <p>
-                {outdoorPoor
-                  ? "Reduce polluted outdoor air entry where practical, while maintaining safe temperatures and necessary ventilation, especially when cooking."
-                  : "When outdoor air improves, consider ventilation while accounting for indoor sources and household safety."}
-              </p>
-            </div>
-          </li>
+          {actions.map((action, index) => (
+            <li key={action.id}>
+              <span>0{index + 1}</span>
+              <div>
+                <strong>{action.title}</strong>
+                <p>{action.detail}</p>
+              </div>
+            </li>
+          ))}
         </ol>
         <p className="fine">
           These are general actions, not an indoor measurement. Source:{" "}

@@ -1,6 +1,9 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { monthlyImpact } from "../src/features/sustainability/calculate.ts";
+import {
+  monthlyImpact,
+  petrolCarPassengerFactor,
+} from "../src/features/sustainability/calculate.ts";
 
 test("impact uses distance, days and per-passenger factors", () => {
   assert.deepEqual(monthlyImpact(10, 20, 0.2, "bus"), {
@@ -11,4 +14,26 @@ test("impact uses distance, days and per-passenger factors", () => {
   assert.equal(monthlyImpact(0, 20, 0.2, "walk")?.difference, 0);
   assert.ok(monthlyImpact(10, 20, 0.01, "bus")!.difference < 0);
   assert.equal(monthlyImpact(10, 32, 0.2, "bus"), null);
+});
+
+test("car attribution accounts for occupancy and rejects invalid values", () => {
+  assert.equal(petrolCarPassengerFactor(2), 0.16272 / 2);
+  assert.equal(petrolCarPassengerFactor(0), null);
+  assert.equal(petrolCarPassengerFactor(1.5), null);
+});
+
+test("emission comparisons preserve arithmetic invariants", () => {
+  for (const distance of [0, 1, 10, 100])
+    for (const days of [0, 5, 20, 31]) {
+      const result = monthlyImpact(distance, days, 0.2, "bus");
+      assert.ok(result);
+      assert.ok(
+        Math.abs(result.difference - (result.baseline - result.alternative)) <
+          1e-9,
+      );
+      assert.equal(
+        monthlyImpact(distance, days, 0.2, "custom", 0.2)?.difference,
+        0,
+      );
+    }
 });

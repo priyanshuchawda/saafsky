@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { LocationSearch } from "@/components/location-search";
 import { useAirQuality } from "@/hooks/use-air-quality";
-import { planOutdoorWindow } from "@/features/planner/plan";
+import { findActivityWindow } from "@/features/planner/activity-window";
 import { generateDailyPlan } from "@/features/planner/daily";
 import type { HouseholdProfile } from "@/features/recommendations/engine";
 import { category, upcomingForecast } from "@/lib/air";
@@ -15,6 +15,8 @@ export default function Planner() {
   const [city, setCity] = useCity();
   const [start, setStart] = useState("");
   const [end, setEnd] = useState("");
+  const [durationHours, setDurationHours] = useState(1);
+  const [essential, setEssential] = useState(false);
   const [profile, setProfile] = useHousehold();
   const state = useAirQuality(city);
   const air = state.kind === "success" && state.fresh ? state.data : null;
@@ -26,7 +28,13 @@ export default function Planner() {
     air && localNow
       ? upcomingForecast(air.hourly.time, air.hourly.us_aqi, localNow)
       : [];
-  const result = planOutdoorWindow(hours, start, end);
+  const result = findActivityWindow(hours, {
+    start,
+    end,
+    durationHours,
+    essential,
+    sensitive: profile.sensitive || profile.children,
+  });
   const steps = generateDailyPlan(air?.current.us_aqi ?? null, profile);
   return (
     <main id="main-content" tabIndex={-1} className="shell scenario">
@@ -44,7 +52,7 @@ export default function Planner() {
         Compare forecast hours within a time window you choose. This is an
         estimate, not a guarantee of safe air.
       </p>
-      <div className="toolbar">
+      <div className="toolbar impact-form">
         <LocationSearch onSelect={setCity} />
         <div className="profile">
           <label htmlFor="plan-profile">HOUSEHOLD</label>
@@ -99,6 +107,34 @@ export default function Planner() {
             onChange={(event) => setEnd(event.target.value)}
           />
         </div>
+        <div className="profile">
+          <label htmlFor="activity-duration">TIME NEEDED</label>
+          <select
+            id="activity-duration"
+            value={durationHours}
+            onChange={(event) => setDurationHours(Number(event.target.value))}
+          >
+            <option value={1}>1 hour</option>
+            <option value={2}>2 hours</option>
+            <option value={3}>3 hours</option>
+            <option value={4}>4 hours</option>
+          </select>
+        </div>
+        <div className="profile">
+          <label htmlFor="activity-essential">
+            CAN THE OUTING BE POSTPONED?
+          </label>
+          <select
+            id="activity-essential"
+            value={essential ? "essential" : "flexible"}
+            onChange={(event) =>
+              setEssential(event.target.value === "essential")
+            }
+          >
+            <option value="flexible">Yes, it is flexible</option>
+            <option value="essential">No, it is essential</option>
+          </select>
+        </div>
       </div>
       <section className="plan scenario-result" aria-live="polite">
         <p className="eyebrow">YOUR DAILY PLAN</p>
@@ -140,23 +176,36 @@ export default function Planner() {
         {air &&
           start &&
           end &&
-          (result.kind === "available" ? (
+          (result.kind === "available" || result.kind === "elevated" ? (
             <p>
-              Lowest available forecast:{" "}
-              <strong>{result.time.replace("T", " ")}</strong> · US AQI{" "}
-              {Math.round(result.aqi)} ({category(result.aqi)}), across{" "}
-              {result.considered} available hours. Even the lowest period may be
-              unhealthy; consider postponing nonessential outdoor activity.
+              {result.kind === "elevated"
+                ? "All complete options exceed the precaution threshold. For an essential outing, the lowest modeled peak is"
+                : "Lowest modeled peak within a complete window:"}{" "}
+              <strong>
+                {result.start.replace("T", " ")}–{result.end.replace("T", " ")}
+              </strong>{" "}
+              · peak US AQI {Math.round(result.peakAqi)} (
+              {category(result.peakAqi)}). This is an estimate, not a guarantee
+              of safe conditions.
+            </p>
+          ) : result.kind === "no-suitable" ? (
+            <p>
+              All complete forecast windows exceed this household’s precaution
+              threshold. Consider postponing the flexible outing or choosing an
+              indoor alternative.
             </p>
           ) : (
             <p>
-              No usable forecast falls within this window. Check the dates and
-              times or choose another window.
+              No complete forecast window is available. Check the dates, times
+              and duration or choose another window.
             </p>
           ))}
         <p className="fine">
           Model forecast: Open-Meteo / CAMS. Local conditions may differ. This
-          tool does not measure personal exposure or provide medical advice.
+          tool does not measure personal exposure or provide medical advice. The
+          comparison uses hourly model values and a conservative US AQI
+          precaution threshold of 100 for sensitive households and 150
+          otherwise; it does not establish a safe level.
         </p>
       </section>
       <footer>

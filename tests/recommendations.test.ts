@@ -50,3 +50,23 @@ test("planned outdoor exercise and cooking smoke affect actions", () => {
     "medium",
   );
 });
+
+test("adding sensitivity never weakens the highest health priority", () => {
+  const rank = { low: 1, medium: 2, high: 3 } as const;
+  for (const aqi of [0, 50, 51, 100, 101, 150, 151, 200, 201, 300, 301]) {
+    const healthRank = (profile: HouseholdProfile) =>
+      Math.max(
+        ...generateRecommendations(aqi, profile)
+          .filter((action) => action.category === "health")
+          .map((action) => rank[action.priority]),
+      );
+    assert.ok(
+      healthRank({ ...adult, sensitive: true }) >= healthRank(adult),
+      `AQI ${aqi}`,
+    );
+    assert.ok(
+      healthRank({ ...adult, children: true }) >= healthRank(adult),
+      `AQI ${aqi}`,
+    );
+  }
+});
