@@ -8,11 +8,11 @@ Requires Node.js 22.18 or newer. Run `npm ci`, then `npm run dev` and open http:
 
 ## Checks
 
-Run `npm test`, `npm run lint`, `npm run typecheck`, and `npm run build`.
+Run `npm test`, `npm run lint`, `npm run typecheck`, and `npm run build`. To run the mocked browser journeys, install Chromium with `npx playwright install chromium` and run `npm run test:e2e`; these tests do not call Gemini.
 
 ## Current state and plan
 
-The app includes city lookup, cached and validated air forecasts, stale-data checks, a basic rule-based plan, an offline scenario at `/scenarios`, an outing-window comparison at `/planner`, a factor-based emissions comparison at `/impact`, and an assistant at `/assistant`. The assistant uses a deterministic fallback unless Gemini and shared rate-limiter credentials are configured. Recommendations are general information and not medical advice.
+The app includes city lookup, cached and validated air forecasts, stale-data checks, a basic rule-based plan, an offline scenario at `/scenarios`, an outing-window comparison at `/planner`, an indoor-air advisor at `/indoor`, a factor-based emissions comparison at `/impact`, and an assistant at `/assistant`. The assistant uses a deterministic fallback unless Gemini and shared rate-limiter credentials are configured. Recommendations are general information and not medical advice.
 
 Gemini is optional. Set `GEMINI_API_KEY`, `GEMINI_MODEL`, `UPSTASH_REDIS_REST_URL`, and `UPSTASH_REDIS_REST_TOKEN` in `.env.local`. Without both Upstash credentials the assistant never calls Gemini. A global limit of 3 requests per minute and 20 per day applies when configured; rate-limit errors fail closed to the fallback. Verify that the Google and Upstash projects are on free tiers before enabling them. Free-tier Gemini content may be used by Google to improve products; the interface asks users not to enter personal or medical details. AI output is schema-checked and action references are validated, but free text can still be wrong.
 

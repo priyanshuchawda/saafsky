@@ -1,0 +1,25 @@
+import { expect, test } from "@playwright/test";
+
+test("scenario changes for children and outdoor commuters", async ({ page }) => {
+  await page.goto("/scenarios", { waitUntil: "networkidle" });
+  await page.getByLabel("CHILDREN IN HOUSEHOLD").selectOption("yes");
+  await expect(page.getByText("Reduce outdoor exertion", { exact: true })).toBeVisible();
+  await page.getByLabel("ILLUSTRATIVE US AQI").selectOption("180");
+  await page.getByLabel("COMMUTE", { exact: true }).selectOption("bike");
+  await expect(page.getByText("Review your commute", { exact: true })).toBeVisible();
+});
+
+test("assistant shows deterministic fallback without calling Gemini", async ({ page }) => {
+  await page.route("**/api/chat", route => route.fulfill({ json: { mode: "fallback", answer: "Check local conditions.", uncertainty: "AI is unavailable." } }));
+  await page.goto("/assistant", { waitUntil: "networkidle" });
+  await page.getByLabel("YOUR QUESTION ABOUT DELHI").fill("How should I plan a trip?");
+  await page.getByRole("button", { name: "Ask SaafSky" }).click();
+  await expect(page.getByText("RULE-BASED FALLBACK")).toBeVisible();
+  await expect(page.getByText("Check local conditions.")).toBeVisible();
+});
+
+test("impact calculator displays a sourced-factor comparison", async ({ page }) => {
+  await page.goto("/impact", { waitUntil: "networkidle" });
+  await page.getByLabel("BASELINE FACTOR (KG CO₂E / PASSENGER-KM)").fill("0.2");
+  await expect(page.getByRole("heading", { name: /19\.23 kg/ })).toBeVisible();
+});
