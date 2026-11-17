@@ -8,4 +8,23 @@ test("chat accepts JSON from its own origin or a direct API client", () => {
   assert.equal(hasAllowedJsonOrigin(new Request(url, { headers: { "content-type": "application/json" } })), true);
   assert.equal(hasAllowedJsonOrigin(new Request(url, { headers: { origin: "https://other.example", "content-type": "application/json" } })), false);
   assert.equal(hasAllowedJsonOrigin(new Request(url, { headers: { "content-type": "text/plain" } })), false);
+  assert.equal(
+    hasAllowedJsonOrigin(
+      new Request(url, {
+        headers: {
+          origin: "not a url",
+          "content-type": "application/json",
+        },
+      }),
+    ),
+    false,
+  );
+  assert.equal(
+    hasAllowedJsonOrigin(
+      new Request(url, {
+        headers: { "content-type": " Application/JSON ; charset=utf-8 " },
+      }),
+    ),
+    true,
+  );
 });

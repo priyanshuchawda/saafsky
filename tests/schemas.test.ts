@@ -66,16 +66,31 @@ test("chat history is bounded and rejects unexpected roles", () => {
 
 test("rejects malformed provider data and mismatched time series", () => {
   assert.equal(airSchema.safeParse({}).success, false);
+  const validAir = {
+    timezone: "Asia/Kolkata",
+    utc_offset_seconds: 19800,
+    current: {
+      time: "2026-01-01T12:00",
+      us_aqi: null,
+      pm2_5: null,
+      pm10: null,
+    },
+    hourly: { time: [], us_aqi: [] },
+  };
+  assert.equal(
+    airSchema.safeParse({ ...validAir, timezone: "Mars/Nowhere" }).success,
+    false,
+  );
   assert.equal(
     airSchema.safeParse({
-      timezone: "Asia/Kolkata",
-      utc_offset_seconds: 19800,
-      current: {
-        time: "2026-01-01T12:00",
-        us_aqi: null,
-        pm2_5: null,
-        pm10: null,
-      },
+      ...validAir,
+      current: { ...validAir.current, time: "2026-02-31T12:00" },
+    }).success,
+    false,
+  );
+  assert.equal(
+    airSchema.safeParse({
+      ...validAir,
       hourly: { time: ["one"], us_aqi: [] },
     }).success,
     false,
