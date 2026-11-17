@@ -129,14 +129,6 @@ export default function Assistant() {
           rows={4}
           placeholder="How should I plan an essential trip?"
         />
-        <p className="fine">
-          Do not enter names, medical history, or identifying details. If AI is
-          enabled, your question, current US AQI, a short local-time forecast
-          and selected actions are sent to Google; free-tier content may be used
-          to improve its products. Up to two previous exchanges are sent for
-          follow-up context. This app keeps conversation text in memory only
-          until you leave or clear this page.
-        </p>
         <button
           className="action-button"
           disabled={!!status && status.startsWith("Preparing")}
