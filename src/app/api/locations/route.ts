@@ -1,16 +1,13 @@
 import { NextResponse } from "next/server";
 import { locationSchema } from "@/lib/schemas";
-import { allowPublicRequest } from "@/server/rate-limit";
+import { checkPublicRequest, rateLimitResponse } from "@/server/rate-limit";
 
 export async function GET(request: Request) {
   const query = new URL(request.url).searchParams.get("q")?.trim() ?? "";
   if (query.length < 2 || query.length > 80)
     return NextResponse.json({ results: [] });
-  if (!(await allowPublicRequest("locations")))
-    return NextResponse.json(
-      { error: "Request limit reached or protection unavailable." },
-      { status: 503 },
-    );
+  const protection = await checkPublicRequest("locations", request);
+  if (!protection.allowed) return rateLimitResponse(protection);
   try {
     const url = new URL("https://geocoding-api.open-meteo.com/v1/search");
     url.search = new URLSearchParams({

@@ -111,6 +111,11 @@ export default function Settings() {
           are kept for this browser tab session only. Chat messages are not
           saved by the app. Browser settings may also clear this data.
         </p>
+        <p className="fine">
+          On supported hosting, a temporary pseudonymous value derived from your
+          IP address is used for rate limiting. The app does not store raw IP
+          addresses in its rate-limit database.
+        </p>
         <button
           className="action-button"
           type="button"

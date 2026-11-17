@@ -5,7 +5,7 @@ import { loadAir } from "@/server/air-provider";
 import { isFresh } from "@/lib/freshness";
 import { generateRecommendations } from "@/features/recommendations/engine";
 import { explainPlan } from "@/server/chat";
-import { allowPublicRequest } from "@/server/rate-limit";
+import { checkPublicRequest, rateLimitResponse } from "@/server/rate-limit";
 import { readBoundedJson, RequestBodyTooLarge } from "@/lib/request-body";
 import { hasAllowedJsonOrigin } from "@/lib/request-origin";
 import { chatInputSchema } from "@/lib/schemas";
@@ -26,11 +26,8 @@ export async function POST(request: Request) {
   }
   if (!parsed.success)
     return NextResponse.json({ error: "Invalid request" }, { status: 400 });
-  if (!(await allowPublicRequest("chat")))
-    return NextResponse.json(
-      { error: "Request limit reached or protection unavailable." },
-      { status: 503 },
-    );
+  const protection = await checkPublicRequest("chat", request);
+  if (!protection.allowed) return rateLimitResponse(protection);
   const { question, latitude, longitude, profile, history } = parsed.data;
   let aqi: number | null = null;
   try {
