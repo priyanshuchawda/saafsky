@@ -3,17 +3,12 @@ import Link from "next/link";
 import { useState } from "react";
 import type { FormEvent } from "react";
 import { LocationSearch } from "@/components/location-search";
-import type { City } from "@/types/air";
+import { useCity, useSensitivity } from "@/hooks/use-preferences";
 
 type Reply = { answer: string; uncertainty: string; mode: "ai" | "fallback" };
 export default function Assistant() {
-  const [city, setCity] = useState<City>({
-    name: "Delhi",
-    country: "India",
-    latitude: 28.6519,
-    longitude: 77.2315,
-  });
-  const [sensitive, setSensitive] = useState(false);
+  const [city, setCity] = useCity();
+  const [sensitive, setSensitive] = useSensitivity();
   const [question, setQuestion] = useState("");
   const [reply, setReply] = useState<Reply | null>(null);
   const [status, setStatus] = useState("");

@@ -1,9 +1,8 @@
 "use client";
-import { useState } from "react";
 import Link from "next/link";
 import { useAirQuality } from "@/hooks/use-air-quality";
 import { LocationSearch } from "@/components/location-search";
-import type { City } from "@/types/air";
+import { useCity, useSensitivity } from "@/hooks/use-preferences";
 import {
   advice,
   category,
@@ -11,15 +10,10 @@ import {
   upcomingForecast,
   type Profile,
 } from "@/lib/air";
-const initial: City = {
-  name: "Delhi",
-  country: "India",
-  latitude: 28.6519,
-  longitude: 77.2315,
-};
 export default function Home() {
-  const [city, setCity] = useState(initial);
-  const [profile, setProfile] = useState<Profile>("adult");
+  const [city, setCity] = useCity();
+  const [sensitive, setSensitive] = useSensitivity();
+  const profile: Profile = sensitive ? "sensitive" : "adult";
   const state = useAirQuality(city);
   const air = state.kind === "success" ? state.data : null;
   const updated = state.kind === "success" ? state.retrievedAt : "";
@@ -90,7 +84,7 @@ export default function Home() {
           <select
             id="profile"
             value={profile}
-            onChange={(e) => setProfile(e.target.value as Profile)}
+            onChange={(e) => setSensitive(e.target.value === "sensitive")}
           >
             <option value="adult">General guidance</option>
             <option value="sensitive">Sensitive household member</option>
@@ -191,7 +185,9 @@ export default function Home() {
             Open-Meteo
           </a>
           {" / "}
-          <a href="https://atmosphere.copernicus.eu/">Copernicus Atmosphere Monitoring Service (CAMS)</a>
+          <a href="https://atmosphere.copernicus.eu/">
+            Copernicus Atmosphere Monitoring Service (CAMS)
+          </a>
           . Forecast time:{" "}
           {air?.current?.time?.replace("T", " ") ?? "unavailable"}. Retrieved:{" "}
           {updated ? new Date(updated).toLocaleString() : "unavailable"}.
@@ -204,6 +200,7 @@ export default function Home() {
         <Link href="/impact">Compare commute impact ↗</Link>
         <Link href="/assistant">Ask SaafSky ↗</Link>
         <Link href="/indoor">Indoor air guide ↗</Link>
+        <Link href="/settings">Settings ↗</Link>
       </footer>
     </main>
   );

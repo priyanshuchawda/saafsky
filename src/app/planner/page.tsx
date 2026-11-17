@@ -8,18 +8,13 @@ import { planOutdoorWindow } from "@/features/planner/plan";
 import { generateDailyPlan } from "@/features/planner/daily";
 import type { HouseholdProfile } from "@/features/recommendations/engine";
 import { category, upcomingForecast } from "@/lib/air";
-import type { City } from "@/types/air";
+import { useCity, useSensitivity } from "@/hooks/use-preferences";
 
 export default function Planner() {
-  const [city, setCity] = useState<City>({
-    name: "Delhi",
-    country: "India",
-    latitude: 28.6519,
-    longitude: 77.2315,
-  });
+  const [city, setCity] = useCity();
   const [start, setStart] = useState("");
   const [end, setEnd] = useState("");
-  const [sensitive, setSensitive] = useState(false);
+  const [sensitive, setSensitive] = useSensitivity();
   const [commute, setCommute] = useState<HouseholdProfile["commute"]>("none");
   const state = useAirQuality(city);
   const air = state.kind === "success" && state.fresh ? state.data : null;

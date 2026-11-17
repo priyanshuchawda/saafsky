@@ -15,6 +15,51 @@ test("scenario changes for children and outdoor commuters", async ({
   ).toBeVisible();
 });
 
+test("city and sensitivity follow the user and can be cleared", async ({
+  page,
+}) => {
+  await page.route("**/api/locations?**", (route) =>
+    route.fulfill({
+      json: {
+        results: [
+          { name: "Pune", country: "India", latitude: 18.52, longitude: 73.85 },
+        ],
+      },
+    }),
+  );
+  const now = new Date();
+  await page.route("**/api/air?**", (route) =>
+    route.fulfill({
+      json: {
+        retrievedAt: now.toISOString(),
+        data: {
+          timezone: "UTC",
+          utc_offset_seconds: 0,
+          current: {
+            time: now.toISOString().slice(0, 16),
+            us_aqi: 120,
+            pm2_5: 40,
+            pm10: 60,
+          },
+          hourly: { time: [], us_aqi: [] },
+        },
+      },
+    }),
+  );
+  await page.goto("/", { waitUntil: "networkidle" });
+  await page.getByLabel("YOUR LOCATION").fill("Pune");
+  await page.getByRole("button", { name: "Search", exact: true }).click();
+  await page.getByRole("button", { name: "Pune, India" }).click();
+  await page.getByLabel("YOUR HOUSEHOLD").selectOption("sensitive");
+  await page.goto("/planner", { waitUntil: "networkidle" });
+  await expect(page.getByLabel("HOUSEHOLD")).toHaveValue("sensitive");
+  await expect(page.getByText("FORECAST FOR PUNE")).toBeVisible();
+  await page.goto("/settings", { waitUntil: "networkidle" });
+  await page.getByRole("button", { name: "Clear preferences" }).click();
+  await expect(page.getByText("Preferences cleared.")).toBeVisible();
+  await expect(page.getByText("Delhi", { exact: true })).toBeVisible();
+});
+
 test("assistant shows deterministic fallback without calling Gemini", async ({
   page,
 }) => {
