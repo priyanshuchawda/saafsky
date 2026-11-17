@@ -200,6 +200,7 @@ export default function Home() {
         <strong>✳ saafsky.</strong>
         <span>A calmer way to navigate the air around you.</span>
         <Link href="/impact">Compare commute impact ↗</Link>
+        <Link href="/assistant">Ask SaafSky ↗</Link>
       </footer>
     </main>
   );
