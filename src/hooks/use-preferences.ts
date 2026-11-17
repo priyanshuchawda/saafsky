@@ -71,6 +71,7 @@ export function useCity(): [City, (city: City) => void] {
       typeof item === "object" &&
       "name" in item &&
       typeof item.name === "string" &&
+      item.name.trim().length > 0 &&
       item.name.length <= 100 &&
       "latitude" in item &&
       typeof item.latitude === "number" &&
@@ -85,6 +86,16 @@ export function useCity(): [City, (city: City) => void] {
         name: item.name,
         latitude: item.latitude,
         longitude: item.longitude,
+        ...("country" in item &&
+        typeof item.country === "string" &&
+        item.country.length <= 100
+          ? { country: item.country }
+          : {}),
+        ...("admin1" in item &&
+        typeof item.admin1 === "string" &&
+        item.admin1.length <= 100
+          ? { admin1: item.admin1 }
+          : {}),
       };
   } catch {
     /* Use the default if stored data is malformed. */

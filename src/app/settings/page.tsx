@@ -27,7 +27,10 @@ export default function Settings() {
       <section className="plan">
         <h2>Saved preferences</h2>
         <p>
-          Selected city: <strong>{city.name}</strong>
+          Selected city:{" "}
+          <strong>
+            {[city.name, city.admin1, city.country].filter(Boolean).join(", ")}
+          </strong>
         </p>
         <p>
           Household guidance:{" "}

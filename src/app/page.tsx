@@ -127,13 +127,14 @@ export default function Home() {
             <div>
               PM2.5
               <strong>
-                {air?.current?.pm2_5 ?? "—"} <small>µg/m³</small>
+                {fresh ? (air?.current?.pm2_5 ?? "—") : "—"}{" "}
+                <small>µg/m³</small>
               </strong>
             </div>
             <div>
               PM10
               <strong>
-                {air?.current?.pm10 ?? "—"} <small>µg/m³</small>
+                {fresh ? (air?.current?.pm10 ?? "—") : "—"} <small>µg/m³</small>
               </strong>
             </div>
           </div>
