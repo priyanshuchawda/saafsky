@@ -4,6 +4,8 @@ import { Ratelimit } from "@upstash/ratelimit";
 import { loadAir } from "@/server/air-provider";
 import { isFresh } from "@/lib/freshness";
 import { createAssistantReply } from "@/features/assistant/orchestrate";
+import { buildForecastContext } from "@/features/assistant/forecast-context";
+import type { ForecastContext } from "@/features/assistant/forecast-context";
 import { explainPlan } from "@/server/chat";
 import { checkPublicRequest, rateLimitResponse } from "@/server/rate-limit";
 import { decideLimits } from "@/server/rate-limit-result";
@@ -30,20 +32,17 @@ export async function POST(request: Request) {
   const protection = await checkPublicRequest("chat", request);
   if (!protection.allowed) return rateLimitResponse(protection);
   const { question, latitude, longitude, profile, history } = parsed.data;
+  let forecast: ForecastContext | null = null;
   const getAqi = async (): Promise<number | null> => {
     const { data, retrievedAt } = await loadAir(
       Math.round(latitude * 1000) / 1000,
       Math.round(longitude * 1000) / 1000,
     );
-    if (
-      isFresh(
-        retrievedAt,
-        data.current.time,
-        data.utc_offset_seconds,
-        Date.now(),
-      )
-    )
+    const now = Date.now();
+    if (isFresh(retrievedAt, data.current.time, data.utc_offset_seconds, now)) {
+      forecast = buildForecastContext(data, now);
       return data.current.us_aqi;
+    }
     return null;
   };
   const checkAiBudget = async (): Promise<boolean> => {
@@ -74,7 +73,7 @@ export async function POST(request: Request) {
       ),
       checkAiBudget,
       explain: (aqi, actions) =>
-        explainPlan(question, aqi, actions, history, checkAiBudget),
+        explainPlan(question, aqi, actions, history, checkAiBudget, forecast),
     }),
   );
 }

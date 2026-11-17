@@ -2,7 +2,7 @@
 
 ## Data flow
 
-The selected city is saved in browser local storage. Household choices are held in session storage for the tab. Chat messages remain in page memory and up to two preceding exchanges may be sent with a question to Gemini when configured. Location searches and coordinates are sent to Open-Meteo through the app; the assistant receives generalized context rather than precise coordinates. The settings page clears saved preferences, and the assistant can clear its conversation.
+The selected city is saved in browser local storage. Household choices are held in session storage for the tab. Chat messages remain in page memory and up to two preceding exchanges may be sent with a question to Gemini when configured. Location searches and coordinates are sent to Open-Meteo through the app; Gemini receives current US AQI, up to 12 upcoming hourly estimates, their time zone, and the selected action descriptions rather than precise coordinates. Actions can reflect generalized household choices. The settings page clears saved preferences, and the assistant can clear its conversation.
 
 Gemini free-tier terms may permit content to be used to improve Google's products. Do not enter names, medical histories, identifying information about children or other sensitive details. See [Google's API terms](https://ai.google.dev/gemini-api/terms) for applicable conditions. Google and other providers may process data under their own terms; browser storage controls do not erase provider records.
 

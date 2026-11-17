@@ -131,7 +131,7 @@ export default function Assistant() {
         />
         <p className="fine">
           Do not enter names, medical history, or identifying details. If AI is
-          enabled, your question, generalized sensitivity flag, current US AQI
+          enabled, your question, current US AQI, a short local-time forecast
           and selected actions are sent to Google; free-tier content may be used
           to improve its products. Up to two previous exchanges are sent for
           follow-up context. This app keeps conversation text in memory only
