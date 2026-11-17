@@ -3,7 +3,7 @@ import { Redis } from "@upstash/redis";
 import { Ratelimit } from "@upstash/ratelimit";
 import { loadAir } from "@/server/air-provider";
 import { isFresh } from "@/lib/freshness";
-import { generateRecommendations } from "@/features/recommendations/engine";
+import { createAssistantReply } from "@/features/assistant/orchestrate";
 import { explainPlan } from "@/server/chat";
 import { checkPublicRequest, rateLimitResponse } from "@/server/rate-limit";
 import { decideLimits } from "@/server/rate-limit-result";
@@ -30,8 +30,7 @@ export async function POST(request: Request) {
   const protection = await checkPublicRequest("chat", request);
   if (!protection.allowed) return rateLimitResponse(protection);
   const { question, latitude, longitude, profile, history } = parsed.data;
-  let aqi: number | null = null;
-  try {
+  const getAqi = async (): Promise<number | null> => {
     const { data, retrievedAt } = await loadAir(
       Math.round(latitude * 1000) / 1000,
       Math.round(longitude * 1000) / 1000,
@@ -44,25 +43,10 @@ export async function POST(request: Request) {
         Date.now(),
       )
     )
-      aqi = data.current.us_aqi;
-  } catch {
-    /* Deterministic fallback handles missing environmental data. */
-  }
-  const actions = generateRecommendations(aqi, profile);
-  const fallback = {
-    answer: actions.map((action) => action.description).join(" "),
-    referencedActionIds: actions.map((action) => action.id),
-    uncertainty: "AI explanation is unavailable; this is the rule-based plan.",
-    mode: "fallback",
+      return data.current.us_aqi;
+    return null;
   };
-  if (
-    aqi === null ||
-    !process.env.GEMINI_API_KEY ||
-    !process.env.UPSTASH_REDIS_REST_URL ||
-    !process.env.UPSTASH_REDIS_REST_TOKEN
-  )
-    return NextResponse.json(fallback);
-  try {
+  const checkAiBudget = async (): Promise<boolean> => {
     const redis = Redis.fromEnv();
     const daily = new Ratelimit({
       redis,
@@ -78,13 +62,18 @@ export async function POST(request: Request) {
       daily.limit("global"),
       minute.limit("global"),
     ]);
-    if (!decideLimits([day, short], Date.now()).allowed)
-      return NextResponse.json(fallback);
-    return NextResponse.json({
-      ...(await explainPlan(question, aqi, actions, history)),
-      mode: "ai",
-    });
-  } catch {
-    return NextResponse.json(fallback);
-  }
+    return decideLimits([day, short], Date.now()).allowed;
+  };
+  return NextResponse.json(
+    await createAssistantReply(profile, {
+      getAqi,
+      aiConfigured: Boolean(
+        process.env.GEMINI_API_KEY &&
+        process.env.UPSTASH_REDIS_REST_URL &&
+        process.env.UPSTASH_REDIS_REST_TOKEN,
+      ),
+      checkAiBudget,
+      explain: (aqi, actions) => explainPlan(question, aqi, actions, history),
+    }),
+  );
 }

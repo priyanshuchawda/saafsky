@@ -1,0 +1,49 @@
+import { generateRecommendations } from "../recommendations/engine.ts";
+import type {
+  HouseholdProfile,
+  Recommendation,
+} from "../recommendations/engine.ts";
+
+type Explanation = {
+  answer: string;
+  referencedActionIds: string[];
+  uncertainty: string;
+};
+
+type AssistantDependencies = {
+  getAqi: () => Promise<number | null>;
+  aiConfigured: boolean;
+  checkAiBudget: () => Promise<boolean>;
+  explain: (aqi: number, actions: Recommendation[]) => Promise<Explanation>;
+};
+
+/** Keep a useful general plan available even when a provider or quota fails. */
+export async function createAssistantReply(
+  profile: HouseholdProfile,
+  dependencies: AssistantDependencies,
+): Promise<Explanation & { mode: "ai" | "fallback" }> {
+  let aqi: number | null = null;
+  try {
+    aqi = await dependencies.getAqi();
+  } catch {
+    // The recommendation engine treats unknown conditions conservatively.
+  }
+  if (aqi !== null && (!Number.isFinite(aqi) || aqi < 0)) aqi = null;
+  const actions = generateRecommendations(aqi, profile);
+  const fallback = {
+    answer: actions.map((action) => action.description).join(" "),
+    referencedActionIds: actions.map((action) => action.id),
+    uncertainty:
+      aqi === null
+        ? "Current air data is unavailable, so this general plan cannot answer your specific question."
+        : "The AI explanation is unavailable. This general plan may not answer your specific question.",
+    mode: "fallback" as const,
+  };
+  if (aqi === null || !dependencies.aiConfigured) return fallback;
+  try {
+    if (!(await dependencies.checkAiBudget())) return fallback;
+    return { ...(await dependencies.explain(aqi, actions)), mode: "ai" };
+  } catch {
+    return fallback;
+  }
+}
