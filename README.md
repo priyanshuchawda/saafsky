@@ -55,6 +55,8 @@ On Windows, run the concise release check from the repository root:
 
 This runs ESLint, strict TypeScript, unit coverage, a production build, production-browser journeys, responsive and accessibility checks, and public API protection checks. Browser verification uses mocked provider responses and does not spend Gemini or air-data quotas. GitHub Actions is intentionally disabled; run the local release check against the commit you intend to deploy.
 
+For a separate live-provider check after a production build, run `.\scripts\smoke-live.ps1`. It starts the local production server, checks air data and city search, then exercises the chat route. Add `-RequireGemini` to require an AI-mode response; this also requires the Gemini key and Upstash credentials in `.env.local`. The script prints concise results, never keys or generated answer text.
+
 The current unit suite contains 55 tests. Its coverage command enforces minimums of 90% lines, 85% branches, and 90% functions; the latest run measured 99.80% lines, 95.61% branches, and 98.28% functions across modules loaded by that suite. Production browser verification covers 28 journeys and UI checks, including keyboard-operated mobile navigation; the separate public API protection suite covers two fail-closed scenarios. Re-run the command above for fresh results.
 
 To run a single layer, use `npm run lint`, `npm run typecheck`, `npm run test:coverage`, `npm run build`, `npm run test:e2e:production`, or `npm run test:protection`. Install Playwright Chromium once with `npx playwright install chromium` if it is not present.
