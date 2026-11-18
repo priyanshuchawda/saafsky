@@ -6,6 +6,28 @@
 
 SaafSky turns an air-quality reading into practical next steps. Choose a city and household preferences once; the dashboard, planner, indoor advisor, and assistant share the same location, forecast context, and deterministic recommendations.
 
+## A day with SaafSky
+
+1. **Choose your city and household context.** Review the current modeled air quality and the actions selected for your circumstances.
+2. **Plan an outing.** Set an available window, duration, and optional commitment to compare complete forecast periods.
+3. **Explore choices at home and on the road.** Get indoor-air guidance and compare commute emissions using visible assumptions.
+4. **Ask a follow-up.** The assistant explains the selected plan in English or Hindi and links to approved sources.
+
+## How it works
+
+```mermaid
+flowchart LR
+  User[City and household choices] --> Dashboard[Air dashboard and planner]
+  Meteo[Open-Meteo forecasts] --> Dashboard
+  Dashboard --> Rules[Deterministic decision engine]
+  Rules --> Plan[Personalized actions and reasons]
+  Plan --> Gemini[Gemini explanation]
+  Gemini --> Validation[Validate action and source references]
+  Validation --> Answer[Assistant response]
+```
+
+The recommendation engine also supplies the rule-based plan when the AI service is unavailable. See [architecture](docs/architecture.md) for the full data flow.
+
 ## What you can do
 
 | Feature | Experience |
@@ -28,6 +50,17 @@ SaafSky turns an air-quality reading into practical next steps. Choose a city an
 - **Built for resilience:** Core air planning, recommendation, scenario, and indoor guidance remain available independently of Gemini.
 - **Responsive and accessible:** Shared navigation, semantic controls, keyboard support, text labels alongside AQI colors, and generous touch targets work across mobile, tablet, and desktop layouts.
 - **Bilingual by design:** English and Hindi are available across the product, with the chosen language carried into assistant requests.
+
+## Engineering evidence
+
+| Area | How SaafSky addresses it | Explore |
+| --- | --- | --- |
+| **Code quality** | Strict TypeScript, modular provider adapters, validated boundaries, and deterministic domain functions. | [Architecture](docs/architecture.md) · [Quality](docs/quality.md) |
+| **Security** | Server-side credentials, bounded requests, shared rate limits, origin checks, and validated AI references. | [Security and privacy](docs/security-privacy.md) · [API](docs/api.md) |
+| **Efficiency** | Cached air and city lookups, bounded provider requests, and an enforced client JavaScript budget. | [Data sources](docs/data-sources.md) · [Testing](docs/testing.md) |
+| **Testing** | Unit, production-browser, accessibility, public API protection, and live-provider checks. | [Testing](docs/testing.md) · [Measured results](docs/quality.md) |
+| **Accessibility** | Semantic controls, keyboard navigation, visible focus, bilingual content, and responsive touch targets. | [Accessibility](docs/accessibility.md) |
+| **Problem alignment** | Household-aware air guidance connects forecasts, routines, indoor actions, and sustainable travel decisions. | [Decision policy](docs/decision-policy.md) · [Methodology](docs/data-sources.md) |
 
 ## Air data and methodology
 
