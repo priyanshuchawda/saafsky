@@ -25,10 +25,10 @@ The script runs ESLint, strict typechecking, unit tests with coverage thresholds
 
 Verified locally against the production build on **November 18, 2026**:
 
-- **55 unit tests passed.** The coverage command enforces minimums of 90% lines, 85% branches, and 90% functions. The run measured 99.80% lines, 95.44% branches, and 98.39% functions across the modules loaded by the unit suite.
-- **28 production-browser tests passed**, including all-page navigation, 320px and 390px responsive layouts, touch-target sizing, axe checks, mobile keyboard navigation, and primary user journeys.
+- **59 unit tests passed.** The coverage command enforces minimums of 90% lines, 85% branches, and 90% functions. The run measured 99.68% lines, 95.33% branches, and 98.48% functions across the modules loaded by the unit suite.
+- **29 production-browser tests passed**, including English and Hindi journeys, all-page navigation, 320px through 1440px responsive layouts, touch-target sizing, axe checks, mobile keyboard navigation, and primary user journeys.
 - **2 public API protection tests passed**, checking fail-closed public behavior and request validation before provider access.
-- **Client JavaScript measured 234.0 KiB gzip across 16 emitted chunks**, below the enforced 300 KiB project-wide budget. This counts all emitted client chunks and is not a per-route first-load estimate.
+- **Client JavaScript measured 242.4 KiB gzip across 17 emitted chunks**, below the enforced 300 KiB project-wide budget. This counts all emitted client chunks and is not a per-route first-load estimate.
 - **Production dependency audit reported zero known advisories** with `npm audit --omit=dev` against the current lockfile.
 - **Live smoke passed** for Open-Meteo air data, Open-Meteo city lookup, and the SaafSky chat route in AI mode. The reusable [live smoke script](../scripts/smoke-live.ps1) prints no secrets or generated answer text.
 

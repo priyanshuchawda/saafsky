@@ -50,6 +50,7 @@ test("mobile navigation opens and moves by keyboard", async ({ page }) => {
   await page.keyboard.press("Tab");
   await page.keyboard.press("Tab");
   await page.keyboard.press("Tab");
+  await page.keyboard.press("Tab");
   await expect(summary).toBeFocused();
   await page.keyboard.press("Enter");
   await expect(menu).toHaveAttribute("open", "");

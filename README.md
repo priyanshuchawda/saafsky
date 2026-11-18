@@ -2,7 +2,8 @@
 
 **A clearer way to plan around the air.** SaafSky brings city air-quality forecasts, household-aware guidance, outing planning, indoor-air actions, commute comparisons, and a contextual assistant into one responsive product.
 
-Choose a city and household preferences once. The dashboard, planner, indoor advisor, and assistant use the same current air context and deterministic recommendation rules.
+The experience is available in English and Hindi. Choose a city and household preferences once; the dashboard, planner, indoor advisor, and assistant use the same air context and deterministic recommendation rules.
+
 
 ## Product features
 
@@ -57,9 +58,9 @@ This runs ESLint, strict TypeScript, unit coverage, a production build, a compre
 
 For a separate live-provider check after a production build, run `.\scripts\smoke-live.ps1`. It starts the local production server, checks air data and city search, then exercises the chat route. Add `-RequireGemini` to require an AI-mode response; this also requires the Gemini key and Upstash credentials in `.env.local`. The script prints concise results, never keys or generated answer text.
 
-The current unit suite contains 55 tests. Its coverage command enforces minimums of 90% lines, 85% branches, and 90% functions; the latest run measured 99.80% lines, 95.44% branches, and 98.39% functions across modules loaded by that suite. Production browser verification covers 28 tests, including keyboard-operated mobile navigation; the separate public API protection suite covers two fail-closed scenarios. Re-run the command above for fresh results.
+The current unit suite contains 59 tests. Its coverage command enforces minimums of 90% lines, 85% branches, and 90% functions; the latest run measured 99.68% lines, 95.33% branches, and 98.48% functions across modules loaded by that suite. Production browser verification covers 29 tests, including both languages, keyboard-operated mobile navigation, and responsive layouts from 320px to 1440px; the separate public API protection suite covers two fail-closed scenarios. Re-run the command above for fresh results.
 
-The production build's browser JavaScript has a 300 KiB gzip budget across emitted client chunks. At the current build it measures 234.0 KiB gzip across all routes. To inspect the latest build separately, run `npm run check:bundle`.
+The production build's browser JavaScript has a 300 KiB gzip budget across emitted client chunks. At the current build it measures 242.4 KiB gzip across all routes. To inspect the latest build separately, run `npm run check:bundle`.
 
 To run a single layer, use `npm run lint`, `npm run typecheck`, `npm run test:coverage`, `npm run build`, `npm run check:bundle`, `npm run test:e2e:production`, or `npm run test:protection`. Install Playwright Chromium once with `npx playwright install chromium` if it is not present.
 

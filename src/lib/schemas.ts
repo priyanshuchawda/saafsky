@@ -38,6 +38,7 @@ export const chatInputSchema = z
     latitude: z.number().finite().min(-90).max(90),
     longitude: z.number().finite().min(-180).max(180),
     profile: householdSchema,
+    language: z.enum(["en", "hi"]).default("en"),
     history: z
       .array(
         z

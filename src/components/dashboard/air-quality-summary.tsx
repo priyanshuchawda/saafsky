@@ -2,6 +2,7 @@ import { ActionReason } from "@/components/action-reason";
 import type { Recommendation } from "@/features/recommendations/engine";
 import { category } from "@/lib/air";
 import type { Air } from "@/types/air";
+import { translate, translateText, type Language } from "@/features/i18n/messages";
 
 type AirQualitySummaryProps = {
   cityName: string;
@@ -9,6 +10,7 @@ type AirQualitySummaryProps = {
   current: Air["current"] | null;
   fresh: boolean;
   recommendations: Recommendation[];
+  language: Language;
 };
 
 export function AirQualitySummary({
@@ -17,17 +19,18 @@ export function AirQualitySummary({
   current,
   fresh,
   recommendations,
+  language,
 }: AirQualitySummaryProps) {
   return (
     <section className="dashboard">
       <article className="aq">
-        <p className="eyebrow">CURRENT AIR QUALITY</p>
+        <p className="eyebrow">{translate(language, "currentAir")}</p>
         <div className="number">
-          {aqi === null ? "—" : Math.round(aqi)} <small>US AQI</small>
+          {aqi === null ? "—" : Math.round(aqi)} <small>{translate(language, "usAqi")}</small>
         </div>
-        <strong className="category">{category(aqi)}</strong>
+        <strong className="category">{translateText(language, category(aqi))}</strong>
         <p>
-          Model estimate for {cityName}. Conditions can vary across your city.
+          {translate(language, "modelEstimateFor")} {cityName}. {translate(language, "conditionsVary")}
         </p>
         <div className="pollutants">
           <div>
@@ -45,30 +48,29 @@ export function AirQualitySummary({
         </div>
       </article>
       <article className="plan">
-        <p className="eyebrow">YOUR PERSONAL AIR PLAN ✳</p>
+        <p className="eyebrow">{translate(language, "personalAirPlan")}</p>
         <h3>
-          Little actions,
+          {translate(language, "littleActions")}
           <br />
-          <em>meaningful care.</em>
+          <em>{translate(language, "meaningfulCare")}</em>
         </h3>
         <p className="muted">
-          Based on the current estimate and your household selection.
+          {translate(language, "basedOnCurrent")}
         </p>
         <ol>
           {recommendations.map((item, index) => (
             <li key={item.id}>
               <span>0{index + 1}</span>
               <div>
-                <strong>{item.title}</strong>
-                <p>{item.description}</p>
-                <ActionReason action={item} />
+                <strong>{translateText(language, item.title)}</strong>
+                <p>{translateText(language, item.description)}</p>
+                <ActionReason action={item} language={language} />
               </div>
             </li>
           ))}
         </ol>
         <p className="fine">
-          General information, not a diagnosis. Follow your clinician’s advice
-          when applicable.
+          {translate(language, "generalInformation")}
         </p>
       </article>
     </section>

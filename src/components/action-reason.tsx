@@ -3,12 +3,19 @@ import {
   evidenceCatalog,
   reasonDescriptions,
 } from "@/features/recommendations/evidence";
+import { translate, translateText, type Language } from "@/features/i18n/messages";
 
 function isDefined<T>(value: T | undefined): value is T {
   return value !== undefined;
 }
 
-export function ActionReason({ action }: { action: Recommendation }) {
+export function ActionReason({
+  action,
+  language,
+}: {
+  action: Recommendation;
+  language: Language;
+}) {
   const reasons = action.reasonCodes
     .map((code) => reasonDescriptions[code])
     .filter(isDefined);
@@ -17,14 +24,14 @@ export function ActionReason({ action }: { action: Recommendation }) {
     .filter(isDefined);
   return (
     <details className="action-reason">
-      <summary>Why this action?</summary>
+      <summary>{translate(language, "actionWhy")}</summary>
       <ul>
         {reasons.map((reason) => (
-          <li key={reason}>{reason}</li>
+          <li key={reason}>{translateText(language, reason)}</li>
         ))}
       </ul>
       <p>
-        Related guidance:{" "}
+        {translate(language, "relatedGuidance")}{" "}
         {evidence.map((source, index) => (
           <span key={source.url}>
             {index > 0 && " · "}
@@ -32,7 +39,7 @@ export function ActionReason({ action }: { action: Recommendation }) {
           </span>
         ))}
       </p>
-      <p>These rules use a city-scale estimate; local conditions may differ.</p>
+      <p>{translate(language, "estimateConditionsDiffer")}</p>
     </details>
   );
 }

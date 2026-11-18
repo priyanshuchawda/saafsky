@@ -9,9 +9,11 @@ import { generateDailyPlan } from "@/features/planner/daily";
 import type { HouseholdProfile } from "@/features/recommendations/engine";
 import { category, upcomingForecast } from "@/lib/air";
 import { localMinuteAt } from "@/lib/freshness";
-import { useCity, useHousehold } from "@/hooks/use-preferences";
+import { useCity, useHousehold, useLanguage } from "@/hooks/use-preferences";
+import { translate, translateText } from "@/features/i18n/messages";
 
 export default function Planner() {
+  const [language] = useLanguage();
   const [city, setCity] = useCity();
   const [start, setStart] = useState("");
   const [end, setEnd] = useState("");
@@ -45,18 +47,15 @@ export default function Planner() {
   const steps = generateDailyPlan(air?.current.us_aqi ?? null, profile);
   return (
     <main id="main-content" tabIndex={-1} className="shell scenario">
-      <p className="eyebrow">PLAN A NECESSARY OUTING</p>
+      <p className="eyebrow">{translate(language, "plannerEyebrow")}</p>
       <h1>
-        Find a <em>better window.</em>
+        {translate(language, "plannerTitle")} <em>{translate(language, "betterWindow")}</em>
       </h1>
-      <p className="lead">
-        Compare forecast hours within a time window you choose. This is an
-        estimate, not a guarantee of safe air.
-      </p>
+      <p className="lead">{translate(language, "plannerLead")}</p>
       <div className="toolbar impact-form">
         <LocationSearch onSelect={setCity} />
         <div className="profile">
-          <label htmlFor="plan-profile">HOUSEHOLD</label>
+          <label htmlFor="plan-profile">{translate(language, "household")}</label>
           <select
             id="plan-profile"
             value={profile.sensitive ? "sensitive" : "general"}
@@ -67,12 +66,12 @@ export default function Planner() {
               })
             }
           >
-            <option value="general">General guidance</option>
-            <option value="sensitive">Sensitive household member</option>
+            <option value="general">{translate(language, "generalGuidance")}</option>
+            <option value="sensitive">{translate(language, "sensitiveHousehold")}</option>
           </select>
         </div>
         <div className="profile">
-          <label htmlFor="plan-commute">COMMUTE</label>
+          <label htmlFor="plan-commute">{translate(language, "commuteLabel")}</label>
           <select
             id="plan-commute"
             value={profile.commute}
@@ -83,15 +82,15 @@ export default function Planner() {
               })
             }
           >
-            <option value="none">None selected</option>
-            <option value="walk">Walk</option>
-            <option value="bike">Bicycle</option>
-            <option value="public">Public transport</option>
-            <option value="car">Car</option>
+            <option value="none">{translate(language, "noneSelected")}</option>
+            <option value="walk">{translate(language, "walk")}</option>
+            <option value="bike">{translate(language, "bicycle")}</option>
+            <option value="public">{translate(language, "publicTransport")}</option>
+            <option value="car">{translate(language, "car")}</option>
           </select>
         </div>
         <div className="profile">
-          <label htmlFor="window-start">EARLIEST TIME</label>
+          <label htmlFor="window-start">{translate(language, "earliestTime")}</label>
           <input
             id="window-start"
             type="datetime-local"
@@ -100,7 +99,7 @@ export default function Planner() {
           />
         </div>
         <div className="profile">
-          <label htmlFor="window-end">LATEST TIME (EXCLUSIVE)</label>
+          <label htmlFor="window-end">{translate(language, "latestTime")}</label>
           <input
             id="window-end"
             type="datetime-local"
@@ -109,21 +108,21 @@ export default function Planner() {
           />
         </div>
         <div className="profile">
-          <label htmlFor="activity-duration">TIME NEEDED</label>
+          <label htmlFor="activity-duration">{translate(language, "timeNeeded")}</label>
           <select
             id="activity-duration"
             value={durationHours}
             onChange={(event) => setDurationHours(Number(event.target.value))}
           >
-            <option value={1}>1 hour</option>
-            <option value={2}>2 hours</option>
-            <option value={3}>3 hours</option>
-            <option value={4}>4 hours</option>
+            <option value={1}>{translate(language, "oneHour")}</option>
+            <option value={2}>{translate(language, "twoHours")}</option>
+            <option value={3}>{translate(language, "threeHours")}</option>
+            <option value={4}>{translate(language, "fourHours")}</option>
           </select>
         </div>
         <div className="profile">
           <label htmlFor="activity-essential">
-            CAN THE OUTING BE POSTPONED?
+            {translate(language, "outingPostponed")}
           </label>
           <select
             id="activity-essential"
@@ -132,12 +131,12 @@ export default function Planner() {
               setEssential(event.target.value === "essential")
             }
           >
-            <option value="flexible">Yes, it is flexible</option>
-            <option value="essential">No, it is essential</option>
+            <option value="flexible">{translate(language, "flexibleYes")}</option>
+            <option value="essential">{translate(language, "essentialNo")}</option>
           </select>
         </div>
         <div className="profile">
-          <label htmlFor="busy-start">FIXED COMMITMENT START (OPTIONAL)</label>
+          <label htmlFor="busy-start">{translate(language, "commitmentStart")}</label>
           <input
             id="busy-start"
             type="datetime-local"
@@ -150,7 +149,7 @@ export default function Planner() {
           />
         </div>
         <div className="profile">
-          <label htmlFor="busy-end">FIXED COMMITMENT END (OPTIONAL)</label>
+          <label htmlFor="busy-end">{translate(language, "commitmentEnd")}</label>
           <input
             id="busy-end"
             type="datetime-local"
@@ -164,50 +163,47 @@ export default function Planner() {
         </div>
       </div>
       <p id="busy-help" className="fine">
-        Add both times in the selected city’s local time to keep an outing clear
-        of a fixed commitment.
+        {translate(language, "commitmentHelp")}
       </p>
       <section className="plan scenario-result" aria-live="polite">
-        <p className="eyebrow">YOUR DAILY PLAN</p>
+        <p className="eyebrow">{translate(language, "dailyPlan")}</p>
         <h2>
-          Morning to <em>evening.</em>
+          {translate(language, "morningToEvening")} <em>{translate(language, "evening")}</em>
         </h2>
         <ol>
           {steps.map((step) => (
             <li key={step.id}>
-              <span>{step.period}</span>
+                <span>{translateText(language, step.period)}</span>
               <div>
-                <strong>{step.title}</strong>
-                <p>{step.detail}</p>
+                  <strong>{translateText(language, step.title)}</strong>
+                  <p>{translateText(language, step.detail)}</p>
               </div>
             </li>
           ))}
         </ol>
         <p className="fine">
-          These are general suggestions and can change as conditions change.
-          Essential commitments and medical advice take priority.
+          {translate(language, "planCaveat")}
         </p>
       </section>
       <section className="plan scenario-result" aria-live="polite">
-        <p className="eyebrow">FORECAST FOR {city.name.toUpperCase()}</p>
+        <p className="eyebrow">{translate(language, "forecastFor")} {city.name.toUpperCase()}</p>
         <h2>
-          Your available <em>window.</em>
+          {translate(language, "availableWindow")} <em>{translate(language, "window")}</em>
         </h2>
         <p className="muted">
-          Enter both times in {air?.timezone ?? "the city’s local time"}. Only
-          upcoming forecast hours are compared.
+          {translate(language, "enterTimesIn")} {air?.timezone ?? translate(language, "localTime")}. {translate(language, "forecastWindowInputHint")}
         </p>
-        {state.kind === "loading" && <p>Loading forecast…</p>}
-        {state.kind === "error" && <p>{state.message}</p>}
+        {state.kind === "loading" && <p>{translate(language, "loadingForecast")}</p>}
+        {state.kind === "error" && <p>{translateText(language, state.message)}</p>}
         {state.kind === "success" && !state.fresh && (
-          <p>The forecast is stale, so it cannot be used for planning.</p>
+          <p>{translate(language, "forecastStale")}</p>
         )}
         {partialCommitment && (
-          <p>Enter both commitment times to include it in the comparison.</p>
+          <p>{translate(language, "enterBothCommitmentTimes")}</p>
         )}
         {invalidCommitment && (
           <p id="busy-error">
-            Choose a commitment end time after its start time.
+            {translate(language, "commitmentEndAfterStart")}
           </p>
         )}
         {air &&
@@ -218,37 +214,29 @@ export default function Planner() {
           (result.kind === "available" || result.kind === "elevated" ? (
             <p>
               {result.kind === "elevated"
-                ? "All complete options exceed the precaution threshold. For an essential outing, the lowest modeled peak is"
-                : "Lowest modeled peak within a complete window:"}{" "}
+                ? translate(language, "allOptionsAboveThreshold")
+                : translate(language, "lowestPeak")}{" "}
               <strong>
                 {result.start.replace("T", " ")}–{result.end.replace("T", " ")}
               </strong>{" "}
-              · peak US AQI {Math.round(result.peakAqi)} (
-              {category(result.peakAqi)}). This is an estimate, not a guarantee
-              of safe conditions.
+              · {translate(language, "peakUsAqi")} {Math.round(result.peakAqi)} (
+              {translateText(language, category(result.peakAqi))}). {translate(language, "estimateNotSafe")}
             </p>
           ) : result.kind === "no-suitable" ? (
             <p>
-              All complete forecast windows exceed this household’s precaution
-              threshold. Consider postponing the flexible outing or choosing an
-              indoor alternative.
+              {translate(language, "completeWindowsElevated")}
             </p>
           ) : (
             <p>
-              No complete forecast window is available. Check the dates, times
-              and duration or choose another window.
+              {translate(language, "completeWindow")}
             </p>
           ))}
         <p className="fine">
-          Model forecast: Open-Meteo / CAMS. Local conditions may differ. This
-          tool does not measure personal exposure or provide medical advice. The
-          comparison uses hourly model values and a conservative US AQI
-          precaution threshold of 100 for sensitive households and 150
-          otherwise; it does not establish a safe level.
+          {translate(language, "plannerModelNote")}
         </p>
       </section>
       <footer>
-        <Link href="/">← Back to dashboard</Link>
+        <Link href="/">{translate(language, "backDashboard")}</Link>
       </footer>
     </main>
   );

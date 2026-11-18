@@ -6,7 +6,8 @@ import { LocationSearch } from "@/components/location-search";
 import { evidenceCatalog } from "@/features/recommendations/evidence";
 import { assistantResponseSchema } from "@/features/assistant/validate";
 import { RateLimitError, throwIfHttpError } from "@/lib/api-errors";
-import { useCity, useHousehold } from "@/hooks/use-preferences";
+import { useCity, useHousehold, useLanguage } from "@/hooks/use-preferences";
+import { translate, translateText, type Language } from "@/features/i18n/messages";
 
 type Reply = {
   answer: string;
@@ -14,8 +15,9 @@ type Reply = {
   mode: "ai" | "fallback";
   sourceIds: string[];
 };
-type Turn = { question: string; reply: Reply };
+type Turn = { question: string; reply: Reply; language: Language };
 export default function Assistant() {
+  const [language] = useLanguage();
   const [city, setCity] = useCity();
   const [profile, setProfile] = useHousehold();
   const [question, setQuestion] = useState("");
@@ -35,7 +37,7 @@ export default function Assistant() {
     activeRequest.current?.abort();
     const controller = new AbortController();
     activeRequest.current = controller;
-    setStatus("Preparing your answer…");
+    setStatus(translate(language, "preparingAnswer"));
     try {
       const response = await fetch("/api/chat", {
         method: "POST",
@@ -45,6 +47,7 @@ export default function Assistant() {
           latitude: city.latitude,
           longitude: city.longitude,
           profile,
+          language,
           history: turns.slice(-2).flatMap((turn) => [
             { role: "user", text: turn.question.slice(0, 500) },
             { role: "assistant", text: turn.reply.answer.slice(0, 500) },
@@ -60,6 +63,7 @@ export default function Assistant() {
           ...previous,
           {
             question: text,
+            language,
             reply: {
               answer: result.answer,
               uncertainty: result.uncertainty,
@@ -74,22 +78,19 @@ export default function Assistant() {
     } catch (error) {
       if (!controller.signal.aborted)
         setStatus(
-          error instanceof RateLimitError
-            ? error.message
-            : "The assistant is unavailable. Please use the dashboard plan instead.",
+            error instanceof RateLimitError
+              ? translateText(language, error.message)
+              : translate(language, "assistantUnavailable"),
         );
     }
   }
   return (
     <main id="main-content" tabIndex={-1} className="shell scenario">
-      <p className="eyebrow">YOUR AIR ASSISTANT</p>
+      <p className="eyebrow">{translate(language, "airAssistant")}</p>
       <h1>
-        Ask a <em>question.</em>
+        {translate(language, "askQuestion")} <em>{translate(language, "question")}</em>
       </h1>
-      <p className="lead">
-        Get a short explanation using current modeled air quality and the
-        rule-based plan.
-      </p>
+      <p className="lead">{translate(language, "assistantLead")}</p>
       <div className="toolbar">
         <LocationSearch
           onSelect={(city) => {
@@ -98,7 +99,7 @@ export default function Assistant() {
           }}
         />
         <div className="profile">
-          <label htmlFor="sensitive">HOUSEHOLD</label>
+          <label htmlFor="sensitive">{translate(language, "household")}</label>
           <select
             id="sensitive"
             value={profile.sensitive ? "yes" : "no"}
@@ -107,18 +108,18 @@ export default function Assistant() {
               clearConversation();
             }}
           >
-            <option value="no">General guidance</option>
-            <option value="yes">Sensitive household member</option>
+            <option value="no">{translate(language, "generalGuidance")}</option>
+            <option value="yes">{translate(language, "sensitiveHousehold")}</option>
           </select>
         </div>
       </div>
       <form
         className="plan scenario-result"
         onSubmit={submit}
-        aria-label="Ask SaafSky"
+        aria-label={translate(language, "assistant")}
       >
         <label htmlFor="question">
-          YOUR QUESTION ABOUT {city.name.toUpperCase()}
+          {translate(language, "questionAbout")} {city.name.toUpperCase()}
         </label>
         <textarea
           id="question"
@@ -128,32 +129,32 @@ export default function Assistant() {
           minLength={1}
           maxLength={500}
           rows={4}
-          placeholder="How should I plan an essential trip?"
+          placeholder={translate(language, "commuteQuestionPlaceholder")}
         />
         <button
           className="action-button"
-          disabled={!!status && status.startsWith("Preparing")}
+          disabled={status === translate(language, "preparingAnswer")}
         >
-          Ask SaafSky
+          {translate(language, "askSaafSky")}
         </button>
       </form>
       {(status || turns.length > 0) && (
         <section className="plan scenario-result" aria-live="polite">
           {status && <p>{status}</p>}
           {turns.map((turn, index) => (
-            <div key={`${index}-${turn.question}`}>
+            <div key={`${index}-${turn.question}`} lang={turn.language}>
               <p>
-                <strong>You:</strong> {turn.question}
+                <strong>{translate(turn.language, "you")}</strong> {turn.question}
               </p>
               <p className="eyebrow">
                 {turn.reply.mode === "ai"
-                  ? "AI EXPLANATION"
-                  : "RULE-BASED FALLBACK"}
+                  ? translate(turn.language, "aiExplanation")
+                  : translate(turn.language, "ruleBasedFallback")}
               </p>
               <p>{turn.reply.answer}</p>
               {turn.reply.sourceIds.length > 0 && (
                 <details className="action-reason">
-                  <summary>Sources for this answer</summary>
+                  <summary>{translate(turn.language, "sourcesForAnswer")}</summary>
                   <ul>
                     {turn.reply.sourceIds.map((sourceId) => {
                       const source = evidenceCatalog[sourceId];
@@ -167,8 +168,7 @@ export default function Assistant() {
                 </details>
               )}
               <p className="fine">
-                {turn.reply.uncertainty} AI can make mistakes. Follow existing
-                medical advice and check official local conditions.
+                {turn.reply.uncertainty} {translate(turn.language, "aiCaveat")}
               </p>
             </div>
           ))}
@@ -178,7 +178,7 @@ export default function Assistant() {
               type="button"
               onClick={clearConversation}
             >
-              Clear conversation
+              {translate(language, "clearConversation")}
             </button>
           )}
         </section>

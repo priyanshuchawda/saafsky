@@ -25,7 +25,7 @@ npm run test:e2e:production
 npm run test:protection
 ```
 
-The default browser suite uses a development server. The production suite runs the built application and checks user journeys, responsive layouts at 320px, 390px, and desktop widths, assistant fallback, accessibility, and error states. The protection suite starts a separate production server with public mode enabled and credentials blank, then verifies that API requests fail closed before provider access.
+The default browser suite uses a development server. The production suite runs the built application and checks user journeys, English and Hindi content, responsive layouts at 320px, 390px, 768px, 1024px, and 1440px, assistant fallback, accessibility, and error states. The protection suite starts a separate production server with public mode enabled and credentials blank, then verifies that API requests fail closed before provider access.
 
 On Windows, `scripts/verify.ps1` provides a concise local release check:
 

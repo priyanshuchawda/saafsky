@@ -137,3 +137,68 @@ test("all pages render at mobile and desktop widths without horizontal overflow"
     }
   }
 });
+
+test("Hindi language persists across routes and fits mobile and desktop layouts", async ({
+  page,
+}) => {
+  const screenshotDirectory = join(tmpdir(), "saafsky-visual-review");
+  await mkdir(screenshotDirectory, { recursive: true });
+  const localizedPages = [
+    ["/", "आपकी हवा एक नज़र में"],
+    ["/planner", "ज़रूरी बाहर जाने की योजना"],
+    ["/indoor", "घर के अंदर की हवा के सुझाव"],
+    ["/impact", "आवागमन का प्रभाव"],
+    ["/assistant", "आपका वायु सहायक"],
+    ["/settings", "आपकी सेटिंग्स"],
+    ["/scenarios", "परिदृश्य की तुलना"],
+  ] as const;
+  await page.route("**/api/air**", (route) =>
+    route.fulfill({ status: 503, json: { error: "Unavailable" } }),
+  );
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+  await page.getByLabel("Language").selectOption("hi");
+  await expect(page.locator("html")).toHaveAttribute("lang", "hi");
+  await expect(page).toHaveTitle("SaafSky");
+
+  for (const viewport of [
+    { width: 390, height: 844 },
+    { width: 1440, height: 960 },
+  ]) {
+    await page.setViewportSize(viewport);
+    for (const [path, heading] of localizedPages) {
+      await page.goto(path, { waitUntil: "domcontentloaded" });
+      await expect(page.locator("html")).toHaveAttribute("lang", "hi");
+      await expect(
+        page.locator("#main-content").getByText(heading, { exact: true }),
+      ).toBeVisible();
+      expect(
+        await page.evaluate(() => document.documentElement.scrollWidth),
+        `${path} overflows at ${viewport.width}px in Hindi`,
+      ).toBeLessThanOrEqual(viewport.width);
+      const slug = path === "/" ? "dashboard" : path.slice(1);
+      await page.screenshot({
+        path: join(screenshotDirectory, `hindi-${viewport.width}-${slug}.png`),
+        fullPage: true,
+      });
+    }
+  }
+
+  let receivedLanguage: unknown;
+  await page.route("**/api/chat", async (route) => {
+    receivedLanguage = route.request().postDataJSON().language;
+    await route.fulfill({
+      json: {
+        mode: "fallback",
+        referencedActionIds: ["reduce-outdoor-exertion"],
+        sourceIds: ["airnow-aqi"],
+        answer: "बाहर की गतिविधि कम करें।",
+        uncertainty: "पूर्वानुमान बदल सकता है।",
+      },
+    });
+  });
+  await page.goto("/assistant", { waitUntil: "domcontentloaded" });
+  await page.getByLabel(/आपका सवाल/).fill("आज बाहर जाना ठीक है?");
+  await page.getByRole("button", { name: "साफ़स्काई से पूछें" }).click();
+  await expect(page.getByText("बाहर की गतिविधि कम करें।")).toBeVisible();
+  expect(receivedLanguage).toBe("hi");
+});

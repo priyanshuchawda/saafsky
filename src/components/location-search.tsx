@@ -5,12 +5,15 @@ import type { FormEvent } from "react";
 import type { City } from "@/types/air";
 import { locationSchema } from "@/lib/schemas";
 import { RateLimitError, throwIfHttpError } from "@/lib/api-errors";
+import { translate, translateText } from "@/features/i18n/messages";
+import { useLanguage } from "@/hooks/use-preferences";
 
 export function LocationSearch({
   onSelect,
 }: {
   onSelect: (city: City) => void;
 }) {
+  const [language] = useLanguage();
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<City[]>([]);
   const [status, setStatus] = useState("");
@@ -20,14 +23,14 @@ export function LocationSearch({
   async function search(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (query.trim().length < 2) {
-      setStatus("Enter at least two characters to search for a city.");
+      setStatus(translate(language, "enterTwoCharacters"));
       return;
     }
     request.current?.abort();
     const controller = new AbortController();
     request.current = controller;
     setResults([]);
-    setStatus("Searching for cities…");
+    setStatus(translate(language, "searchingCities"));
     try {
       const response = await fetch(
         `/api/locations?q=${encodeURIComponent(query)}`,
@@ -40,21 +43,21 @@ export function LocationSearch({
       const count = data.results?.length ?? 0;
       setStatus(
         count
-          ? `${count} ${count === 1 ? "city" : "cities"} found. Choose a result below.`
-          : "No cities found. Try another search.",
+          ? `${count} ${translate(language, count === 1 ? "cityFound" : "citiesFound")} ${translate(language, "chooseResult")}`
+          : translate(language, "noCities"),
       );
     } catch (error) {
       if (!controller.signal.aborted)
         setStatus(
           error instanceof RateLimitError
-            ? error.message
-            : "City search is unavailable. Please try again.",
+            ? translateText(language, error.message)
+            : translate(language, "citySearchUnavailable"),
         );
     }
   }
   return (
-    <form onSubmit={search} aria-label="Search for a city">
-      <label htmlFor="city">YOUR LOCATION</label>
+    <form onSubmit={search} aria-label={translate(language, "citySearchLabel")}>
+      <label htmlFor="city">{translate(language, "location")}</label>
       <div className="search">
         <input
           id="city"
@@ -66,11 +69,11 @@ export function LocationSearch({
             setStatus("");
             setQuery(event.target.value);
           }}
-          placeholder="Search for a city"
+          placeholder={translate(language, "searchCity")}
           minLength={2}
           maxLength={80}
         />
-        <button type="submit">Search</button>
+        <button type="submit">{translate(language, "search")}</button>
       </div>
       <p role="status">{status}</p>
       {results.length > 0 && (
@@ -82,7 +85,7 @@ export function LocationSearch({
                 onClick={() => {
                   onSelect(city);
                   setResults([]);
-                  setStatus(`${city.name} selected.`);
+                  setStatus(`${city.name} ${translate(language, "citySelected")}`);
                   setQuery("");
                   input.current?.focus();
                 }}

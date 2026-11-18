@@ -6,11 +6,13 @@ import { ForecastSection } from "@/components/dashboard/forecast-section";
 import { LocationSearch } from "@/components/location-search";
 import { generateRecommendations } from "@/features/recommendations/engine";
 import { useAirQuality } from "@/hooks/use-air-quality";
-import { useCity, useHousehold } from "@/hooks/use-preferences";
+import { useCity, useHousehold, useLanguage } from "@/hooks/use-preferences";
 import { lowestForecastPeriod, upcomingForecast } from "@/lib/air";
 import { localMinuteAt } from "@/lib/freshness";
+import { translate, translateText } from "@/features/i18n/messages";
 
 export default function Home() {
+  const [language] = useLanguage();
   const [city, setCity] = useCity();
   const [profile, setProfile] = useHousehold();
   const state = useAirQuality(city);
@@ -19,11 +21,11 @@ export default function Home() {
   const fresh = state.kind === "success" && state.fresh;
   const status =
     state.kind === "loading"
-      ? "Loading air quality…"
+      ? translate(language, "loadingAir")
       : state.kind === "error"
-        ? state.message
+        ? translateText(language, state.message)
         : !state.fresh
-          ? "The model data or retrieval time is stale or unavailable. Check a local official source for current conditions."
+          ? translate(language, "staleAir")
           : "";
   const aqi =
     fresh &&
@@ -49,31 +51,27 @@ export default function Home() {
     <main id="main-content" tabIndex={-1} className="shell">
       <section className="intro">
         <div>
-          <p className="eyebrow">A BETTER DAY STARTS HERE ✳</p>
+          <p className="eyebrow">{translate(language, "heroEyebrow")}</p>
           <h1>
-            Breathe a little
+            {translate(language, "heroTitle")}
             <br />
-            <em>easier.</em>
+            <em>{translate(language, "heroTitleEmphasis")}</em>
           </h1>
-          <p className="lead">
-            Know your air. Plan your day. Make choices that feel right for you
-            and your family.
-          </p>
+          <p className="lead">{translate(language, "heroLead")}</p>
         </div>
         <div className="art" aria-hidden="true">
           ✳
-          <p>
-            Small steps.
-            <br />
-            Clearer days.
-          </p>
+          <p>{translate(language, "heroArt")}</p>
         </div>
       </section>
 
-      <section className="toolbar" aria-label="Location and household">
+      <section
+        className="toolbar"
+        aria-label={translate(language, "locationHousehold")}
+      >
         <LocationSearch onSelect={setCity} />
         <div className="profile">
-          <label htmlFor="profile">YOUR HOUSEHOLD</label>
+          <label htmlFor="profile">{translate(language, "household")}</label>
           <select
             id="profile"
             value={profile.sensitive ? "sensitive" : "adult"}
@@ -84,18 +82,18 @@ export default function Home() {
               })
             }
           >
-            <option value="adult">General guidance</option>
-            <option value="sensitive">Sensitive household member</option>
+            <option value="adult">{translate(language, "generalGuidance")}</option>
+            <option value="sensitive">{translate(language, "sensitiveHousehold")}</option>
           </select>
         </div>
       </section>
 
       <div className="heading">
         <div>
-          <p className="eyebrow">YOUR AIR, AT A GLANCE</p>
-          <h2>Today in {city.name} ↗</h2>
+          <p className="eyebrow">{translate(language, "airAtGlance")}</p>
+          <h2>{translate(language, "todayIn")} {city.name} ↗</h2>
         </div>
-        <p>Model estimates · US AQI</p>
+        <p>{translate(language, "modelEstimates")}</p>
       </div>
       {status && (
         <p role="status" className="notice">
@@ -109,6 +107,7 @@ export default function Home() {
         current={air?.current ?? null}
         fresh={fresh}
         recommendations={recommendations}
+        language={language}
       />
       <ForecastSection
         cityName={city.name}
@@ -117,15 +116,16 @@ export default function Home() {
         retrievedAt={updated}
         upcoming={upcoming}
         lowest={lowest}
+        language={language}
       />
 
       <footer>
         <strong>✳ saafsky.</strong>
-        <span>A calmer way to navigate the air around you.</span>
-        <Link href="/impact">Compare commute impact ↗</Link>
-        <Link href="/assistant">Ask SaafSky ↗</Link>
-        <Link href="/indoor">Indoor air guide ↗</Link>
-        <Link href="/settings">Settings ↗</Link>
+        <span>{translate(language, "footerTagline")}</span>
+        <Link href="/impact">{translate(language, "compareCommute")}</Link>
+        <Link href="/assistant">{translate(language, "assistant")}</Link>
+        <Link href="/indoor">{translate(language, "indoorGuide")}</Link>
+        <Link href="/settings">{translate(language, "settings")}</Link>
       </footer>
     </main>
   );

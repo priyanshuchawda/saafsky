@@ -48,6 +48,15 @@ test("chat history is bounded and rejects unexpected roles", () => {
     profile,
   };
   assert.equal(chatInputSchema.safeParse(request).success, true);
+  assert.equal(chatInputSchema.parse(request).language, "en");
+  assert.equal(
+    chatInputSchema.safeParse({ ...request, language: "hi" }).success,
+    true,
+  );
+  assert.equal(
+    chatInputSchema.safeParse({ ...request, language: "ta" }).success,
+    false,
+  );
   assert.equal(
     chatInputSchema.safeParse({
       ...request,

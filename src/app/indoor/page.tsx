@@ -1,8 +1,9 @@
 "use client";
 import Link from "next/link";
 import { useState } from "react";
-import { useCity, useHousehold } from "@/hooks/use-preferences";
+import { useCity, useHousehold, useLanguage } from "@/hooks/use-preferences";
 import { useAirQuality } from "@/hooks/use-air-quality";
+import { translate, translateText } from "@/features/i18n/messages";
 import {
   generateIndoorAdvice,
   outdoorCondition,
@@ -10,6 +11,7 @@ import {
 } from "@/features/indoor/advice";
 
 export default function IndoorAdvisor() {
+  const [language] = useLanguage();
   const [city] = useCity();
   const [profile, setProfile] = useHousehold();
   const airState = useAirQuality(city);
@@ -30,17 +32,14 @@ export default function IndoorAdvisor() {
   );
   return (
     <main id="main-content" tabIndex={-1} className="shell scenario">
-      <p className="eyebrow">INDOOR AIR ADVISOR</p>
+      <p className="eyebrow">{translate(language, "indoorEyebrow")}</p>
       <h1>
-        Care for the air <em>inside.</em>
+        {translate(language, "indoorTitle")} <em>{translate(language, "inside")}</em>
       </h1>
-      <p className="lead">
-        Choose what applies to your home for practical, low-cost actions.
-        SaafSky does not measure indoor air quality.
-      </p>
+      <p className="lead">{translate(language, "indoorLead")}</p>
       <div className="toolbar">
         <div className="profile">
-          <label htmlFor="smoke">COOKING SMOKE?</label>
+          <label htmlFor="smoke">{translate(language, "cookingSmoke")}</label>
           <select
             id="smoke"
             value={profile.cookingSmoke ? "yes" : "no"}
@@ -48,23 +47,23 @@ export default function IndoorAdvisor() {
               setProfile({ ...profile, cookingSmoke: e.target.value === "yes" })
             }
           >
-            <option value="no">Not selected</option>
-            <option value="yes">Yes</option>
+            <option value="no">{translate(language, "notSelected")}</option>
+            <option value="yes">{translate(language, "yes")}</option>
           </select>
         </div>
         <div className="profile">
-          <label htmlFor="purifier">AIR PURIFIER AVAILABLE?</label>
+          <label htmlFor="purifier">{translate(language, "purifierAvailable")}</label>
           <select
             id="purifier"
             value={purifier ? "yes" : "no"}
             onChange={(e) => setPurifier(e.target.value === "yes")}
           >
-            <option value="no">No or unsure</option>
-            <option value="yes">Yes</option>
+            <option value="no">{translate(language, "noUnsure")}</option>
+            <option value="yes">{translate(language, "yes")}</option>
           </select>
         </div>
         <div className="profile">
-          <label htmlFor="outdoor">OUTDOOR AIR CONTEXT</label>
+          <label htmlFor="outdoor">{translate(language, "outdoorContext")}</label>
           <select
             id="outdoor"
             value={outdoorMode}
@@ -72,39 +71,39 @@ export default function IndoorAdvisor() {
               setOutdoorMode(e.target.value as "auto" | OutdoorCondition)
             }
           >
-            <option value="auto">Use selected city</option>
-            <option value="elevated">Outdoor air is poor</option>
-            <option value="unknown">Not sure</option>
+            <option value="auto">{translate(language, "useSelectedCity")}</option>
+            <option value="elevated">{translate(language, "outdoorPoor")}</option>
+            <option value="unknown">{translate(language, "notSure")}</option>
           </select>
         </div>
       </div>
       <p className="fine" role="status">
         {outdoorMode === "auto"
           ? airState.kind === "error"
-            ? airState.message
+            ? translateText(language, airState.message)
             : aqi === null
-              ? `Current outdoor data for ${city.name} is unavailable or stale.`
-              : `Outdoor model estimate for ${city.name}: US AQI ${Math.round(aqi)}. This is not an indoor measurement.`
-          : "Using your selected outdoor-air context."}
+              ? translate(language, "selectedCityDataUnavailable").replace("{city}", city.name)
+              : translate(language, "outdoorEstimate").replace("{city}", city.name).replace("{aqi}", String(Math.round(aqi)))
+          : translate(language, "usingSelectedOutdoorContext")}
       </p>
       <section className="plan scenario-result" aria-live="polite">
-        <p className="eyebrow">YOUR INDOOR ACTIONS</p>
+        <p className="eyebrow">{translate(language, "indoorActions")}</p>
         <h2>
-          Small steps for a <em>cleaner room.</em>
+          {translate(language, "cleanerRoom")} <em>{translate(language, "cleanerRoomEmphasis")}</em>
         </h2>
         <ol>
           {actions.map((action, index) => (
             <li key={action.id}>
               <span>0{index + 1}</span>
               <div>
-                <strong>{action.title}</strong>
-                <p>{action.detail}</p>
+                <strong>{translateText(language, action.title)}</strong>
+                <p>{translateText(language, action.detail)}</p>
               </div>
             </li>
           ))}
         </ol>
         <p className="fine">
-          These are general actions, not an indoor measurement. Source:{" "}
+          {translate(language, "indoorSourceNote")}{" "}
           <a href="https://www.epa.gov/wildfires/how-create-cleaner-air-room-home">
             US EPA cleaner-air room guidance
           </a>{" "}
@@ -116,7 +115,7 @@ export default function IndoorAdvisor() {
         </p>
       </section>
       <footer>
-        <Link href="/">← Back to dashboard</Link>
+        <Link href="/">{translate(language, "backDashboard")}</Link>
       </footer>
     </main>
   );

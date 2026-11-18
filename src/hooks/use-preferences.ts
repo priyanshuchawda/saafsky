@@ -2,6 +2,7 @@
 import { useSyncExternalStore } from "react";
 import type { City } from "@/types/air";
 import type { HouseholdProfile } from "@/features/recommendations/engine";
+import type { Language } from "@/features/i18n/messages";
 
 const defaultCity: City = {
   name: "Delhi",
@@ -13,6 +14,7 @@ const defaultCityJson = JSON.stringify(defaultCity);
 const cityKey = "saafsky:city";
 const sensitiveKey = "saafsky:sensitive";
 const householdKey = "saafsky:household";
+const languageKey = "saafsky:language";
 const eventName = "saafsky:preferences";
 let fallbackCity = defaultCityJson;
 let fallbackSensitive = "false";
@@ -24,6 +26,7 @@ const defaultHousehold = {
 } as const;
 const defaultHouseholdJson = JSON.stringify(defaultHousehold);
 let fallbackHousehold = defaultHouseholdJson;
+let fallbackLanguage: Language = "en";
 
 function subscribe(callback: () => void): () => void {
   window.addEventListener("storage", callback);
@@ -52,6 +55,14 @@ function readHousehold(): string {
     return sessionStorage.getItem(householdKey) ?? defaultHouseholdJson;
   } catch {
     return fallbackHousehold;
+  }
+}
+function readLanguage(): Language {
+  try {
+    const value = localStorage.getItem(languageKey);
+    return value === "hi" ? "hi" : "en";
+  } catch {
+    return fallbackLanguage;
   }
 }
 function notify(): void {
@@ -178,12 +189,33 @@ export function useHousehold(): [
     },
   ];
 }
+export function useLanguage(): [Language, (language: Language) => void] {
+  const language = useSyncExternalStore<Language>(
+    subscribe,
+    readLanguage,
+    () => "en",
+  );
+  return [
+    language,
+    (next) => {
+      fallbackLanguage = next;
+      try {
+        localStorage.setItem(languageKey, next);
+      } catch {
+        /* Use in-memory state. */
+      }
+      notify();
+    },
+  ];
+}
 export function clearPreferences(): void {
   fallbackCity = defaultCityJson;
   fallbackSensitive = "false";
   fallbackHousehold = defaultHouseholdJson;
+  fallbackLanguage = "en";
   try {
     localStorage.removeItem(cityKey);
+    localStorage.removeItem(languageKey);
   } catch {
     /* Storage is optional. */
   }

@@ -3,6 +3,7 @@ import type {
   HouseholdProfile,
   Recommendation,
 } from "../recommendations/engine.ts";
+import { translateText, type Language } from "../i18n/messages.ts";
 
 type Explanation = {
   answer: string;
@@ -16,6 +17,7 @@ type AssistantDependencies = {
   aiConfigured: boolean;
   checkAiBudget: () => Promise<boolean>;
   explain: (aqi: number, actions: Recommendation[]) => Promise<Explanation>;
+  language?: Language;
 };
 
 /** Keep a useful general plan available even when a provider or quota fails. */
@@ -31,14 +33,19 @@ export async function createAssistantReply(
   }
   if (aqi !== null && (!Number.isFinite(aqi) || aqi < 0)) aqi = null;
   const actions = generateRecommendations(aqi, profile);
+  const language = dependencies.language ?? "en";
   const fallback = {
-    answer: actions.map((action) => action.description).join(" "),
+    answer: actions
+      .map((action) => translateText(language, action.description))
+      .join(" "),
     referencedActionIds: actions.map((action) => action.id),
     sourceIds: [...new Set(actions.flatMap((action) => action.evidenceIds))],
-    uncertainty:
+    uncertainty: translateText(
+      language,
       aqi === null
         ? "Current air data is unavailable, so this general plan cannot answer your specific question."
         : "The AI explanation is unavailable. This general plan may not answer your specific question.",
+    ),
     mode: "fallback" as const,
   };
   if (aqi === null || !dependencies.aiConfigured) return fallback;

@@ -5,38 +5,41 @@ import {
   clearPreferences,
   useCity,
   useHousehold,
+  useLanguage,
 } from "@/hooks/use-preferences";
 import type { HouseholdProfile } from "@/features/recommendations/engine";
+import { translate } from "@/features/i18n/messages";
 
 export default function Settings() {
+  const [language] = useLanguage();
   const [city] = useCity();
   const [profile, setProfile] = useHousehold();
   const [message, setMessage] = useState("");
   return (
     <main id="main-content" tabIndex={-1} className="shell scenario">
-      <p className="eyebrow">YOUR SETTINGS</p>
+      <p className="eyebrow">{translate(language, "yourSettings")}</p>
       <h1>
-        Make it <em>yours.</em>
+        {translate(language, "makeIt")} <em>{translate(language, "yours")}</em>
       </h1>
       <section className="plan">
-        <h2>Saved preferences</h2>
+        <h2>{translate(language, "savedPreferences")}</h2>
         <p>
-          Selected city:{" "}
+          {translate(language, "selectedCity")}{" "}
           <strong>
             {[city.name, city.admin1, city.country].filter(Boolean).join(", ")}
           </strong>
         </p>
         <p>
-          Household guidance:{" "}
+          {translate(language, "householdGuidance")}{" "}
           <strong>
             {profile.sensitive
-              ? "Sensitive household member"
-              : "General guidance"}
+              ? translate(language, "sensitiveHousehold")
+              : translate(language, "generalGuidance")}
           </strong>
         </p>
         <div className="toolbar impact-form">
           <div className="profile">
-            <label htmlFor="setting-children">CHILDREN IN HOUSEHOLD</label>
+            <label htmlFor="setting-children">{translate(language, "householdChildren")}</label>
             <select
               id="setting-children"
               value={profile.children ? "yes" : "no"}
@@ -47,12 +50,12 @@ export default function Settings() {
                 })
               }
             >
-              <option value="no">No</option>
-              <option value="yes">Yes</option>
+              <option value="no">{translate(language, "no")}</option>
+              <option value="yes">{translate(language, "yes")}</option>
             </select>
           </div>
           <div className="profile">
-            <label htmlFor="setting-commute">USUAL COMMUTE</label>
+            <label htmlFor="setting-commute">{translate(language, "usualCommute")}</label>
             <select
               id="setting-commute"
               value={profile.commute}
@@ -63,15 +66,15 @@ export default function Settings() {
                 })
               }
             >
-              <option value="none">Not selected</option>
-              <option value="walk">Walk</option>
-              <option value="bike">Bicycle</option>
-              <option value="public">Public transport</option>
-              <option value="car">Car</option>
+              <option value="none">{translate(language, "noneSelected")}</option>
+              <option value="walk">{translate(language, "walk")}</option>
+              <option value="bike">{translate(language, "bicycle")}</option>
+              <option value="public">{translate(language, "publicTransport")}</option>
+              <option value="car">{translate(language, "car")}</option>
             </select>
           </div>
           <div className="profile">
-            <label htmlFor="setting-exercise">OUTDOOR EXERCISE</label>
+            <label htmlFor="setting-exercise">{translate(language, "outdoorExercise")}</label>
             <select
               id="setting-exercise"
               value={profile.outdoorExercise ? "yes" : "no"}
@@ -82,12 +85,12 @@ export default function Settings() {
                 })
               }
             >
-              <option value="no">Not selected</option>
-              <option value="yes">Usually exercise outdoors</option>
+              <option value="no">{translate(language, "notSelected")}</option>
+              <option value="yes">{translate(language, "usuallyExercise")}</option>
             </select>
           </div>
           <div className="profile">
-            <label htmlFor="setting-smoke">INDOOR COOKING SMOKE</label>
+            <label htmlFor="setting-smoke">{translate(language, "indoorCookingSmoke")}</label>
             <select
               id="setting-smoke"
               value={profile.cookingSmoke ? "yes" : "no"}
@@ -98,35 +101,31 @@ export default function Settings() {
                 })
               }
             >
-              <option value="no">No or unsure</option>
-              <option value="yes">Usually present</option>
+              <option value="no">{translate(language, "noOrUnsure")}</option>
+              <option value="yes">{translate(language, "usuallyPresent")}</option>
             </select>
           </div>
         </div>
         <p className="fine">
-          The city is stored in this browser. Household and lifestyle choices
-          are kept for this browser tab session only. Chat messages are not
-          saved by the app. Browser settings may also clear this data.
+          {translate(language, "cityStored")}
         </p>
         <p className="fine">
-          On supported hosting, a temporary pseudonymous value derived from your
-          IP address is used for rate limiting. The app does not store raw IP
-          addresses in its rate-limit database.
+          {translate(language, "rateLimitPrivacy")}
         </p>
         <button
           className="action-button"
           type="button"
           onClick={() => {
             clearPreferences();
-            setMessage("Preferences cleared.");
+            setMessage(translate(language, "preferencesCleared"));
           }}
         >
-          Clear preferences
+          {translate(language, "clearPreferences")}
         </button>
         <p role="status">{message}</p>
       </section>
       <footer>
-        <Link href="/">← Back to dashboard</Link>
+        <Link href="/">{translate(language, "backDashboard")}</Link>
       </footer>
     </main>
   );

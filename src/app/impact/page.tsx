@@ -8,8 +8,11 @@ import {
   petrolCarPassengerFactor,
   type Mode,
 } from "@/features/sustainability/calculate";
+import { useLanguage } from "@/hooks/use-preferences";
+import { translate } from "@/features/i18n/messages";
 
 export default function Impact() {
+  const [language] = useLanguage();
   const [distance, setDistance] = useState("10");
   const [days, setDays] = useState("20");
   const [baseline, setBaseline] = useState("");
@@ -42,17 +45,14 @@ export default function Impact() {
       : null;
   return (
     <main id="main-content" tabIndex={-1} className="shell scenario">
-      <p className="eyebrow">COMMUTE IMPACT</p>
+      <p className="eyebrow">{translate(language, "impactEyebrow")}</p>
       <h1>
-        Compare your <em>choices.</em>
+        {translate(language, "impactTitle")} <em>{translate(language, "choices")}</em>
       </h1>
-      <p className="lead">
-        Estimate attributed travel emissions using a UK proxy or your own
-        sourced factor. Results depend on the factors and occupancy you choose.
-      </p>
+      <p className="lead">{translate(language, "impactLead")}</p>
       <div className="toolbar impact-form">
         <div className="profile">
-          <label htmlFor="baseline-mode">CURRENT TRAVEL</label>
+          <label htmlFor="baseline-mode">{translate(language, "currentTravel")}</label>
           <select
             id="baseline-mode"
             value={baselineMode}
@@ -60,13 +60,13 @@ export default function Impact() {
               setBaselineMode(event.target.value as "car" | "custom")
             }
           >
-            <option value="car">UK average petrol car</option>
-            <option value="custom">Use my own factor</option>
+            <option value="car">{translate(language, "ukPetrolCar")}</option>
+            <option value="custom">{translate(language, "ownFactor")}</option>
           </select>
         </div>
         {baselineMode === "car" && (
           <div className="profile">
-            <label htmlFor="occupants">PEOPLE IN CAR</label>
+            <label htmlFor="occupants">{translate(language, "peopleInCar")}</label>
             <input
               id="occupants"
               type="number"
@@ -79,7 +79,7 @@ export default function Impact() {
           </div>
         )}
         <div className="profile">
-          <label htmlFor="distance">DAILY ROUND-TRIP DISTANCE (KM)</label>
+          <label htmlFor="distance">{translate(language, "dailyDistance")}</label>
           <input
             id="distance"
             type="number"
@@ -91,7 +91,7 @@ export default function Impact() {
           />
         </div>
         <div className="profile">
-          <label htmlFor="days">TRAVEL DAYS PER MONTH</label>
+          <label htmlFor="days">{translate(language, "travelDays")}</label>
           <input
             id="days"
             type="number"
@@ -105,7 +105,7 @@ export default function Impact() {
         {baselineMode === "custom" && (
           <div className="profile">
             <label htmlFor="baseline">
-              BASELINE FACTOR (KG CO₂E / PASSENGER-KM)
+              {translate(language, "baselineFactor")}
             </label>
             <input
               id="baseline"
@@ -115,27 +115,27 @@ export default function Impact() {
               step="any"
               value={baseline}
               onChange={(e) => setBaseline(e.target.value)}
-              placeholder="Enter a sourced factor"
+              placeholder={translate(language, "sourcedFactorPlaceholder")}
             />
           </div>
         )}
         <div className="profile">
-          <label htmlFor="mode">ALTERNATIVE</label>
+          <label htmlFor="mode">{translate(language, "alternative")}</label>
           <select
             id="mode"
             value={mode}
             onChange={(e) => setMode(e.target.value as Mode)}
           >
-            <option value="bus">Average UK local bus</option>
-            <option value="walk">Walking</option>
-            <option value="cycle">Cycling</option>
-            <option value="custom">Custom factor</option>
+            <option value="bus">{translate(language, "ukLocalBus")}</option>
+            <option value="walk">{translate(language, "walking")}</option>
+            <option value="cycle">{translate(language, "cycling")}</option>
+            <option value="custom">{translate(language, "customFactor")}</option>
           </select>
         </div>
         {mode === "custom" && (
           <div className="profile">
             <label htmlFor="custom">
-              ALTERNATIVE FACTOR (KG CO₂E / PASSENGER-KM)
+              {translate(language, "alternativeFactor")}
             </label>
             <input
               id="custom"
@@ -150,36 +150,26 @@ export default function Impact() {
         )}
       </div>
       <section className="plan scenario-result" aria-live="polite">
-        <p className="eyebrow">MONTHLY ESTIMATE</p>
+        <p className="eyebrow">{translate(language, "monthlyEstimate")}</p>
         {result ? (
           <>
             <h2>
               {Math.abs(result.difference).toFixed(2)} kg{" "}
-              <em>CO₂e {result.difference >= 0 ? "less" : "more"}.</em>
+              <em>CO₂e {translate(language, result.difference >= 0 ? "less" : "more")}.</em>
             </h2>
             <p>
-              Baseline {result.baseline.toFixed(2)} kg · Alternative{" "}
+              {translate(language, "baseline")} {result.baseline.toFixed(2)} kg · {translate(language, "alternativeValue")}{" "}
               {result.alternative.toFixed(2)} kg
             </p>
           </>
         ) : (
-          <p>Enter a valid baseline factor and inputs to see a comparison.</p>
+          <p>{translate(language, "enterValidFactor")}</p>
         )}
+        <p className="fine">{translate(language, "impactMethod")
+          .replace("{car}", String(UK_PETROL_CAR_KG_PER_VEHICLE_KM))
+          .replace("{bus}", String(UK_BUS_KG_PER_PASSENGER_KM))}</p>
         <p className="fine">
-          The average petrol car factor is {UK_PETROL_CAR_KG_PER_VEHICLE_KM} kg
-          CO₂e per vehicle-km, divided by the number of occupants. The bus
-          factor is {UK_BUS_KG_PER_PASSENGER_KM} kg CO₂e per passenger-km, using
-          2025 UK average occupancy. It is a UK proxy, not an India-specific
-          estimate. Walking and cycling are assigned zero direct vehicle
-          emissions; food, vehicle manufacture and infrastructure are excluded.
-          A baseline vehicle-km factor must be divided by occupants before
-          entering it here. An emissions difference does not predict local AQI
-          or health impact.
-        </p>
-        <p className="fine">
-          Walking or cycling near traffic can increase pollution exposure during
-          poor air quality. Consider current conditions and practical
-          alternatives. Source:{" "}
+          {translate(language, "impactExposure")}{" "}
           <a href="https://assets.publishing.service.gov.uk/media/6846b0870392ed9b784c0187/2025-GHG-CF-methodology-paper.pdf">
             UK government 2025 methodology, table 25
           </a>
@@ -191,7 +181,7 @@ export default function Impact() {
         </p>
       </section>
       <footer>
-        <Link href="/">← Back to dashboard</Link>
+        <Link href="/">{translate(language, "backDashboard")}</Link>
       </footer>
     </main>
   );
