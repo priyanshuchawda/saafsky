@@ -10,7 +10,7 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "test": "node --test tests/*.test.ts",
-    "test:coverage": "node --experimental-test-coverage --test tests/*.test.ts",
+    "test:coverage": "node --experimental-test-coverage --test-coverage-lines=90 --test-coverage-branches=85 --test-coverage-functions=90 --test tests/*.test.ts",
     "test:e2e": "playwright test",
     "test:e2e:production": "playwright test --config playwright.production.config.ts",
     "test:protection": "playwright test --config playwright.protection.config.ts"

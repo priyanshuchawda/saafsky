@@ -55,7 +55,7 @@ On Windows, run the concise release check from the repository root:
 
 This runs ESLint, strict TypeScript, unit coverage, a production build, production-browser journeys, responsive and accessibility checks, and public API protection checks. Browser verification uses mocked provider responses and does not spend Gemini or air-data quotas. GitHub Actions is intentionally disabled; run the local release check against the commit you intend to deploy.
 
-The current unit suite contains 55 tests. Its latest measured coverage is 99.80% statements, 95.61% branches, and 98.28% functions across modules loaded by that suite. Production browser verification covers 27 journeys and UI checks; the separate public API protection suite covers two fail-closed scenarios. Re-run the command above for fresh results.
+The current unit suite contains 55 tests. Its coverage command enforces minimums of 90% lines, 85% branches, and 90% functions; the latest run measured 99.80% lines, 95.61% branches, and 98.28% functions across modules loaded by that suite. Production browser verification covers 27 journeys and UI checks; the separate public API protection suite covers two fail-closed scenarios. Re-run the command above for fresh results.
 
 To run a single layer, use `npm run lint`, `npm run typecheck`, `npm run test:coverage`, `npm run build`, `npm run test:e2e:production`, or `npm run test:protection`. Install Playwright Chromium once with `npx playwright install chromium` if it is not present.
 

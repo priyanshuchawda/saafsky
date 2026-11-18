@@ -1,6 +1,6 @@
 # Testing and verification
 
-SaafSky uses fast, offline unit tests, provider-injected API tests, production-browser journeys, and a separate public-mode protection suite. Automated checks do not require Gemini credentials or consume provider quotas.
+SaafSky uses fast, offline unit tests, provider-injected API tests, production-browser journeys, and a separate public-mode protection suite. The unit coverage command enforces minimums of 90% lines, 85% branches, and 90% functions across modules loaded by the suite. Automated checks do not require Gemini credentials or consume provider quotas.
 
 Requires Node.js 22.18 or newer. Install dependencies and run the core checks from the repository root:
 
