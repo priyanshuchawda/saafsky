@@ -57,7 +57,7 @@ This runs ESLint, strict TypeScript, unit coverage, a production build, a compre
 
 For a separate live-provider check after a production build, run `.\scripts\smoke-live.ps1`. It starts the local production server, checks air data and city search, then exercises the chat route. Add `-RequireGemini` to require an AI-mode response; this also requires the Gemini key and Upstash credentials in `.env.local`. The script prints concise results, never keys or generated answer text.
 
-The current unit suite contains 55 tests. Its coverage command enforces minimums of 90% lines, 85% branches, and 90% functions; the latest run measured 99.80% lines, 95.61% branches, and 98.28% functions across modules loaded by that suite. Production browser verification covers 28 journeys and UI checks, including keyboard-operated mobile navigation; the separate public API protection suite covers two fail-closed scenarios. Re-run the command above for fresh results.
+The current unit suite contains 55 tests. Its coverage command enforces minimums of 90% lines, 85% branches, and 90% functions; the latest run measured 99.80% lines, 95.61% branches, and 98.28% functions across modules loaded by that suite. Production browser verification covers 28 tests, including keyboard-operated mobile navigation; the separate public API protection suite covers two fail-closed scenarios. Re-run the command above for fresh results.
 
 The production build's browser JavaScript has a 300 KiB gzip budget across emitted client chunks. At the current build it measures about 233 KiB gzip across all routes. To inspect the latest build separately, run `npm run check:bundle`.
 
