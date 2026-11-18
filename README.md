@@ -1,10 +1,25 @@
 # SaafSky
 
-**Know your air. Plan your day with confidence.** SaafSky brings city air-quality forecasts, personalized daily guidance, indoor-air actions, commute comparisons, and an evidence-aware AI assistant into one polished product.
+### Know your air. Plan your day with confidence.
+
+SaafSky is a personal air-quality companion that helps people turn changing city air conditions into practical decisions for their day. It brings forecasts, household-aware guidance, indoor-air actions, commute comparisons, and an AI assistant together in one connected experience.
 
 [Open SaafSky](https://saafsky.vercel.app) · English and Hindi · Mobile and desktop
 
-SaafSky turns an air-quality reading into practical next steps. Choose a city and household preferences once; the dashboard, planner, indoor advisor, and assistant share the same location, forecast context, and deterministic recommendations.
+## The opportunity
+
+Air quality affects everyday choices: when to go outside, how to travel, and what to do at home. SaafSky brings those decisions into one place for families, commuters, and people planning outdoor activities. A city forecast becomes a personalized plan that reflects household needs and the time available.
+
+## One context, useful decisions
+
+Choose a city and household preferences once. The dashboard, planner, indoor advisor, and assistant share the same location and forecast context, so recommendations remain consistent as users explore their options.
+
+| For the user | What SaafSky brings together |
+| --- | --- |
+| **A clearer view of the day** | City air quality, pollutants, hourly trends, and source times in one dashboard. |
+| **Guidance that fits** | Actions shaped by household sensitivity, children, routines, commuting, and indoor cooking context. |
+| **A practical plan** | Forecast-aware outing comparisons, indoor-air actions, and commute emissions estimates. |
+| **An answer in your language** | A contextual assistant in English and Hindi, connected to the same action plan. |
 
 ## A day with SaafSky
 
