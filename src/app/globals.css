@@ -43,6 +43,9 @@
   text-decoration: underline;
   text-underline-offset: 4px;
 }
+.mobile-nav {
+  display: none;
+}
 .skip-link {
   position: absolute;
   z-index: 10;
@@ -529,9 +532,33 @@ h3 em,
   .top .brand {
     font-size: 21px;
   }
-  .quick-nav {
+  .desktop-nav {
+    display: none;
+  }
+  .mobile-nav {
+    display: block;
+    border-bottom: 1px solid #d7ded1;
+  }
+  .mobile-nav summary {
+    display: flex;
+    align-items: center;
+    min-height: 48px;
+    width: fit-content;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .mobile-nav nav {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 4px 8px;
+  }
+  .mobile-nav nav a {
+    display: flex;
+    align-items: center;
+    min-height: 48px;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
   }
 }

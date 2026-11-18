@@ -31,6 +31,7 @@ test("mobile touch can select a city and change household preferences", async ({
   await page.getByLabel("YOUR LOCATION").fill("Pune");
   await page.getByRole("button", { name: "Search", exact: true }).tap();
   await page.getByRole("button", { name: "Pune, India" }).tap();
+  await page.locator(".mobile-nav summary").tap();
   await page.getByRole("link", { name: "My preferences" }).tap();
   await expect(page.getByText("Pune, India", { exact: true })).toBeVisible();
   await page.getByLabel("CHILDREN IN HOUSEHOLD").selectOption("yes");

@@ -22,9 +22,10 @@ test("shared navigation works from every page on desktop and mobile", async ({
 
     for (const [index, source] of pages.entries()) {
       await page.goto(source.path, { waitUntil: "domcontentloaded" });
-      const navigation = page.getByRole("navigation", {
-        name: "SaafSky pages",
-      });
+      const mobile = width <= 700;
+      const menu = page.locator(mobile ? ".mobile-nav" : ".desktop-nav");
+      if (mobile) await menu.locator("summary").click();
+      const navigation = mobile ? menu.locator("nav") : menu;
       await expect(navigation.getByRole("link")).toHaveCount(pages.length);
 
       const destination = pages[(index + 1) % pages.length];

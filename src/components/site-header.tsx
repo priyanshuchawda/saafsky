@@ -19,13 +19,23 @@ export function SiteHeader() {
         </Link>
         <p>A little clarity for the air you breathe</p>
       </div>
-      <nav aria-label="SaafSky pages" className="quick-nav">
-        {pages.map((page) => (
-          <Link href={page.href} key={page.href}>
-            {page.label}
-          </Link>
-        ))}
+      <nav aria-label="SaafSky pages" className="quick-nav desktop-nav">
+        <PageLinks />
       </nav>
+      <details className="mobile-nav">
+        <summary>Explore SaafSky</summary>
+        <nav aria-label="SaafSky pages">
+          <PageLinks />
+        </nav>
+      </details>
     </header>
   );
+}
+
+function PageLinks() {
+  return pages.map((page) => (
+    <Link href={page.href} key={page.href}>
+      {page.label}
+    </Link>
+  ));
 }

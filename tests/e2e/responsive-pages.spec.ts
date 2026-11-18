@@ -74,7 +74,7 @@ test("all pages render at mobile and desktop widths without horizontal overflow"
       }
       const undersizedTargets = await page
         .locator(
-          "button, input, select, textarea, .quick-nav a, .action-reason summary",
+          "button, input, select, textarea, .quick-nav a, .mobile-nav summary, .mobile-nav nav a, .action-reason summary",
         )
         .evaluateAll((elements) =>
           elements.flatMap((element) => {
