@@ -41,6 +41,25 @@ test("keyboard users can skip repeated navigation", async ({ page }) => {
   await expect(page.locator("#main-content")).toBeFocused();
 });
 
+test("mobile navigation opens and moves by keyboard", async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 800 });
+  await page.goto("/", { waitUntil: "networkidle" });
+  const menu = page.locator(".mobile-nav");
+  const summary = menu.locator("summary");
+
+  await page.keyboard.press("Tab");
+  await page.keyboard.press("Tab");
+  await page.keyboard.press("Tab");
+  await expect(summary).toBeFocused();
+  await page.keyboard.press("Enter");
+  await expect(menu).toHaveAttribute("open", "");
+  await page.keyboard.press("Tab");
+  await page.keyboard.press("Tab");
+  await expect(menu.getByRole("link", { name: "Daily planner" })).toBeFocused();
+  await page.keyboard.press("Enter");
+  await expect(page).toHaveURL(/\/planner\/?$/);
+});
+
 test("pages fit a narrow mobile viewport", async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 800 });
   await page.route("**/api/air?**", (route) =>

@@ -55,13 +55,13 @@ On Windows, run the concise release check from the repository root:
 
 This runs ESLint, strict TypeScript, unit coverage, a production build, production-browser journeys, responsive and accessibility checks, and public API protection checks. Browser verification uses mocked provider responses and does not spend Gemini or air-data quotas. GitHub Actions is intentionally disabled; run the local release check against the commit you intend to deploy.
 
-The current unit suite contains 55 tests. Its coverage command enforces minimums of 90% lines, 85% branches, and 90% functions; the latest run measured 99.80% lines, 95.61% branches, and 98.28% functions across modules loaded by that suite. Production browser verification covers 27 journeys and UI checks; the separate public API protection suite covers two fail-closed scenarios. Re-run the command above for fresh results.
+The current unit suite contains 55 tests. Its coverage command enforces minimums of 90% lines, 85% branches, and 90% functions; the latest run measured 99.80% lines, 95.61% branches, and 98.28% functions across modules loaded by that suite. Production browser verification covers 28 journeys and UI checks, including keyboard-operated mobile navigation; the separate public API protection suite covers two fail-closed scenarios. Re-run the command above for fresh results.
 
 To run a single layer, use `npm run lint`, `npm run typecheck`, `npm run test:coverage`, `npm run build`, `npm run test:e2e:production`, or `npm run test:protection`. Install Playwright Chromium once with `npx playwright install chromium` if it is not present.
 
 ## Product design and privacy
 
-The app has no account or application database. City selection is stored in browser local storage; household preferences use tab session storage; conversation text stays in page memory. `/settings` lets people update or clear preferences. When configured, Gemini receives the question, recent context, modeled air summary, and selected actions; details are documented in [security and privacy](docs/security-privacy.md).
+The app has no accounts or profile database. City selection is stored in browser local storage; household preferences use tab session storage; conversation text stays in page memory. Upstash stores shared rate-limit counters only. `/settings` lets people update or clear preferences. When configured, Gemini receives the question, recent context, modeled air summary, and selected actions; details are documented in [security and privacy](docs/security-privacy.md).
 
 The interface is designed for desktop and mobile, with semantic controls, keyboard navigation, visible focus, text labels alongside color, and 48px targets for primary interactive controls. Automated axe checks and browser tests exercise the product at mobile and desktop widths. See [accessibility](docs/accessibility.md) for the interaction coverage and review method.
 
