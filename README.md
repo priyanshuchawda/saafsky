@@ -1,58 +1,78 @@
 # SaafSky
 
-SaafSky is an air quality and daily planning companion. The dashboard uses Open-Meteo geocoding and modelled air quality estimates. US AQI is not India's CPCB AQI, and forecasts are not local sensor measurements.
+**A clearer way to plan around the air.** SaafSky brings city air-quality forecasts, household-aware guidance, outing planning, indoor-air actions, commute comparisons, and a contextual assistant into one responsive product.
 
-## Make a clearer plan for your day
+Choose a city and household preferences once. The dashboard, planner, indoor advisor, and assistant use the same current air context and deterministic recommendation rules.
 
-- **Understand your air:** See a city-level estimate, pollutant readings and upcoming forecast periods in one place. The dashboard refreshes while it is open.
-- **Plan around your household:** Get practical guidance shaped by sensitivities, children, exercise and commute choices, with reasons and supporting sources.
-- **Choose a useful outing window:** Compare complete forecast periods against your available time and whether the trip is flexible or essential.
-- **Improve indoor habits:** Explore practical ways to manage cooking smoke, ventilation and filtration.
-- **Compare commute choices:** Estimate emissions differences with transparent factors and see the exposure tradeoffs.
-- **Ask a follow-up:** Get an AI explanation when available, with a rule-based fallback to keep the core experience useful.
+## Product features
+
+| Area | What it helps you do |
+| --- | --- |
+| Dashboard | Review current modeled US AQI, PM2.5 and PM10, source timestamps, and the hours ahead. |
+| Personalized guidance | See practical actions selected from air conditions and household preferences, with reasons and evidence links. |
+| Outing planner | Compare complete forecast windows against your available time, activity duration, household sensitivity, and fixed commitments. |
+| Indoor-air advisor | Choose relevant actions for cooking smoke, filtration, and outdoor-air context. |
+| Commute impact | Compare estimated transport emissions with the selected factors and calculation assumptions shown. |
+| Ask SaafSky | Get a concise explanation of the current plan, with a deterministic fallback when AI is unavailable. |
+| Scenario explorer | Change illustrative AQI and household inputs to see how recommendations respond without external services. |
+
+## Air data and recommendations
+
+Air forecasts and city lookup come from Open-Meteo, with atmospheric model attribution to Copernicus Atmosphere Monitoring Service (CAMS). SaafSky labels its index as **US AQI**. Forecasts are model estimates for a grid and may differ from local monitoring stations. The dashboard shows source and time context so people can interpret readings appropriately.
+
+Recommendations and calculations are deterministic TypeScript. Gemini can explain the server-selected actions; its response is schema-validated and its action references are checked. The dashboard, recommendation engine, planner, indoor guidance, and scenario explorer remain useful without Gemini. The indoor advisor is a guidance tool, not an indoor sensor. See [data sources](docs/data-sources.md) and [decision policy](docs/decision-policy.md) for the exact methodology.
 
 ## Run locally
 
-Requires Node.js 22.18 or newer. Run `npm ci`, then `npm run dev` and open http://localhost:3000. No API key is required for the dashboard. Open-Meteo's free API is subject to its non-commercial terms and usage limits.
+Requires Node.js 22.18 or newer.
 
-## Checks
+```sh
+npm ci
+npm run dev
+```
 
-Run `npm test`, `npm run test:coverage`, `npm run lint`, `npm run typecheck`, and `npm run build`. The coverage report covers unit-tested files, not the entire application. To run the mocked browser journeys, install Chromium with `npx playwright install chromium` and run `npm run test:e2e`. After building, run `npm run test:e2e:production` to test the production server and `npm run test:protection` to verify public endpoints fail closed without shared protection. These tests do not call Gemini.
+Open http://localhost:3000. The air dashboard and planning features need no API key. To enable the optional Gemini explanation service, configure server-side variables in `.env.local`:
 
-The browser suite includes automated axe checks of the initial state of each page, a skip-link keyboard check, and a 320px overflow check. These automated checks do not establish full accessibility compliance; assistive technology and additional interaction states still require manual testing.
+```dotenv
+GEMINI_API_KEY=
+GEMINI_MODEL=gemini-3.5-flash-lite
+GEMINI_FALLBACK_MODEL=
+UPSTASH_REDIS_REST_URL=
+UPSTASH_REDIS_REST_TOKEN=
+RATE_LIMIT_HASH_SECRET=
+SAAFSKY_PUBLIC=false
+```
 
-## Current state and plan
+AI requests require Gemini and shared Upstash credentials. On Vercel, the separate rate-limit hash secret and trusted platform address are also required for public requests. Gemini uses bounded output and request budgets, and falls back to the deterministic plan if AI is unavailable. Review provider terms and quota settings before enabling external services. Full configuration and data-flow details are in [security and privacy](docs/security-privacy.md).
 
-The app includes city lookup, cached and validated air forecasts, stale-data checks, a basic rule-based plan, an offline scenario at `/scenarios`, an outing-window comparison at `/planner`, an indoor-air advisor at `/indoor`, a factor-based emissions comparison at `/impact`, and an assistant at `/assistant`. The assistant uses a deterministic fallback unless Gemini and shared rate-limiter credentials are configured. Recommendations are general information and not medical advice.
+## Verify the product
 
-The selected city is saved in browser local storage. Household sensitivity, children, commute, exercise, and cooking-smoke choices stay in session storage for the current tab and feed the dashboard, planner, and assistant. Use `/settings` to update or clear these preferences. Chat messages remain in page memory only; when AI is enabled, up to two previous exchanges are sent to Gemini as context. Clear them using the assistant's clear button or leave the page.
+On Windows, run the concise release check from the repository root:
 
-Gemini is optional. Set `GEMINI_API_KEY`, `GEMINI_MODEL`, `UPSTASH_REDIS_REST_URL`, and `UPSTASH_REDIS_REST_TOKEN` in `.env.local`. Without both Upstash credentials the assistant never calls Gemini. A global limit of 3 requests per minute and 20 per day applies when configured; rate-limit errors fail closed to the fallback. Verify that the Google and Upstash projects are on free tiers before enabling them. Free-tier Gemini content may be used by Google to improve products; the interface asks users not to enter personal or medical details. AI output is schema-checked and action references are validated, but free text can still be wrong.
+```powershell
+.\scripts\verify.ps1 -Browser
+```
 
-Optionally set `GEMINI_FALLBACK_MODEL` to a different free-tier text model available to your Google project, such as `gemini-3.1-flash-lite`. If the primary model returns a 404, 429 or 503, SaafSky reserves another AI-budget request before trying the alternative once. Validation failures do not trigger another model call. Leave the variable blank to use only the primary model. Google Search grounding is not enabled; provider availability and free-tier limits can change.
+This runs ESLint, strict TypeScript, unit coverage, a production build, production-browser journeys, responsive and accessibility checks, and public API protection checks. Browser verification uses mocked provider responses and does not spend Gemini or air-data quotas. GitHub Actions is intentionally disabled; run the local release check against the commit you intend to deploy.
 
-Air, location, and chat endpoints use global shared rate limits when Upstash is configured. On Vercel they additionally apply per-visitor caps using a short-lived HMAC of the platform-supplied IP address; raw IP addresses are not stored in Redis. Configure a separate random `RATE_LIMIT_HASH_SECRET` for the HMAC. Rotating it resets visitor-specific counters while global budgets remain in force. Vercel requests fail closed when the limiter, hashing secret, or trusted address is unavailable. Set `SAAFSKY_PUBLIC=true` on other public hosts to enforce global limits; per-visitor limits require a trusted platform address and are currently enabled only on Vercel. A global quota can temporarily block everyone during heavy usage. GitHub Actions is intentionally disabled.
+The current unit suite contains 55 tests. Its latest measured coverage is 99.80% statements, 95.61% branches, and 98.28% functions across modules loaded by that suite. Production browser verification covers 27 journeys and UI checks; the separate public API protection suite covers two fail-closed scenarios. Re-run the command above for fresh results.
 
-Open-Meteo responses are cached by Next.js for 30 minutes for air data and 24 hours for locations. Cache availability and sharing depend on the deployment environment; there is no uptime guarantee.
+To run a single layer, use `npm run lint`, `npm run typecheck`, `npm run test:coverage`, `npm run build`, `npm run test:e2e:production`, or `npm run test:protection`. Install Playwright Chromium once with `npx playwright install chromium` if it is not present.
 
-## Architecture and decision policy
+## Product design and privacy
 
-The browser calls Next.js route handlers. City search and air data use Open-Meteo; responses are validated with Zod. A pure recommendation function uses the US AQI and general household context to select stable action IDs. The assistant receives the server-generated actions and a minimal forecast summary, and validates the AI's action references before returning its answer. The dashboard and planner do not depend on Gemini.
+The app has no account or application database. City selection is stored in browser local storage; household preferences use tab session storage; conversation text stays in page memory. `/settings` lets people update or clear preferences. When configured, Gemini receives the question, recent context, modeled air summary, and selected actions; details are documented in [security and privacy](docs/security-privacy.md).
 
-Air data is modeled, not a local measurement. The dashboard rejects guidance based on data if retrieval or model timestamps are stale. The outing planner compares available forecast hours in a user-selected local time window; the lowest forecast is not necessarily safe. The indoor advisor has no sensor and cannot determine actual indoor air quality. The app does not provide medical advice or calculate India's CPCB AQI.
+The interface is designed for desktop and mobile, with semantic controls, keyboard navigation, visible focus, text labels alongside color, and 48px targets for primary interactive controls. Automated axe checks and browser tests exercise the product at mobile and desktop widths. See [accessibility](docs/accessibility.md) for the interaction coverage and review method.
 
-The impact page offers 2025 UK average petrol-car and local-bus factors as clearly labeled proxies; the car factor is divided by the number of occupants. Users can instead enter a sourced passenger-kilometre factor. Walking and cycling are treated as zero direct vehicle emissions; lifecycle emissions, induced travel and individual exposure are excluded. Results should not be interpreted as measured Indian transport emissions or changes in local AQI.
-
-## Product documentation
+## Technical documentation
 
 - [Architecture and data flow](docs/architecture.md)
 - [Data sources and impact methodology](docs/data-sources.md)
 - [Recommendation and planning policy](docs/decision-policy.md)
 - [Security and privacy](docs/security-privacy.md)
-- [Accessibility and known gaps](docs/accessibility.md)
+- [Accessibility](docs/accessibility.md)
 - [Testing and verification](docs/testing.md)
-- [Reporting a security concern](SECURITY.md)
+- [Security reporting](SECURITY.md)
 
-## Release status
-
-SaafSky is not a clinically reviewed safety product. It needs more extensive policy review, accessible interaction testing, and production monitoring. Public hosting requires a free Upstash database that the owner controls; temporary test databases expire. Open-Meteo's free service and Vercel Hobby are subject to non-commercial eligibility and usage limits. Keep billing disabled for a zero-cost Gemini project and never commit `.env.local` or API keys.
+Air-quality advice is general information. Follow existing clinical guidance for personal health decisions. Free service availability, quotas, and eligibility are governed by each provider's current terms.
