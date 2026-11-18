@@ -72,6 +72,33 @@ test("all pages render at mobile and desktop widths without horizontal overflow"
           0,
         );
       }
+      const undersizedTargets = await page
+        .locator(
+          "button, input, select, textarea, .nav-link, .quick-nav a, .action-reason summary",
+        )
+        .evaluateAll((elements) =>
+          elements.flatMap((element) => {
+            const bounds = element.getBoundingClientRect();
+            const style = getComputedStyle(element);
+            if (
+              element.closest("nextjs-portal") ||
+              bounds.height === 0 ||
+              style.display === "none" ||
+              style.visibility === "hidden"
+            ) {
+              return [];
+            }
+            return bounds.height < 48
+              ? [
+                  `${element.tagName.toLowerCase()}#${element.id}.${element.getAttribute("class") ?? ""} ${element.textContent?.trim() ?? ""} ${bounds.height}px (min ${style.minHeight})`,
+                ]
+              : [];
+          }),
+        );
+      expect(
+        undersizedTargets,
+        `${path} has touch targets below 48px at ${viewport.width}px`,
+      ).toEqual([]);
       const scrollWidth = await page.evaluate(
         () => document.documentElement.scrollWidth,
       );

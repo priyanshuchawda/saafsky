@@ -6,8 +6,10 @@
 }
 .action-reason summary {
   cursor: pointer;
+  display: flex;
+  align-items: center;
   font-weight: 600;
-  min-height: 32px;
+  min-height: 48px;
 }
 .action-reason summary:focus-visible {
   outline: 3px solid #4b875d;
@@ -31,7 +33,7 @@
 }
 .quick-nav a {
   display: inline-flex;
-  min-height: 44px;
+  min-height: 48px;
   align-items: center;
   font-size: 14px;
   font-weight: 600;
@@ -71,11 +73,15 @@ textarea:focus-visible {
   margin-top: 40px;
 }
 .nav-link {
+  display: inline-flex;
+  min-height: 48px;
   margin-left: auto;
   border: 1px solid #bfcfc0;
   border-radius: 30px;
   padding: 10px 14px;
   font-size: 12px;
+  align-items: center;
+  justify-content: center;
   text-decoration: none;
   white-space: nowrap;
 }
@@ -126,21 +132,10 @@ textarea:focus-visible {
   color: white;
   border-radius: 6px;
   padding: 13px 20px;
+  min-height: 48px;
 }
 .nav-link + .nav-link {
   margin-left: 0;
-}
-@media (max-width: 700px) {
-  .top {
-    gap: 6px;
-  }
-  .top .brand {
-    font-size: 21px;
-  }
-  .nav-link {
-    font-size: 11px;
-    padding: 8px;
-  }
 }
 :root {
   --ink: #18372f;
@@ -298,6 +293,7 @@ h3 em {
   border-radius: 6px;
   padding: 0 22px;
   margin-left: 8px;
+  min-height: 48px;
 }
 .results {
   position: absolute;
@@ -550,7 +546,12 @@ h3 em,
     font-size: 21px;
   }
   .nav-link {
-    font-size: 11px;
+    font-size: 13px;
     padding: 8px;
+  }
+  .quick-nav {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 4px 8px;
   }
 }

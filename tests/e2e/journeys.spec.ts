@@ -262,6 +262,9 @@ test("impact calculator displays a sourced-factor comparison", async ({
   page,
 }) => {
   await page.goto("/impact", { waitUntil: "networkidle" });
+  await expect(
+    page.getByLabel("CURRENT TRAVEL").locator('option[value="car"]'),
+  ).toHaveText("UK average petrol car");
   await expect(page.getByRole("heading", { name: /11\.77 kg/ })).toBeVisible();
   await page.getByLabel("PEOPLE IN CAR").fill("2");
   await expect(

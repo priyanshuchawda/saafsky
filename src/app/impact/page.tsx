@@ -66,7 +66,7 @@ export default function Impact() {
               setBaselineMode(event.target.value as "car" | "custom")
             }
           >
-            <option value="car">Average UK petrol car (proxy)</option>
+            <option value="car">UK average petrol car</option>
             <option value="custom">Use my own factor</option>
           </select>
         </div>
