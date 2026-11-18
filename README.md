@@ -68,6 +68,7 @@ The interface is designed for desktop and mobile, with semantic controls, keyboa
 ## Technical documentation
 
 - [Architecture and data flow](docs/architecture.md)
+- [API reference](docs/api.md)
 - [Data sources and impact methodology](docs/data-sources.md)
 - [Recommendation and planning policy](docs/decision-policy.md)
 - [Security and privacy](docs/security-privacy.md)
