@@ -7,7 +7,8 @@ $checks = @(
   @{ Name = "ESLint"; Args = @("run", "lint") },
   @{ Name = "TypeScript"; Args = @("run", "typecheck") },
   @{ Name = "Unit tests and coverage"; Args = @("run", "test:coverage") },
-  @{ Name = "Production build"; Args = @("run", "build") }
+  @{ Name = "Production build"; Args = @("run", "build") },
+  @{ Name = "Client JavaScript budget"; Args = @("run", "check:bundle") }
 )
 
 if ($Browser) {

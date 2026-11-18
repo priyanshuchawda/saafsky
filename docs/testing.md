@@ -36,6 +36,8 @@ On Windows, `scripts/verify.ps1` provides a concise local release check:
 
 The browser option runs production browser journeys and public API protection after lint, typecheck, coverage, and build. Provider smoke checks are performed separately when validating live credentials and provider availability; keeping those checks outside the routine suite preserves deterministic runs and free-tier quotas.
 
+The release script also checks all emitted `.next/static/chunks/**/*.js` assets after the production build. It sums the gzip size of each separately delivered asset and fails above the 300 KiB budget. This is a project-wide client JavaScript budget, not a per-route first-load estimate.
+
 After a production build, `scripts/smoke-live.ps1` can verify the air endpoint, city lookup, and chat route against live providers. Use `-RequireGemini` when the release check must exercise Gemini rather than accept the deterministic fallback. The script reads `.env.local` through the Next.js server, prints no secret values or generated text, and stops its local server after the check.
 
 GitHub Actions remains disabled during iterative development. Run the local release check against the exact commit prepared for deployment.
