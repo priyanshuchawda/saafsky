@@ -17,6 +17,7 @@
     "test:protection": "playwright test --config playwright.protection.config.ts"
   },
   "dependencies": {
+    "@elevenlabs/elevenlabs-js": "^2.79.0",
     "@google/genai": "^3.4.0",
     "@upstash/ratelimit": "^2.2.1",
     "@upstash/redis": "^1.41.0",
