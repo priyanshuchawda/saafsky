@@ -1,8 +1,8 @@
 # Testing and verification
 
-SaafSky uses fast, offline unit tests, provider-injected API tests, production-browser journeys, and a separate public-mode protection suite. The unit coverage command enforces minimums of 90% lines, 85% branches, and 90% functions across modules loaded by the suite. Automated checks do not require Gemini credentials or consume provider quotas.
+SaafSky combines offline unit tests, provider-injected API tests, production-browser journeys, and a dedicated public-mode protection suite. The unit coverage command enforces minimums of 90% lines, 85% branches, and 90% functions across modules loaded by the suite. Mocked providers keep automated runs repeatable and quota-free.
 
-Requires Node.js 22.18 or newer. Install dependencies and run the core checks from the repository root:
+Node.js 26.x matches the deployed runtime; Node.js 22.18 or newer is supported for local development. Install dependencies and run the core checks from the repository root:
 
 ```sh
 npm ci
@@ -14,7 +14,7 @@ npm run build
 
 The unit suite covers domain calculations, AQI boundaries, freshness and time zones, recommendation policy, indoor advice, planner constraints, emissions arithmetic, request schemas, bounded request bodies, rate-limit decisions, and provider failures. API endpoint tests inject provider and limiter dependencies so success, validation, rate-limit, and upstream-error responses stay deterministic and free of live network calls.
 
-The coverage report measures modules loaded by the unit suite. Browser and protection tests complement it by validating rendered pages, API responses, keyboard and mobile behavior, security headers, and public-mode fail-closed behavior.
+The coverage report quantifies modules loaded by the unit suite. Browser and protection tests complement it with rendered-page journeys, API responses, keyboard and mobile interactions, security headers, and public-mode protection behavior.
 
 Run the browser suites with:
 
@@ -25,7 +25,7 @@ npm run test:e2e:production
 npm run test:protection
 ```
 
-The default browser suite uses a development server. The production suite runs the built application and checks user journeys, English and Hindi content, responsive layouts at 320px, 390px, 768px, 1024px, and 1440px, assistant fallback, accessibility, and error states. The protection suite starts a separate production server with public mode enabled and credentials blank, then verifies that API requests fail closed before provider access.
+The default browser suite uses a development server. The production suite runs the built application and checks user journeys, English and Hindi content, responsive layouts at 320px, 390px, 768px, 1024px, and 1440px, assistant fallback, accessibility, and recovery states. The protection suite starts a separate production server with public mode enabled and credentials blank, then verifies that API protection is applied before provider access.
 
 On Windows, `scripts/verify.ps1` provides a concise local release check:
 
@@ -36,8 +36,8 @@ On Windows, `scripts/verify.ps1` provides a concise local release check:
 
 The browser option runs production browser journeys and public API protection after lint, typecheck, coverage, and build. Provider smoke checks are performed separately when validating live credentials and provider availability; keeping those checks outside the routine suite preserves deterministic runs and free-tier quotas.
 
-The release script also checks all emitted `.next/static/chunks/**/*.js` assets after the production build. It sums the gzip size of each separately delivered asset and fails above the 300 KiB budget. This is a project-wide client JavaScript budget, not a per-route first-load estimate.
+The release script also checks all emitted `.next/static/chunks/**/*.js` assets after the production build. It sums the gzip size of separately delivered assets and enforces a 300 KiB project-wide client JavaScript budget. This complements route-level browser testing with a clear resource-size target.
 
 After a production build, `scripts/smoke-live.ps1` can verify the air endpoint, city lookup, and chat route against live providers. Use `-RequireGemini` when the release check must exercise Gemini rather than accept the deterministic fallback. The script reads `.env.local` through the Next.js server, prints no secret values or generated text, and stops its local server after the check.
 
-GitHub Actions remains disabled during iterative development. Run the local release check against the exact commit prepared for deployment.
+Run the local release check against the exact commit prepared for deployment. The same command is documented in the README for repeatable release verification.

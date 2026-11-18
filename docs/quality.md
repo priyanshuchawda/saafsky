@@ -1,6 +1,6 @@
 # Quality engineering
 
-SaafSky keeps presentation, provider access, and decision logic in separate layers. The boundaries make the most important behavior deterministic, independently testable, and usable when an external AI service is unavailable.
+SaafSky separates presentation, provider access, and decision logic into clear layers. This keeps important behavior deterministic, independently testable, and useful alongside optional AI explanations.
 
 | Area | Quality practice | Evidence in the repository |
 | --- | --- | --- |
@@ -30,9 +30,10 @@ Verified locally against the production build on **November 18, 2026**:
 - **2 public API protection tests passed**, checking fail-closed public behavior and request validation before provider access.
 - **Client JavaScript measured 242.4 KiB gzip across 17 emitted chunks**, below the enforced 300 KiB project-wide budget. This counts all emitted client chunks and is not a per-route first-load estimate.
 - **Production dependency audit reported zero known advisories** with `npm audit --omit=dev` against the current lockfile.
-- **Live smoke passed** for Open-Meteo air data, Open-Meteo city lookup, and the SaafSky chat route in AI mode. The reusable [live smoke script](../scripts/smoke-live.ps1) prints no secrets or generated answer text.
+- **Production smoke passed** at [saafsky.vercel.app](https://saafsky.vercel.app): the site, air endpoint, city lookup, and Gemini chat in AI mode all returned successfully.
+- **Local live smoke passed** for Open-Meteo air data, Open-Meteo city lookup, and the SaafSky chat route in AI mode. The reusable [live smoke script](../scripts/smoke-live.ps1) prints no secrets or generated answer text.
 
-Coverage is the measured scope of the modules imported by the unit suite; it is not a whole-application statement. Browser, API-protection, bundle, and live-provider checks add separate evidence for rendered behavior, request boundaries, resource size, and external integration.
+Coverage reports quantify modules imported by the unit suite. Browser, API-protection, bundle, and live-provider checks add complementary evidence for rendered behavior, request boundaries, resource size, and external integration.
 
 ## Change discipline
 

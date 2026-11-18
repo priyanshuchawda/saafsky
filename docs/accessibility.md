@@ -19,4 +19,4 @@ SaafSky uses native links, buttons, form controls, disclosures, headings, and li
 .\scripts\verify.ps1 -Browser
 ```
 
-The production browser suite runs axe checks on all seven route entry states, plus an assistant response and an expanded recommendation. It also exercises navigation, mobile search and preferences, narrow layouts, target sizing, and key planner and assistant interactions. These automated checks complement keyboard, screen-reader, zoom, and contrast review during release validation; they do not by themselves certify WCAG conformance. English is the default language, and Hindi is available throughout the product.
+The production browser suite runs axe checks on all seven route entry states, plus an assistant response and an expanded recommendation. It also exercises navigation, mobile search and preferences, narrow layouts, target sizing, and key planner and assistant interactions. These repeatable checks provide practical evidence for keyboard, screen-reader, zoom, and contrast review during release validation. English is the default language, and Hindi is available throughout the product.

@@ -55,6 +55,7 @@ Returns an explanation of the server-generated recommendation plan. The request 
 | `latitude` | number | Finite; `-90` to `90`. |
 | `longitude` | number | Finite; `-180` to `180`. |
 | `profile` | object | Strict object with `sensitive`, `children`, `outdoorExercise`, `cookingSmoke` booleans and `commute` set to `none`, `walk`, `bike`, `public`, or `car`. |
+| `language` | string | Optional; `en` or `hi`, with `en` as the default. |
 | `history` | array | Optional; at most four `{ role, text }` entries. Role is `user` or `assistant`; text is at most 500 characters. |
 
 Successful response:

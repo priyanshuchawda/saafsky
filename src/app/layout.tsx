@@ -16,8 +16,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "SaafSky",
-  description: "Air quality forecasts and practical daily guidance.",
+  title: "SaafSky — Personal Air Quality Planner",
+  description:
+    "Plan your day with city air-quality forecasts, household-aware guidance, indoor-air actions, commute insights, and a bilingual AI assistant.",
 };
 
 export default function RootLayout({
