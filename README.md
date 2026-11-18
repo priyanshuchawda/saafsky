@@ -73,6 +73,7 @@ The interface is designed for desktop and mobile, with semantic controls, keyboa
 
 - [Architecture and data flow](docs/architecture.md)
 - [API reference](docs/api.md)
+- [Quality engineering and measured evidence](docs/quality.md)
 - [Data sources and impact methodology](docs/data-sources.md)
 - [Recommendation and planning policy](docs/decision-policy.md)
 - [Security and privacy](docs/security-privacy.md)
