@@ -91,11 +91,13 @@ textarea:focus-visible {
   color: var(--ink);
   min-height: 48px;
 }
-.impact-form {
-  flex-wrap: wrap;
+.toolbar.impact-form {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  align-items: end;
 }
 .impact-form .profile {
-  min-width: min(190px, 100%);
+  min-width: 0;
 }
 .impact-form input {
   border: 1px solid #d4ddd0;
@@ -149,6 +151,8 @@ a {
   color: inherit;
 }
 .shell {
+  width: 100%;
+  min-width: 0;
   max-width: 1300px;
   margin: auto;
   padding: 0 5%;
@@ -460,7 +464,12 @@ a:focus-visible {
   outline: 3px solid #4b875d;
   outline-offset: 3px;
 }
-@media (max-width: 700px) {
+@media (min-width: 801px) and (max-width: 1100px) {
+  .toolbar.impact-form {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media (max-width: 800px) {
   .top p,
   .top small,
   .art {
@@ -476,6 +485,9 @@ a:focus-visible {
   .dashboard {
     display: flex;
     flex-direction: column;
+  }
+  .toolbar.impact-form {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   .heading h2 {
     font-size: 31px;
@@ -521,7 +533,7 @@ h3 em,
 .plan li span {
   font-size: 13px;
 }
-@media (max-width: 700px) {
+@media (max-width: 800px) {
   .top {
     gap: 8px;
     min-height: 65px;
@@ -560,5 +572,36 @@ h3 em,
     font-size: 14px;
     font-weight: 600;
     text-decoration: none;
+  }
+}
+
+@media (max-width: 520px) {
+  .shell {
+    padding-inline: 18px;
+  }
+  .intro {
+    min-height: 250px;
+  }
+  .intro h1 {
+    font-size: clamp(48px, 14vw, 64px);
+  }
+  .toolbar {
+    padding: 16px;
+  }
+  .toolbar.impact-form {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .aq,
+  .plan {
+    padding: 22px;
+  }
+  .number {
+    font-size: clamp(76px, 24vw, 100px);
+  }
+  .pollutants {
+    gap: 28px;
+  }
+  .hours {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }

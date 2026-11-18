@@ -15,6 +15,8 @@ const pages = [
 const viewports = [
   { name: "mobile-320", width: 320, height: 800 },
   { name: "mobile-390", width: 390, height: 844 },
+  { name: "tablet-768", width: 768, height: 1024 },
+  { name: "laptop-1024", width: 1024, height: 900 },
   { name: "desktop", width: 1440, height: 960 },
 ];
 
@@ -102,6 +104,27 @@ test("all pages render at mobile and desktop widths without horizontal overflow"
       const scrollWidth = await page.evaluate(
         () => document.documentElement.scrollWidth,
       );
+      if (scrollWidth > viewport.width) {
+        const overflowingElements = await page.locator("body *").evaluateAll(
+          (elements) =>
+            elements
+              .map((element) => {
+                const bounds = element.getBoundingClientRect();
+                return {
+                  tag: element.tagName.toLowerCase(),
+                  className: typeof element.className === "string" ? element.className : "",
+                  text: element.textContent?.trim().slice(0, 60) ?? "",
+                  left: Math.round(bounds.left),
+                  right: Math.round(bounds.right),
+                  width: Math.round(bounds.width),
+                };
+              })
+              .filter((element) => element.right > window.innerWidth + 1)
+              .sort((left, right) => right.right - left.right)
+              .slice(0, 20),
+        );
+        console.log(`${path} overflow details (${await page.evaluate(() => window.innerWidth)}px): ${JSON.stringify(overflowingElements)}`);
+      }
       expect(
         scrollWidth,
         `${path} overflows at ${viewport.width}px (${scrollWidth}px)`,
