@@ -7,6 +7,7 @@ import type {
 type Explanation = {
   answer: string;
   referencedActionIds: string[];
+  sourceIds: string[];
   uncertainty: string;
 };
 
@@ -33,6 +34,7 @@ export async function createAssistantReply(
   const fallback = {
     answer: actions.map((action) => action.description).join(" "),
     referencedActionIds: actions.map((action) => action.id),
+    sourceIds: [...new Set(actions.flatMap((action) => action.evidenceIds))],
     uncertainty:
       aqi === null
         ? "Current air data is unavailable, so this general plan cannot answer your specific question."

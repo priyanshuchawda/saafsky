@@ -20,7 +20,7 @@ Choose a city and household preferences once. The dashboard, planner, indoor adv
 
 Air forecasts and city lookup come from Open-Meteo, with atmospheric model attribution to Copernicus Atmosphere Monitoring Service (CAMS). SaafSky labels its index as **US AQI**. Forecasts are model estimates for a grid and may differ from local monitoring stations. The dashboard shows source and time context so people can interpret readings appropriately.
 
-Recommendations and calculations are deterministic TypeScript. Gemini can explain the server-selected actions; its response is schema-validated and its action references are checked. The dashboard, recommendation engine, planner, indoor guidance, and scenario explorer remain useful without Gemini. The indoor advisor is a guidance tool, not an indoor sensor. See [data sources](docs/data-sources.md) and [decision policy](docs/decision-policy.md) for the exact methodology.
+Recommendations and calculations are deterministic TypeScript. Gemini can explain the server-selected actions; its response is schema-validated, action and evidence references are checked, and approved source links appear with the answer. The dashboard, recommendation engine, planner, indoor guidance, and scenario explorer remain useful without Gemini. The indoor advisor is a guidance tool, not an indoor sensor. See [data sources](docs/data-sources.md) and [decision policy](docs/decision-policy.md) for the exact methodology.
 
 ## Run locally
 
@@ -57,9 +57,9 @@ This runs ESLint, strict TypeScript, unit coverage, a production build, a compre
 
 For a separate live-provider check after a production build, run `.\scripts\smoke-live.ps1`. It starts the local production server, checks air data and city search, then exercises the chat route. Add `-RequireGemini` to require an AI-mode response; this also requires the Gemini key and Upstash credentials in `.env.local`. The script prints concise results, never keys or generated answer text.
 
-The current unit suite contains 55 tests. Its coverage command enforces minimums of 90% lines, 85% branches, and 90% functions; the latest run measured 99.80% lines, 95.61% branches, and 98.28% functions across modules loaded by that suite. Production browser verification covers 28 tests, including keyboard-operated mobile navigation; the separate public API protection suite covers two fail-closed scenarios. Re-run the command above for fresh results.
+The current unit suite contains 55 tests. Its coverage command enforces minimums of 90% lines, 85% branches, and 90% functions; the latest run measured 99.80% lines, 95.44% branches, and 98.39% functions across modules loaded by that suite. Production browser verification covers 28 tests, including keyboard-operated mobile navigation; the separate public API protection suite covers two fail-closed scenarios. Re-run the command above for fresh results.
 
-The production build's browser JavaScript has a 300 KiB gzip budget across emitted client chunks. At the current build it measures about 233 KiB gzip across all routes. To inspect the latest build separately, run `npm run check:bundle`.
+The production build's browser JavaScript has a 300 KiB gzip budget across emitted client chunks. At the current build it measures 234.0 KiB gzip across all routes. To inspect the latest build separately, run `npm run check:bundle`.
 
 To run a single layer, use `npm run lint`, `npm run typecheck`, `npm run test:coverage`, `npm run build`, `npm run check:bundle`, `npm run test:e2e:production`, or `npm run test:protection`. Install Playwright Chromium once with `npx playwright install chromium` if it is not present.
 

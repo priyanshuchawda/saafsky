@@ -101,7 +101,10 @@ try {
   if ($RequireGemini -and $reply.mode -ne "ai") {
     throw "Chat returned deterministic fallback; check provider credentials, quota, and rate limits."
   }
-  Write-Output "SaafSky chat route: passed (mode=$($reply.mode), structured response validated)."
+  if ($RequireGemini -and (-not $reply.referencedActionIds.Count -or -not $reply.sourceIds.Count)) {
+    throw "Gemini returned no validated action or source references for this question."
+  }
+  Write-Output "SaafSky chat route: passed (mode=$($reply.mode), actions=$($reply.referencedActionIds.Count), sources=$($reply.sourceIds.Count))."
   Write-Output "Live provider smoke check complete. No keys or response text were printed."
 } catch {
   $status = $null

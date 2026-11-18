@@ -28,6 +28,7 @@ test("missing air data gives conservative guidance without spending AI quota", a
   });
   assert.equal(reply.mode, "fallback");
   assert.deepEqual(reply.referencedActionIds, ["air-unavailable", "indoor-smoke"]);
+  assert.deepEqual(reply.sourceIds, ["airnow-aqi", "epa-indoor"]);
   assert.match(reply.uncertainty, /cannot answer your specific question/);
   assert.equal(budgetChecks, 0);
 });
@@ -67,10 +68,12 @@ test("AI explanations receive rule-selected actions and appear only within budge
       return {
         answer: "Consider an indoor alternative.",
         referencedActionIds: ["reduce-outdoor-exertion"],
+        sourceIds: ["airnow-aqi"],
         uncertainty: "Forecasts can change.",
       };
     },
   });
   assert.equal(reply.mode, "ai");
   assert.equal(reply.answer, "Consider an indoor alternative.");
+  assert.deepEqual(reply.sourceIds, ["airnow-aqi"]);
 });

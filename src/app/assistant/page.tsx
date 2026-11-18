@@ -3,11 +3,17 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import { LocationSearch } from "@/components/location-search";
+import { evidenceCatalog } from "@/features/recommendations/evidence";
 import { assistantResponseSchema } from "@/features/assistant/validate";
 import { RateLimitError, throwIfHttpError } from "@/lib/api-errors";
 import { useCity, useHousehold } from "@/hooks/use-preferences";
 
-type Reply = { answer: string; uncertainty: string; mode: "ai" | "fallback" };
+type Reply = {
+  answer: string;
+  uncertainty: string;
+  mode: "ai" | "fallback";
+  sourceIds: string[];
+};
 type Turn = { question: string; reply: Reply };
 export default function Assistant() {
   const [city, setCity] = useCity();
@@ -58,6 +64,7 @@ export default function Assistant() {
               answer: result.answer,
               uncertainty: result.uncertainty,
               mode: result.mode,
+              sourceIds: result.sourceIds,
             },
           },
         ].slice(-5),
@@ -144,6 +151,21 @@ export default function Assistant() {
                   : "RULE-BASED FALLBACK"}
               </p>
               <p>{turn.reply.answer}</p>
+              {turn.reply.sourceIds.length > 0 && (
+                <details className="action-reason">
+                  <summary>Sources for this answer</summary>
+                  <ul>
+                    {turn.reply.sourceIds.map((sourceId) => {
+                      const source = evidenceCatalog[sourceId];
+                      return source ? (
+                        <li key={sourceId}>
+                          <a href={source.url}>{source.label}</a>
+                        </li>
+                      ) : null;
+                    })}
+                  </ul>
+                </details>
+              )}
               <p className="fine">
                 {turn.reply.uncertainty} AI can make mistakes. Follow existing
                 medical advice and check official local conditions.

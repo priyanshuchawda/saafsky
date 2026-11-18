@@ -89,7 +89,8 @@ test("assistant response remains accessible after a conversation", async ({
     route.fulfill({
       json: {
         mode: "fallback",
-        referencedActionIds: [],
+        referencedActionIds: ["air-unavailable", "indoor-smoke"],
+        sourceIds: ["airnow-aqi", "epa-indoor"],
         answer: "Check local conditions.",
         uncertainty: "AI is unavailable.",
       },
@@ -101,6 +102,7 @@ test("assistant response remains accessible after a conversation", async ({
     .fill("How should I plan my trip?");
   await page.getByRole("button", { name: "Ask SaafSky" }).click();
   await expect(page.getByText("RULE-BASED FALLBACK")).toBeVisible();
+  await page.getByText("Sources for this answer").click();
   const results = await new AxeBuilder({ page })
     .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
     .analyze();

@@ -13,7 +13,7 @@ flowchart LR
   Chat -->|validated answer or fallback| Browser
 ```
 
-The browser keeps the chosen city in local storage and household choices in session storage. Chat history is held in page memory. Requests to the chat endpoint include a question, recent conversation and limited environmental context; the server constructs its own action list before checking AI references. Do not enter personal or medical details in chat.
+The browser keeps the chosen city in local storage and household choices in session storage. Chat history is held in page memory. Requests to the chat endpoint include a question, recent conversation and limited environmental context; the server constructs its own action list before checking AI action and evidence references. The browser resolves evidence IDs through the approved catalog before rendering source links. Do not enter personal or medical details in chat.
 
 The root layout provides the same responsive, keyboard-accessible page navigation across the dashboard, planner, indoor advisor, impact calculator, assistant, settings and scenario explorer. Desktop users see the destinations in a shared navigation bar; mobile users open them from a native disclosure to preserve space for page content. Route pages own their task content while the shared shell keeps the main destinations one step away.
 

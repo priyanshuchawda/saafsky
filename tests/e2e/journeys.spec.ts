@@ -230,7 +230,8 @@ test("assistant shows deterministic fallback without calling Gemini", async ({
     return route.fulfill({
       json: {
         mode: "fallback",
-        referencedActionIds: [],
+        referencedActionIds: ["air-unavailable", "indoor-smoke"],
+        sourceIds: ["airnow-aqi", "epa-indoor"],
         answer: "Check local conditions.",
         uncertainty: "AI is unavailable.",
       },
@@ -243,6 +244,11 @@ test("assistant shows deterministic fallback without calling Gemini", async ({
   await page.getByRole("button", { name: "Ask SaafSky" }).click();
   await expect(page.getByText("RULE-BASED FALLBACK")).toBeVisible();
   await expect(page.getByText("Check local conditions.")).toBeVisible();
+  await page.getByText("Sources for this answer").first().click();
+  await expect(page.getByRole("link", { name: "AirNow: US AQI basics" })).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "US EPA: improving indoor air" }),
+  ).toBeVisible();
   await page
     .getByLabel("YOUR QUESTION ABOUT DELHI")
     .fill("What about tomorrow?");
