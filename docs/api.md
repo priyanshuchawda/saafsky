@@ -43,7 +43,7 @@ Looks up city names through Open-Meteo Geocoding.
 | --- | --- | --- |
 | `q` | string | Trimmed; queries shorter than 2 or longer than 80 characters return `{ "results": [] }`. |
 
-Successful response contains at most eight validated results. Each result includes `name`, `latitude`, `longitude`, and optional `admin1` and `country`. Results use a 24-hour Next.js cache. Provider failures return `503`; rate limiting follows the shared response contract below.
+The response may contain a `results` array with up to eight validated matches. Each result includes `name`, `latitude`, `longitude`, and optional `admin1` and `country`. An upstream no-match response may omit the array; the browser treats that as an empty result. Results use a 24-hour Next.js cache. Provider failures return `503`; rate limiting follows the shared response contract below.
 
 ## `POST /api/chat`
 
