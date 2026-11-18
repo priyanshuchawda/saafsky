@@ -75,12 +75,6 @@ export default function Assistant() {
   }
   return (
     <main id="main-content" tabIndex={-1} className="shell scenario">
-      <header className="top">
-        <Link className="brand" href="/">
-          ✳ saafsky<span>.</span>
-        </Link>
-        <p>Ask about your air plan</p>
-      </header>
       <p className="eyebrow">YOUR AIR ASSISTANT</p>
       <h1>
         Ask a <em>question.</em>

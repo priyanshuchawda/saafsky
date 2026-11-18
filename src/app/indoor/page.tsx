@@ -30,12 +30,6 @@ export default function IndoorAdvisor() {
   );
   return (
     <main id="main-content" tabIndex={-1} className="shell scenario">
-      <header className="top">
-        <Link className="brand" href="/">
-          ✳ saafsky<span>.</span>
-        </Link>
-        <p>Make your indoor space more comfortable</p>
-      </header>
       <p className="eyebrow">INDOOR AIR ADVISOR</p>
       <h1>
         Care for the air <em>inside.</em>

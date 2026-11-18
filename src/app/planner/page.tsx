@@ -45,12 +45,6 @@ export default function Planner() {
   const steps = generateDailyPlan(air?.current.us_aqi ?? null, profile);
   return (
     <main id="main-content" tabIndex={-1} className="shell scenario">
-      <header className="top">
-        <Link className="brand" href="/">
-          ✳ saafsky<span>.</span>
-        </Link>
-        <p>Find a lower forecast period</p>
-      </header>
       <p className="eyebrow">PLAN A NECESSARY OUTING</p>
       <h1>
         Find a <em>better window.</em>

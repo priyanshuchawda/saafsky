@@ -40,25 +40,6 @@ export default function Home() {
     fresh && localNow ? lowestForecastPeriod(times, values, localNow) : null;
   return (
     <main id="main-content" tabIndex={-1} className="shell">
-      <header className="top">
-        <Link className="brand" href="/">
-          ✳ saafsky<span>.</span>
-        </Link>
-        <p>A little clarity for the air you breathe</p>
-        <Link className="nav-link" href="/planner">
-          Plan an outing ↗
-        </Link>
-        <Link className="nav-link" href="/scenarios">
-          Explore scenarios ↗
-        </Link>
-      </header>
-      <nav aria-label="Explore SaafSky" className="quick-nav">
-        <Link href="/planner">Daily planner</Link>
-        <Link href="/indoor">Indoor air</Link>
-        <Link href="/impact">Commute impact</Link>
-        <Link href="/assistant">Ask SaafSky</Link>
-        <Link href="/settings">My preferences</Link>
-      </nav>
       <section className="intro">
         <div>
           <p className="eyebrow">A BETTER DAY STARTS HERE ✳</p>

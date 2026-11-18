@@ -42,12 +42,6 @@ export default function Impact() {
       : null;
   return (
     <main id="main-content" tabIndex={-1} className="shell scenario">
-      <header className="top">
-        <Link className="brand" href="/">
-          ✳ saafsky<span>.</span>
-        </Link>
-        <p>Compare commute emissions</p>
-      </header>
       <p className="eyebrow">COMMUTE IMPACT</p>
       <h1>
         Compare your <em>choices.</em>

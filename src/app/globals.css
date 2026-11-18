@@ -72,19 +72,6 @@ textarea:focus-visible {
 .scenario footer {
   margin-top: 40px;
 }
-.nav-link {
-  display: inline-flex;
-  min-height: 48px;
-  margin-left: auto;
-  border: 1px solid #bfcfc0;
-  border-radius: 30px;
-  padding: 10px 14px;
-  font-size: 12px;
-  align-items: center;
-  justify-content: center;
-  text-decoration: none;
-  white-space: nowrap;
-}
 .forecast-note {
   background: #e8ede0;
   border-radius: 8px;
@@ -133,9 +120,6 @@ textarea:focus-visible {
   border-radius: 6px;
   padding: 13px 20px;
   min-height: 48px;
-}
-.nav-link + .nav-link {
-  margin-left: 0;
 }
 :root {
   --ink: #18372f;
@@ -544,10 +528,6 @@ h3 em,
   }
   .top .brand {
     font-size: 21px;
-  }
-  .nav-link {
-    font-size: 13px;
-    padding: 8px;
   }
   .quick-nav {
     display: grid;

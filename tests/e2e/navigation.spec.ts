@@ -1,23 +1,16 @@
 import { expect, test } from "@playwright/test";
 
-const destinations = [
+const pages = [
+  { label: "Dashboard", path: "/", heading: "Breathe a little" },
   { label: "Daily planner", path: "/planner", heading: "Find a" },
   { label: "Indoor air", path: "/indoor", heading: "Care for the air" },
-  {
-    label: "Commute impact",
-    path: "/impact",
-    heading: "Compare your",
-  },
+  { label: "Commute impact", path: "/impact", heading: "Compare your" },
   { label: "Ask SaafSky", path: "/assistant", heading: "Ask a" },
   { label: "My preferences", path: "/settings", heading: "Make it" },
-  {
-    label: "Explore scenarios",
-    path: "/scenarios",
-    heading: "See the plan",
-  },
+  { label: "Scenarios", path: "/scenarios", heading: "See the plan" },
 ];
 
-test("dashboard navigation reaches every product page on desktop and mobile", async ({
+test("shared navigation works from every page on desktop and mobile", async ({
   page,
 }) => {
   await page.route("**/api/air**", (route) =>
@@ -26,22 +19,23 @@ test("dashboard navigation reaches every product page on desktop and mobile", as
 
   for (const width of [320, 1440]) {
     await page.setViewportSize({ width, height: 850 });
-    await page.goto("/", { waitUntil: "domcontentloaded" });
-    for (const destination of destinations) {
-      const link =
-        destination.path === "/scenarios"
-          ? page.locator('.top .nav-link[href="/scenarios"]')
-          : page
-              .locator(".quick-nav")
-              .getByRole("link", { name: destination.label, exact: true });
-      await link.click();
+
+    for (const [index, source] of pages.entries()) {
+      await page.goto(source.path, { waitUntil: "domcontentloaded" });
+      const navigation = page.getByRole("navigation", {
+        name: "SaafSky pages",
+      });
+      await expect(navigation.getByRole("link")).toHaveCount(pages.length);
+
+      const destination = pages[(index + 1) % pages.length];
+      if (!destination) throw new Error("Navigation destination is missing.");
+      await navigation
+        .getByRole("link", { name: destination.label, exact: true })
+        .click();
       await expect(page).toHaveURL(new RegExp(`${destination.path}/?$`));
-      await expect(
-        page.getByRole("heading", { level: 1 }).first(),
-        `${destination.path} should render its page heading`,
-      ).toContainText(destination.heading);
-      await page.locator(".top .brand").first().click();
-      await expect(page).toHaveURL(/\/$/);
+      await expect(page.getByRole("heading", { level: 1 }).first()).toContainText(
+        destination.heading,
+      );
     }
   }
 });

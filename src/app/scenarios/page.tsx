@@ -23,12 +23,6 @@ export default function Scenarios() {
   });
   return (
     <main id="main-content" tabIndex={-1} className="shell scenario">
-      <header className="top">
-        <Link className="brand" href="/">
-          ✳ saafsky<span>.</span>
-        </Link>
-        <p>Explore a controlled example</p>
-      </header>
       <p className="eyebrow">SCENARIO COMPARISON</p>
       <h1>
         See the plan <em>change.</em>
