@@ -1,12 +1,15 @@
 "use client";
+
 import Link from "next/link";
-import { useAirQuality } from "@/hooks/use-air-quality";
+import { AirQualitySummary } from "@/components/dashboard/air-quality-summary";
+import { ForecastSection } from "@/components/dashboard/forecast-section";
 import { LocationSearch } from "@/components/location-search";
-import { ActionReason } from "@/components/action-reason";
-import { useCity, useHousehold } from "@/hooks/use-preferences";
 import { generateRecommendations } from "@/features/recommendations/engine";
+import { useAirQuality } from "@/hooks/use-air-quality";
+import { useCity, useHousehold } from "@/hooks/use-preferences";
+import { lowestForecastPeriod, upcomingForecast } from "@/lib/air";
 import { localMinuteAt } from "@/lib/freshness";
-import { category, lowestForecastPeriod, upcomingForecast } from "@/lib/air";
+
 export default function Home() {
   const [city, setCity] = useCity();
   const [profile, setProfile] = useHousehold();
@@ -29,15 +32,19 @@ export default function Home() {
       ? air.current.us_aqi
       : null;
   const recommendations = generateRecommendations(aqi, profile);
-  const times = air?.hourly?.time ?? [];
-  const values = air?.hourly?.us_aqi ?? [];
   const localNow =
     state.kind === "success"
       ? localMinuteAt(state.checkedAt, state.data.timezone)
       : null;
-  const upcoming = fresh ? upcomingForecast(times, values, localNow ?? "") : [];
+  const upcoming =
+    fresh && air
+      ? upcomingForecast(air.hourly.time, air.hourly.us_aqi, localNow ?? "")
+      : [];
   const lowest =
-    fresh && localNow ? lowestForecastPeriod(times, values, localNow) : null;
+    fresh && air && localNow
+      ? lowestForecastPeriod(air.hourly.time, air.hourly.us_aqi, localNow)
+      : null;
+
   return (
     <main id="main-content" tabIndex={-1} className="shell">
       <section className="intro">
@@ -62,6 +69,7 @@ export default function Home() {
           </p>
         </div>
       </section>
+
       <section className="toolbar" aria-label="Location and household">
         <LocationSearch onSelect={setCity} />
         <div className="profile">
@@ -69,10 +77,10 @@ export default function Home() {
           <select
             id="profile"
             value={profile.sensitive ? "sensitive" : "adult"}
-            onChange={(e) =>
+            onChange={(event) =>
               setProfile({
                 ...profile,
-                sensitive: e.target.value === "sensitive",
+                sensitive: event.target.value === "sensitive",
               })
             }
           >
@@ -81,6 +89,7 @@ export default function Home() {
           </select>
         </div>
       </section>
+
       <div className="heading">
         <div>
           <p className="eyebrow">YOUR AIR, AT A GLANCE</p>
@@ -93,102 +102,23 @@ export default function Home() {
           {status}
         </p>
       )}
-      <section className="dashboard">
-        <article className="aq">
-          <p className="eyebrow">CURRENT AIR QUALITY</p>
-          <div className="number">
-            {aqi === null ? "—" : Math.round(aqi)} <small>US AQI</small>
-          </div>
-          <strong className="category">{category(aqi)}</strong>
-          <p>
-            Model estimate for {city.name}. Conditions can vary across your
-            city.
-          </p>
-          <div className="pollutants">
-            <div>
-              PM2.5
-              <strong>
-                {fresh ? (air?.current?.pm2_5 ?? "—") : "—"}{" "}
-                <small>µg/m³</small>
-              </strong>
-            </div>
-            <div>
-              PM10
-              <strong>
-                {fresh ? (air?.current?.pm10 ?? "—") : "—"} <small>µg/m³</small>
-              </strong>
-            </div>
-          </div>
-        </article>
-        <article className="plan">
-          <p className="eyebrow">YOUR PERSONAL AIR PLAN ✳</p>
-          <h3>
-            Little actions,
-            <br />
-            <em>meaningful care.</em>
-          </h3>
-          <p className="muted">
-            Based on the current estimate and your household selection.
-          </p>
-          <ol>
-            {recommendations.map((item, i) => (
-              <li key={item.id}>
-                <span>0{i + 1}</span>
-                <div>
-                  <strong>{item.title}</strong>
-                  <p>{item.description}</p>
-                  <ActionReason action={item} />
-                </div>
-              </li>
-            ))}
-          </ol>
-          <p className="fine">
-            General information, not a diagnosis. Follow your clinician’s advice
-            when applicable.
-          </p>
-        </article>
-      </section>
-      <section>
-        <div className="heading">
-          <div>
-            <p className="eyebrow">LOOKING AHEAD</p>
-            <h2>The hours ahead ↗</h2>
-          </div>
-          <p>Forecast · {air?.timezone ?? "local time"}</p>
-        </div>
-        {lowest && (
-          <p className="forecast-note">
-            Lowest forecast among the next 24 available hourly periods:{" "}
-            <strong>{lowest.time.replace("T", " ")}</strong> · US AQI{" "}
-            {Math.round(lowest.aqi)}. This is a comparison, not a guarantee of
-            safe conditions.
-          </p>
-        )}
-        <div className="hours">
-          {upcoming.slice(0, 8).map(({ time, aqi }, i) => (
-            <div key={`${time}-${i}`}>
-              <span>{time.replace("T", " ").slice(5)}</span>
-              <strong>{aqi ?? "—"}</strong>
-              <small>US AQI</small>
-            </div>
-          ))}
-          {upcoming.length === 0 && <p>No upcoming forecast available.</p>}
-        </div>
-        <p className="fine">
-          Source:{" "}
-          <a href="https://open-meteo.com/en/docs/air-quality-api">
-            Open-Meteo
-          </a>
-          {" / "}
-          <a href="https://atmosphere.copernicus.eu/">
-            Copernicus Atmosphere Monitoring Service (CAMS)
-          </a>
-          . Forecast time:{" "}
-          {air?.current?.time?.replace("T", " ") ?? "unavailable"}. Retrieved:{" "}
-          {updated ? new Date(updated).toLocaleString() : "unavailable"}.
-          Forecasts are estimates, not local sensor measurements.
-        </p>
-      </section>
+
+      <AirQualitySummary
+        cityName={city.name}
+        aqi={aqi}
+        current={air?.current ?? null}
+        fresh={fresh}
+        recommendations={recommendations}
+      />
+      <ForecastSection
+        cityName={city.name}
+        timezone={air?.timezone}
+        currentModelTime={air?.current.time}
+        retrievedAt={updated}
+        upcoming={upcoming}
+        lowest={lowest}
+      />
+
       <footer>
         <strong>✳ saafsky.</strong>
         <span>A calmer way to navigate the air around you.</span>
