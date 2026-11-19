@@ -19,6 +19,8 @@ type Reply = {
   sourceIds: string[];
 };
 type Turn = { question: string; reply: Reply; language: Language };
+type RequestStatus =
+  { kind: "idle" } | { kind: "pending" } | { kind: "error"; message: string };
 export function useAssistant(
   city: City,
   profile: HouseholdProfile,
@@ -26,13 +28,21 @@ export function useAssistant(
 ) {
   const [question, setQuestion] = useState("");
   const [turns, setTurns] = useState<Turn[]>([]);
-  const [status, setStatus] = useState("");
+  const [requestStatus, setRequestStatus] = useState<RequestStatus>({
+    kind: "idle",
+  });
+  const status =
+    requestStatus.kind === "pending"
+      ? translate(language, "preparingAnswer")
+      : requestStatus.kind === "error"
+        ? requestStatus.message
+        : "";
   const activeRequest = useRef<AbortController | null>(null);
   useEffect(() => () => activeRequest.current?.abort(), []);
   function clearConversation() {
     activeRequest.current?.abort();
     setTurns([]);
-    setStatus("");
+    setRequestStatus({ kind: "idle" });
   }
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -41,7 +51,7 @@ export function useAssistant(
     activeRequest.current?.abort();
     const controller = new AbortController();
     activeRequest.current = controller;
-    setStatus(translate(language, "preparingAnswer"));
+    setRequestStatus({ kind: "pending" });
     try {
       const response = await fetch("/api/chat", {
         method: "POST",
@@ -78,15 +88,25 @@ export function useAssistant(
         ].slice(-5),
       );
       setQuestion("");
-      setStatus("");
+      setRequestStatus({ kind: "idle" });
     } catch (error) {
       if (!controller.signal.aborted)
-        setStatus(
-          error instanceof RateLimitError
-            ? translateText(language, error.message)
-            : translate(language, "assistantUnavailable"),
-        );
+        setRequestStatus({
+          kind: "error",
+          message:
+            error instanceof RateLimitError
+              ? translateText(language, error.message)
+              : translate(language, "assistantUnavailable"),
+        });
     }
   }
-  return { question, setQuestion, turns, status, clearConversation, submit };
+  return {
+    question,
+    setQuestion,
+    turns,
+    status,
+    isPending: requestStatus.kind === "pending",
+    clearConversation,
+    submit,
+  };
 }

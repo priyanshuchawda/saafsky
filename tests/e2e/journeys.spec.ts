@@ -603,3 +603,41 @@ test("preferences remain usable when browser storage rejects writes", async ({
   await expect(page.locator("#site-language")).toHaveValue("en");
   await expect(page.getByText(/Delhi, India/)).toBeVisible();
 });
+
+test("assistant keeps an active request pending when language changes", async ({
+  page,
+}) => {
+  let release = () => {};
+  const gate = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  await page.route("**/api/chat", async (route) => {
+    await gate;
+    await route.fulfill({
+      json: {
+        mode: "fallback",
+        referencedActionIds: [],
+        sourceIds: [],
+        answer: "Check local conditions.",
+        uncertainty: "AI is unavailable.",
+      },
+    });
+  });
+  try {
+    await page.goto("/assistant", { waitUntil: "networkidle" });
+    await page.locator("#question").fill("How should I plan my commute?");
+    const submit = page.locator(
+      'form[aria-label="Ask SaafSky"] button[type="submit"], form[aria-label="Ask SaafSky"] button:not([type])',
+    );
+    await submit.click();
+    await expect(submit).toBeDisabled();
+    await page.locator("#site-language").selectOption("hi");
+    const hindiSubmit = page.getByRole("button", { name: "साफ़स्काई से पूछें" });
+    await expect(hindiSubmit).toBeDisabled();
+    await expect(page.getByText("आपका उत्तर तैयार हो रहा है…")).toBeVisible();
+    release();
+    await expect(hindiSubmit).toBeEnabled();
+  } finally {
+    release();
+  }
+});

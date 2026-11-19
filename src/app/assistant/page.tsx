@@ -11,8 +11,15 @@ export default function Assistant() {
   const [language] = useLanguage();
   const [city, setCity, cityReady] = useCity();
   const [profile, setProfile] = useHousehold();
-  const { question, setQuestion, turns, status, clearConversation, submit } =
-    useAssistant(city, profile, language);
+  const {
+    question,
+    setQuestion,
+    turns,
+    status,
+    isPending,
+    clearConversation,
+    submit,
+  } = useAssistant(city, profile, language);
   return (
     <main id="main-content" tabIndex={-1} className="shell scenario">
       <p className="eyebrow">{translate(language, "airAssistant")}</p>
@@ -64,10 +71,7 @@ export default function Assistant() {
           rows={4}
           placeholder={translate(language, "commuteQuestionPlaceholder")}
         />
-        <button
-          className="action-button"
-          disabled={status === translate(language, "preparingAnswer")}
-        >
+        <button className="action-button" disabled={isPending}>
           {translate(language, "askSaafSky")}
         </button>
       </form>
