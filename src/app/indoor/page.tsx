@@ -36,7 +36,8 @@ export default function IndoorAdvisor() {
     <main id="main-content" tabIndex={-1} className="shell scenario">
       <p className="eyebrow">{translate(language, "indoorEyebrow")}</p>
       <h1>
-        {translate(language, "indoorTitle")} <em>{translate(language, "inside")}</em>
+        {translate(language, "indoorTitle")}{" "}
+        <em>{translate(language, "inside")}</em>
       </h1>
       <p className="lead">{translate(language, "indoorLead")}</p>
       <div className="toolbar">
@@ -54,7 +55,9 @@ export default function IndoorAdvisor() {
           </select>
         </div>
         <div className="profile">
-          <label htmlFor="purifier">{translate(language, "purifierAvailable")}</label>
+          <label htmlFor="purifier">
+            {translate(language, "purifierAvailable")}
+          </label>
           <select
             id="purifier"
             value={purifier ? "yes" : "no"}
@@ -65,7 +68,9 @@ export default function IndoorAdvisor() {
           </select>
         </div>
         <div className="profile">
-          <label htmlFor="outdoor">{translate(language, "outdoorContext")}</label>
+          <label htmlFor="outdoor">
+            {translate(language, "outdoorContext")}
+          </label>
           <select
             id="outdoor"
             value={outdoorMode}
@@ -73,8 +78,12 @@ export default function IndoorAdvisor() {
               setOutdoorMode(e.target.value as "auto" | OutdoorCondition)
             }
           >
-            <option value="auto">{translate(language, "useSelectedCity")}</option>
-            <option value="elevated">{translate(language, "outdoorPoor")}</option>
+            <option value="auto">
+              {translate(language, "useSelectedCity")}
+            </option>
+            <option value="elevated">
+              {translate(language, "outdoorPoor")}
+            </option>
             <option value="unknown">{translate(language, "notSure")}</option>
           </select>
         </div>
@@ -84,14 +93,20 @@ export default function IndoorAdvisor() {
           ? airState.kind === "error"
             ? translateText(language, airState.message)
             : aqi === null
-              ? translate(language, "selectedCityDataUnavailable").replace("{city}", displayCity(city, language))
-              : translate(language, "outdoorEstimate").replace("{city}", displayCity(city, language)).replace("{aqi}", String(Math.round(aqi)))
+              ? translate(language, "selectedCityDataUnavailable").replace(
+                  "{city}",
+                  displayCity(city, language),
+                )
+              : translate(language, "outdoorEstimate")
+                  .replace("{city}", displayCity(city, language))
+                  .replace("{aqi}", String(Math.round(aqi)))
           : translate(language, "usingSelectedOutdoorContext")}
       </p>
       <section className="plan scenario-result" aria-live="polite">
         <p className="eyebrow">{translate(language, "indoorActions")}</p>
         <h2>
-          {translate(language, "cleanerRoom")} <em>{translate(language, "cleanerRoomEmphasis")}</em>
+          {translate(language, "cleanerRoom")}{" "}
+          <em>{translate(language, "cleanerRoomEmphasis")}</em>
         </h2>
         <ol>
           {actions.map((action, index) => (

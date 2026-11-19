@@ -1,6 +1,9 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { findActivityWindow, nextForecastRange } from "../src/features/planner/activity-window.ts";
+import {
+  findActivityWindow,
+  nextForecastRange,
+} from "../src/features/planner/activity-window.ts";
 
 const hours = [
   { time: "2026-01-01T08:00", aqi: 120 },
@@ -10,9 +13,18 @@ const hours = [
 ];
 
 test("quick forecast range uses observed consecutive boundaries and rejects gaps", () => {
-  assert.deepEqual(nextForecastRange(hours), { start: "2026-01-01T08:00", end: "2026-01-01T11:00" });
+  assert.deepEqual(nextForecastRange(hours), {
+    start: "2026-01-01T08:00",
+    end: "2026-01-01T11:00",
+  });
   assert.equal(nextForecastRange([hours[0]!, hours[2]!]), null);
-  assert.deepEqual(nextForecastRange([{ time: "2026-01-01T08:00", aqi: 100 }, { time: "2026-01-01T09:00", aqi: null }]), { start: "2026-01-01T08:00", end: "2026-01-01T09:00" });
+  assert.deepEqual(
+    nextForecastRange([
+      { time: "2026-01-01T08:00", aqi: 100 },
+      { time: "2026-01-01T09:00", aqi: null },
+    ]),
+    { start: "2026-01-01T08:00", end: "2026-01-01T09:00" },
+  );
   assert.equal(nextForecastRange([hours[0]!, hours[1]!, hours[1]!]), null);
   assert.equal(nextForecastRange([{ time: "invalid", aqi: 80 }]), null);
 });
@@ -22,14 +34,20 @@ test("quick range respects the twelve-hour limit and excludes ambiguous wall tim
     time: `2026-01-01T${String(hour).padStart(2, "0")}:00`,
     aqi: 80,
   }));
-  assert.deepEqual(nextForecastRange(series), { start: "2026-01-01T00:00", end: "2026-01-01T12:00" });
+  assert.deepEqual(nextForecastRange(series), {
+    start: "2026-01-01T00:00",
+    end: "2026-01-01T12:00",
+  });
   const transition = [
     { time: "2026-11-01T01:00", aqi: 70 },
     { time: "2026-11-01T01:00", aqi: 80 },
     { time: "2026-11-01T02:00", aqi: 90 },
     { time: "2026-11-01T03:00", aqi: 80 },
   ];
-  assert.deepEqual(nextForecastRange(transition), { start: "2026-11-01T02:00", end: "2026-11-01T03:00" });
+  assert.deepEqual(nextForecastRange(transition), {
+    start: "2026-11-01T02:00",
+    end: "2026-11-01T03:00",
+  });
 });
 test("planner selects a complete multi-hour window within the user's constraints", () => {
   assert.deepEqual(

@@ -24,9 +24,18 @@ test("English and Hindi dictionaries define the same interface", () => {
 
 test("Hindi mode translates product navigation and core air guidance", () => {
   assert.equal(translate("hi", "planner"), "दिन की योजना");
-  assert.equal(translate("hi", "generalInformation"), "यह सामान्य जानकारी है, चिकित्सीय निदान नहीं। ज़रूरत पड़ने पर अपने चिकित्सक की सलाह मानें।");
-  assert.equal(translateText("hi", "Reduce outdoor exertion"), "बाहर की शारीरिक मेहनत घटाएँ");
-  assert.equal(translateText("en", "Reduce outdoor exertion"), "Reduce outdoor exertion");
+  assert.equal(
+    translate("hi", "generalInformation"),
+    "यह सामान्य जानकारी है, चिकित्सीय निदान नहीं। ज़रूरत पड़ने पर अपने चिकित्सक की सलाह मानें।",
+  );
+  assert.equal(
+    translateText("hi", "Reduce outdoor exertion"),
+    "बाहर की शारीरिक मेहनत घटाएँ",
+  );
+  assert.equal(
+    translateText("en", "Reduce outdoor exertion"),
+    "Reduce outdoor exertion",
+  );
 });
 
 test("every rule-generated recommendation and explanation has Hindi copy", () => {
@@ -51,7 +60,10 @@ test("every rule-generated recommendation and explanation has Hindi copy", () =>
       const recommendations = generateRecommendations(aqi, profile);
       for (const item of recommendations) {
         assert.notEqual(translateText("hi", item.title), item.title);
-        assert.notEqual(translateText("hi", item.description), item.description);
+        assert.notEqual(
+          translateText("hi", item.description),
+          item.description,
+        );
         for (const code of item.reasonCodes) {
           const reason = reasonDescriptions[code];
           if (reason) assert.notEqual(translateText("hi", reason), reason);

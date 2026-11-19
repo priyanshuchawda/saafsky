@@ -1,95 +1,24 @@
 "use client";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
-import type { FormEvent } from "react";
+import { useAssistant } from "@/hooks/use-assistant";
 import { LocationSearch } from "@/components/location-search";
 import { evidenceCatalog } from "@/features/recommendations/evidence";
-import { assistantResponseSchema } from "@/features/assistant/validate";
-import { RateLimitError, throwIfHttpError } from "@/lib/api-errors";
 import { useCity, useHousehold, useLanguage } from "@/hooks/use-preferences";
 import { displayCity } from "@/features/i18n/city";
-import { translate, translateText, type Language } from "@/features/i18n/messages";
+import { translate } from "@/features/i18n/messages";
 
-type Reply = {
-  answer: string;
-  uncertainty: string;
-  mode: "ai" | "fallback";
-  sourceIds: string[];
-};
-type Turn = { question: string; reply: Reply; language: Language };
 export default function Assistant() {
   const [language] = useLanguage();
   const [city, setCity, cityReady] = useCity();
   const [profile, setProfile] = useHousehold();
-  const [question, setQuestion] = useState("");
-  const [turns, setTurns] = useState<Turn[]>([]);
-  const [status, setStatus] = useState("");
-  const activeRequest = useRef<AbortController | null>(null);
-  useEffect(() => () => activeRequest.current?.abort(), []);
-  function clearConversation() {
-    activeRequest.current?.abort();
-    setTurns([]);
-    setStatus("");
-  }
-  async function submit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const text = question.trim();
-    if (!text) return;
-    activeRequest.current?.abort();
-    const controller = new AbortController();
-    activeRequest.current = controller;
-    setStatus(translate(language, "preparingAnswer"));
-    try {
-      const response = await fetch("/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          question: text,
-          latitude: city.latitude,
-          longitude: city.longitude,
-          profile,
-          language,
-          history: turns.slice(-2).flatMap((turn) => [
-            { role: "user", text: turn.question.slice(0, 500) },
-            { role: "assistant", text: turn.reply.answer.slice(0, 500) },
-          ]),
-        }),
-        signal: controller.signal,
-      });
-      throwIfHttpError(response);
-      const result = assistantResponseSchema.parse(await response.json());
-      if (controller.signal.aborted) return;
-      setTurns((previous) =>
-        [
-          ...previous,
-          {
-            question: text,
-            language,
-            reply: {
-              answer: result.answer,
-              uncertainty: result.uncertainty,
-              mode: result.mode,
-              sourceIds: result.sourceIds,
-            },
-          },
-        ].slice(-5),
-      );
-      setQuestion("");
-      setStatus("");
-    } catch (error) {
-      if (!controller.signal.aborted)
-        setStatus(
-            error instanceof RateLimitError
-              ? translateText(language, error.message)
-              : translate(language, "assistantUnavailable"),
-        );
-    }
-  }
+  const { question, setQuestion, turns, status, clearConversation, submit } =
+    useAssistant(city, profile, language);
   return (
     <main id="main-content" tabIndex={-1} className="shell scenario">
       <p className="eyebrow">{translate(language, "airAssistant")}</p>
       <h1>
-        {translate(language, "askQuestion")} <em>{translate(language, "question")}</em>
+        {translate(language, "askQuestion")}{" "}
+        <em>{translate(language, "question")}</em>
       </h1>
       <p className="lead">{translate(language, "assistantLead")}</p>
       <div className="toolbar">
@@ -110,7 +39,9 @@ export default function Assistant() {
             }}
           >
             <option value="no">{translate(language, "generalGuidance")}</option>
-            <option value="yes">{translate(language, "sensitiveHousehold")}</option>
+            <option value="yes">
+              {translate(language, "sensitiveHousehold")}
+            </option>
           </select>
         </div>
       </div>
@@ -120,7 +51,8 @@ export default function Assistant() {
         aria-label={translate(language, "assistant")}
       >
         <label htmlFor="question">
-          {translate(language, "questionAbout")} {cityReady ? displayCity(city, language).toUpperCase() : "…"}
+          {translate(language, "questionAbout")}{" "}
+          {cityReady ? displayCity(city, language).toUpperCase() : "…"}
         </label>
         <textarea
           id="question"
@@ -145,7 +77,8 @@ export default function Assistant() {
           {turns.map((turn, index) => (
             <div key={`${index}-${turn.question}`} lang={turn.language}>
               <p>
-                <strong>{translate(turn.language, "you")}</strong> {turn.question}
+                <strong>{translate(turn.language, "you")}</strong>{" "}
+                {turn.question}
               </p>
               <p className="eyebrow">
                 {turn.reply.mode === "ai"
@@ -155,7 +88,9 @@ export default function Assistant() {
               <p>{turn.reply.answer}</p>
               {turn.reply.sourceIds.length > 0 && (
                 <details className="action-reason">
-                  <summary>{translate(turn.language, "sourcesForAnswer")}</summary>
+                  <summary>
+                    {translate(turn.language, "sourcesForAnswer")}
+                  </summary>
                   <ul>
                     {turn.reply.sourceIds.map((sourceId) => {
                       const source = evidenceCatalog[sourceId];

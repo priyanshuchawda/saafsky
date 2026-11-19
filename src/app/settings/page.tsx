@@ -27,7 +27,13 @@ export default function Settings() {
         <p>
           {translate(language, "selectedCity")}{" "}
           <strong>
-            {[cityReady ? displayCity(city, language) : "…", city.admin1, city.country].filter(Boolean).join(", ")}
+            {[
+              cityReady ? displayCity(city, language) : "…",
+              city.admin1,
+              city.country,
+            ]
+              .filter(Boolean)
+              .join(", ")}
           </strong>
         </p>
         <p>
@@ -40,7 +46,9 @@ export default function Settings() {
         </p>
         <div className="toolbar impact-form">
           <div className="profile">
-            <label htmlFor="setting-children">{translate(language, "householdChildren")}</label>
+            <label htmlFor="setting-children">
+              {translate(language, "householdChildren")}
+            </label>
             <select
               id="setting-children"
               value={profile.children ? "yes" : "no"}
@@ -56,7 +64,9 @@ export default function Settings() {
             </select>
           </div>
           <div className="profile">
-            <label htmlFor="setting-commute">{translate(language, "usualCommute")}</label>
+            <label htmlFor="setting-commute">
+              {translate(language, "usualCommute")}
+            </label>
             <select
               id="setting-commute"
               value={profile.commute}
@@ -67,15 +77,21 @@ export default function Settings() {
                 })
               }
             >
-              <option value="none">{translate(language, "noneSelected")}</option>
+              <option value="none">
+                {translate(language, "noneSelected")}
+              </option>
               <option value="walk">{translate(language, "walk")}</option>
               <option value="bike">{translate(language, "bicycle")}</option>
-              <option value="public">{translate(language, "publicTransport")}</option>
+              <option value="public">
+                {translate(language, "publicTransport")}
+              </option>
               <option value="car">{translate(language, "car")}</option>
             </select>
           </div>
           <div className="profile">
-            <label htmlFor="setting-exercise">{translate(language, "outdoorExercise")}</label>
+            <label htmlFor="setting-exercise">
+              {translate(language, "outdoorExercise")}
+            </label>
             <select
               id="setting-exercise"
               value={profile.outdoorExercise ? "yes" : "no"}
@@ -87,11 +103,15 @@ export default function Settings() {
               }
             >
               <option value="no">{translate(language, "notSelected")}</option>
-              <option value="yes">{translate(language, "usuallyExercise")}</option>
+              <option value="yes">
+                {translate(language, "usuallyExercise")}
+              </option>
             </select>
           </div>
           <div className="profile">
-            <label htmlFor="setting-smoke">{translate(language, "indoorCookingSmoke")}</label>
+            <label htmlFor="setting-smoke">
+              {translate(language, "indoorCookingSmoke")}
+            </label>
             <select
               id="setting-smoke"
               value={profile.cookingSmoke ? "yes" : "no"}
@@ -103,16 +123,14 @@ export default function Settings() {
               }
             >
               <option value="no">{translate(language, "noOrUnsure")}</option>
-              <option value="yes">{translate(language, "usuallyPresent")}</option>
+              <option value="yes">
+                {translate(language, "usuallyPresent")}
+              </option>
             </select>
           </div>
         </div>
-        <p className="fine">
-          {translate(language, "cityStored")}
-        </p>
-        <p className="fine">
-          {translate(language, "rateLimitPrivacy")}
-        </p>
+        <p className="fine">{translate(language, "cityStored")}</p>
+        <p className="fine">{translate(language, "rateLimitPrivacy")}</p>
         <button
           className="action-button"
           type="button"

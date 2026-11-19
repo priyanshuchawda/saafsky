@@ -1,6 +1,9 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readBoundedJson, RequestBodyTooLarge } from "../src/lib/request-body.ts";
+import {
+  readBoundedJson,
+  RequestBodyTooLarge,
+} from "../src/lib/request-body.ts";
 
 test("bounded request reader parses JSON and rejects oversized bodies", async () => {
   assert.deepEqual(
@@ -53,7 +56,7 @@ test("bounded request reader rejects missing and dishonest body lengths", async 
       new Request("https://example.test", {
         method: "POST",
         headers: { "content-length": "1" },
-        body: "\"\u{1F600}\"",
+        body: '"\u{1F600}"',
       }),
       5,
     ),

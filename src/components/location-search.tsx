@@ -85,7 +85,9 @@ export function LocationSearch({
                 onClick={() => {
                   onSelect(city);
                   setResults([]);
-                  setStatus(`${city.name} ${translate(language, "citySelected")}`);
+                  setStatus(
+                    `${city.name} ${translate(language, "citySelected")}`,
+                  );
                   setQuery("");
                   input.current?.focus();
                 }}

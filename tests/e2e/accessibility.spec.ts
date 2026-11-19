@@ -131,12 +131,16 @@ test("expanded recommendation explanations remain accessible", async ({
   ).toEqual([]);
 });
 
-test("household comparison remains accessible on a narrow screen", async ({ page }) => {
+test("household comparison remains accessible on a narrow screen", async ({
+  page,
+}) => {
   await page.setViewportSize({ width: 320, height: 800 });
   await page.goto("/scenarios", { waitUntil: "networkidle" });
   await page.getByRole("button", { name: "Compare another household" }).click();
   await expect(page.getByLabel("COMPARE WITH")).toBeVisible();
-  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(320);
+  expect(
+    await page.evaluate(() => document.documentElement.scrollWidth),
+  ).toBeLessThanOrEqual(320);
   const results = await new AxeBuilder({ page })
     .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
     .analyze();

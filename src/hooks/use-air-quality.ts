@@ -22,7 +22,10 @@ type AirState =
 export function useAirQuality(city: City | null): AirState {
   const latitude = city?.latitude;
   const longitude = city?.longitude;
-  const key = latitude !== undefined && longitude !== undefined ? `${latitude},${longitude}` : "pending";
+  const key =
+    latitude !== undefined && longitude !== undefined
+      ? `${latitude},${longitude}`
+      : "pending";
   const [result, setResult] = useState<{ key: string; state: AirState }>({
     key,
     state: { kind: "loading" },

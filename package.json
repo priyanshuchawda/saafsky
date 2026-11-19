@@ -14,7 +14,9 @@
     "test:coverage": "node --experimental-test-coverage --test-coverage-lines=90 --test-coverage-branches=85 --test-coverage-functions=90 --test tests/*.test.ts",
     "test:e2e": "playwright test",
     "test:e2e:production": "playwright test --config playwright.production.config.ts",
-    "test:protection": "playwright test --config playwright.protection.config.ts"
+    "test:protection": "playwright test --config playwright.protection.config.ts",
+    "format:check": "prettier --check \"src/**/*.{ts,tsx,css}\" \"tests/**/*.ts\"",
+    "format": "prettier --write \"src/**/*.{ts,tsx,css}\" \"tests/**/*.ts\""
   },
   "dependencies": {
     "@elevenlabs/elevenlabs-js": "^2.79.0",
@@ -35,6 +37,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.4.6",
+    "prettier": "^3.10.1",
     "tailwindcss": "4.3.3",
     "typescript": "^5"
   }

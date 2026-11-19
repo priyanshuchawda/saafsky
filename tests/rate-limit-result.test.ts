@@ -19,7 +19,10 @@ test("rate limits fail closed when Upstash returns a successful timeout", () => 
 test("rate limits report the longest rejected window and round up", () => {
   assert.deepEqual(
     decideLimits(
-      [{ success: false, reset: 11_001 }, { success: false, reset: 15_001 }],
+      [
+        { success: false, reset: 11_001 },
+        { success: false, reset: 15_001 },
+      ],
       10_000,
     ),
     { allowed: false, reason: "limited", retryAfter: 6 },

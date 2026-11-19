@@ -32,7 +32,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid request" }, { status: 400 });
   const protection = await checkPublicRequest("chat", request);
   if (!protection.allowed) return rateLimitResponse(protection);
-  const { question, latitude, longitude, profile, history, language } = parsed.data;
+  const { question, latitude, longitude, profile, history, language } =
+    parsed.data;
   let forecast: ForecastContext | null = null;
   const getAqi = async (): Promise<number | null> => {
     const { data, retrievedAt } = await loadAir(

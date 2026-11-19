@@ -36,7 +36,10 @@ test("unknown data is not treated as safe and exposed commutes are considered", 
 
 test("indoor smoke guidance remains personalized when outdoor data is unavailable", () => {
   for (const aqi of [null, Number.NaN, -1]) {
-    const actions = generateRecommendations(aqi, { ...adult, cookingSmoke: true });
+    const actions = generateRecommendations(aqi, {
+      ...adult,
+      cookingSmoke: true,
+    });
     assert.equal(actions[0]?.id, "air-unavailable");
     assert.equal(actions[1]?.id, "indoor-smoke");
     assert.equal(actions[1]?.priority, "medium");

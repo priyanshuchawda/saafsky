@@ -4,7 +4,10 @@ import Link from "next/link";
 import { useState } from "react";
 import { LocationSearch } from "@/components/location-search";
 import { useAirQuality } from "@/hooks/use-air-quality";
-import { findActivityWindow, nextForecastRange } from "@/features/planner/activity-window";
+import {
+  findActivityWindow,
+  nextForecastRange,
+} from "@/features/planner/activity-window";
 import { generateDailyPlan } from "@/features/planner/daily";
 import type { HouseholdProfile } from "@/features/recommendations/engine";
 import { category, upcomingForecast } from "@/lib/air";
@@ -51,19 +54,24 @@ export default function Planner() {
     <main id="main-content" tabIndex={-1} className="shell scenario">
       <p className="eyebrow">{translate(language, "plannerEyebrow")}</p>
       <h1>
-        {translate(language, "plannerTitle")} <em>{translate(language, "betterWindow")}</em>
+        {translate(language, "plannerTitle")}{" "}
+        <em>{translate(language, "betterWindow")}</em>
       </h1>
       <p className="lead">{translate(language, "plannerLead")}</p>
       <div className="toolbar impact-form">
-        <LocationSearch onSelect={(nextCity) => {
-          setCity(nextCity);
-          setStart("");
-          setEnd("");
-          setBusyStart("");
-          setBusyEnd("");
-        }} />
+        <LocationSearch
+          onSelect={(nextCity) => {
+            setCity(nextCity);
+            setStart("");
+            setEnd("");
+            setBusyStart("");
+            setBusyEnd("");
+          }}
+        />
         <div className="profile">
-          <label htmlFor="plan-profile">{translate(language, "household")}</label>
+          <label htmlFor="plan-profile">
+            {translate(language, "household")}
+          </label>
           <select
             id="plan-profile"
             value={profile.sensitive ? "sensitive" : "general"}
@@ -74,12 +82,18 @@ export default function Planner() {
               })
             }
           >
-            <option value="general">{translate(language, "generalGuidance")}</option>
-            <option value="sensitive">{translate(language, "sensitiveHousehold")}</option>
+            <option value="general">
+              {translate(language, "generalGuidance")}
+            </option>
+            <option value="sensitive">
+              {translate(language, "sensitiveHousehold")}
+            </option>
           </select>
         </div>
         <div className="profile">
-          <label htmlFor="plan-commute">{translate(language, "commuteLabel")}</label>
+          <label htmlFor="plan-commute">
+            {translate(language, "commuteLabel")}
+          </label>
           <select
             id="plan-commute"
             value={profile.commute}
@@ -93,12 +107,16 @@ export default function Planner() {
             <option value="none">{translate(language, "noneSelected")}</option>
             <option value="walk">{translate(language, "walk")}</option>
             <option value="bike">{translate(language, "bicycle")}</option>
-            <option value="public">{translate(language, "publicTransport")}</option>
+            <option value="public">
+              {translate(language, "publicTransport")}
+            </option>
             <option value="car">{translate(language, "car")}</option>
           </select>
         </div>
         <div className="profile">
-          <label htmlFor="window-start">{translate(language, "earliestTime")}</label>
+          <label htmlFor="window-start">
+            {translate(language, "earliestTime")}
+          </label>
           <input
             id="window-start"
             type="datetime-local"
@@ -107,7 +125,9 @@ export default function Planner() {
           />
         </div>
         <div className="profile">
-          <label htmlFor="window-end">{translate(language, "latestTime")}</label>
+          <label htmlFor="window-end">
+            {translate(language, "latestTime")}
+          </label>
           <input
             id="window-end"
             type="datetime-local"
@@ -116,7 +136,9 @@ export default function Planner() {
           />
         </div>
         <div className="profile">
-          <label htmlFor="activity-duration">{translate(language, "timeNeeded")}</label>
+          <label htmlFor="activity-duration">
+            {translate(language, "timeNeeded")}
+          </label>
           <select
             id="activity-duration"
             value={durationHours}
@@ -139,12 +161,18 @@ export default function Planner() {
               setEssential(event.target.value === "essential")
             }
           >
-            <option value="flexible">{translate(language, "flexibleYes")}</option>
-            <option value="essential">{translate(language, "essentialNo")}</option>
+            <option value="flexible">
+              {translate(language, "flexibleYes")}
+            </option>
+            <option value="essential">
+              {translate(language, "essentialNo")}
+            </option>
           </select>
         </div>
         <div className="profile">
-          <label htmlFor="busy-start">{translate(language, "commitmentStart")}</label>
+          <label htmlFor="busy-start">
+            {translate(language, "commitmentStart")}
+          </label>
           <input
             id="busy-start"
             type="datetime-local"
@@ -157,7 +185,9 @@ export default function Planner() {
           />
         </div>
         <div className="profile">
-          <label htmlFor="busy-end">{translate(language, "commitmentEnd")}</label>
+          <label htmlFor="busy-end">
+            {translate(language, "commitmentEnd")}
+          </label>
           <input
             id="busy-end"
             type="datetime-local"
@@ -172,10 +202,16 @@ export default function Planner() {
       </div>
       {suggestedRange && (
         <div className="planner-quick-range">
-          <button className="action-button" type="button" onClick={() => {
-            setStart(suggestedRange.start);
-            setEnd(suggestedRange.end);
-          }}>{translate(language, "useForecastRange")}</button>
+          <button
+            className="action-button"
+            type="button"
+            onClick={() => {
+              setStart(suggestedRange.start);
+              setEnd(suggestedRange.end);
+            }}
+          >
+            {translate(language, "useForecastRange")}
+          </button>
           <p className="fine">{translate(language, "forecastRangeHelp")}</p>
         </div>
       )}
@@ -185,33 +221,42 @@ export default function Planner() {
       <section className="plan scenario-result" aria-live="polite">
         <p className="eyebrow">{translate(language, "dailyPlan")}</p>
         <h2>
-          {translate(language, "morningToEvening")} <em>{translate(language, "evening")}</em>
+          {translate(language, "morningToEvening")}{" "}
+          <em>{translate(language, "evening")}</em>
         </h2>
         <ol>
           {steps.map((step) => (
             <li key={step.id}>
-                <span>{translateText(language, step.period)}</span>
+              <span>{translateText(language, step.period)}</span>
               <div>
-                  <strong>{translateText(language, step.title)}</strong>
-                  <p>{translateText(language, step.detail)}</p>
+                <strong>{translateText(language, step.title)}</strong>
+                <p>{translateText(language, step.detail)}</p>
               </div>
             </li>
           ))}
         </ol>
-        <p className="fine">
-          {translate(language, "planCaveat")}
-        </p>
+        <p className="fine">{translate(language, "planCaveat")}</p>
       </section>
       <section className="plan scenario-result" aria-live="polite">
-        <p className="eyebrow">{translate(language, "forecastFor")} {cityReady ? displayCity(city, language).toUpperCase() : "…"}</p>
+        <p className="eyebrow">
+          {translate(language, "forecastFor")}{" "}
+          {cityReady ? displayCity(city, language).toUpperCase() : "…"}
+        </p>
         <h2>
-          {translate(language, "availableWindow")} <em>{translate(language, "window")}</em>
+          {translate(language, "availableWindow")}{" "}
+          <em>{translate(language, "window")}</em>
         </h2>
         <p className="muted">
-          {translate(language, "enterTimesIn")} {air?.timezone ?? translate(language, "localTime")}. {translate(language, "forecastWindowInputHint")}
+          {translate(language, "enterTimesIn")}{" "}
+          {air?.timezone ?? translate(language, "localTime")}.{" "}
+          {translate(language, "forecastWindowInputHint")}
         </p>
-        {state.kind === "loading" && <p>{translate(language, "loadingForecast")}</p>}
-        {state.kind === "error" && <p>{translateText(language, state.message)}</p>}
+        {state.kind === "loading" && (
+          <p>{translate(language, "loadingForecast")}</p>
+        )}
+        {state.kind === "error" && (
+          <p>{translateText(language, state.message)}</p>
+        )}
         {state.kind === "success" && !state.fresh && (
           <p>{translate(language, "forecastStale")}</p>
         )}
@@ -236,21 +281,16 @@ export default function Planner() {
               <strong>
                 {result.start.replace("T", " ")}–{result.end.replace("T", " ")}
               </strong>{" "}
-              · {translate(language, "peakUsAqi")} {Math.round(result.peakAqi)} (
-              {translateText(language, category(result.peakAqi))}). {translate(language, "estimateNotSafe")}
+              · {translate(language, "peakUsAqi")} {Math.round(result.peakAqi)}{" "}
+              ({translateText(language, category(result.peakAqi))}).{" "}
+              {translate(language, "estimateNotSafe")}
             </p>
           ) : result.kind === "no-suitable" ? (
-            <p>
-              {translate(language, "completeWindowsElevated")}
-            </p>
+            <p>{translate(language, "completeWindowsElevated")}</p>
           ) : (
-            <p>
-              {translate(language, "completeWindow")}
-            </p>
+            <p>{translate(language, "completeWindow")}</p>
           ))}
-        <p className="fine">
-          {translate(language, "plannerModelNote")}
-        </p>
+        <p className="fine">{translate(language, "plannerModelNote")}</p>
       </section>
       <footer>
         <Link href="/">{translate(language, "backDashboard")}</Link>

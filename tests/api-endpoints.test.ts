@@ -154,7 +154,10 @@ test("location endpoint encodes, bounds and validates provider searches", async 
   );
 
   assert.equal(response.status, 200);
-  assert.equal(requestedUrls[0]?.origin, "https://geocoding-api.open-meteo.com");
+  assert.equal(
+    requestedUrls[0]?.origin,
+    "https://geocoding-api.open-meteo.com",
+  );
   assert.equal(requestedUrls[0]?.searchParams.get("name"), "New Delhi");
   assert.equal(requestedUrls[0]?.searchParams.get("count"), "8");
   assert.ok(requestSignals[0] instanceof AbortSignal);

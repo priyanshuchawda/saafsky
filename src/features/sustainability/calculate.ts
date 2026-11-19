@@ -1,4 +1,5 @@
-export type Mode = "bus" | "rail" | "tram" | "underground" | "walk" | "cycle" | "custom";
+export type Mode =
+  "bus" | "rail" | "tram" | "underground" | "walk" | "cycle" | "custom";
 export const UK_BUS_KG_PER_PASSENGER_KM = 0.10385;
 export const UK_PETROL_CAR_KG_PER_VEHICLE_KM = 0.16272;
 export const UK_RAIL_KG_PER_PASSENGER_KM = 0.03546;
@@ -27,7 +28,9 @@ export function monthlyImpact(
   customFactor = 0,
 ): { baseline: number; alternative: number; difference: number } | null {
   if (
-    !["bus", "rail", "tram", "underground", "walk", "cycle", "custom"].includes(mode) ||
+    !["bus", "rail", "tram", "underground", "walk", "cycle", "custom"].includes(
+      mode,
+    ) ||
     ![distanceKm, days, baselineFactor, customFactor].every(Number.isFinite) ||
     distanceKm < 0 ||
     distanceKm > 1000 ||

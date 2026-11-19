@@ -1,6 +1,9 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { compareSmokeCadr, smokeCadrForArea } from "../src/features/indoor/room-sizing.ts";
+import {
+  compareSmokeCadr,
+  smokeCadrForArea,
+} from "../src/features/indoor/room-sizing.ts";
 
 test("smoke CADR follows the EPA area rule and unit conversion", () => {
   const areaM2 = 120 / 10.7639104167;
@@ -16,8 +19,14 @@ test("smoke CADR rejects missing, unreasonable and non-finite areas", () => {
 
 test("purifier comparison uses the displayed rounded-up estimate", () => {
   const threshold = Math.ceil(smokeCadrForArea(20)!);
-  assert.deepEqual(compareSmokeCadr(20, threshold), { kind: "meets", shortfall: 0 });
-  assert.deepEqual(compareSmokeCadr(20, threshold - 1), { kind: "below", shortfall: 1 });
+  assert.deepEqual(compareSmokeCadr(20, threshold), {
+    kind: "meets",
+    shortfall: 0,
+  });
+  assert.deepEqual(compareSmokeCadr(20, threshold - 1), {
+    kind: "below",
+    shortfall: 1,
+  });
   assert.equal(compareSmokeCadr(20, -1), null);
   assert.equal(compareSmokeCadr(20, 10001), null);
   assert.equal(compareSmokeCadr(20, Number.NaN), null);

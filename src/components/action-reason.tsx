@@ -3,7 +3,11 @@ import {
   evidenceCatalog,
   reasonDescriptions,
 } from "@/features/recommendations/evidence";
-import { translate, translateText, type Language } from "@/features/i18n/messages";
+import {
+  translate,
+  translateText,
+  type Language,
+} from "@/features/i18n/messages";
 
 function isDefined<T>(value: T | undefined): value is T {
   return value !== undefined;

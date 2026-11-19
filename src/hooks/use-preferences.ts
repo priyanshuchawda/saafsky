@@ -3,6 +3,10 @@ import { useSyncExternalStore } from "react";
 import type { City } from "@/types/air";
 import type { HouseholdProfile } from "@/features/recommendations/engine";
 import type { Language } from "@/features/i18n/messages";
+import {
+  parseStoredCity,
+  parseStoredHousehold,
+} from "@/features/preferences/parse";
 
 const defaultCity: City = {
   name: "Delhi",
@@ -69,49 +73,17 @@ function notify(): void {
   window.dispatchEvent(new Event(eventName));
 }
 export function useCity(): [City, (city: City) => void, boolean] {
-  const ready = useSyncExternalStore(subscribe, () => true, () => false);
+  const ready = useSyncExternalStore(
+    subscribe,
+    () => true,
+    () => false,
+  );
   const value = useSyncExternalStore(
     subscribe,
     readCity,
     () => defaultCityJson,
   );
-  let city = defaultCity;
-  try {
-    const item: unknown = JSON.parse(value);
-    if (
-      item &&
-      typeof item === "object" &&
-      "name" in item &&
-      typeof item.name === "string" &&
-      item.name.trim().length > 0 &&
-      item.name.length <= 100 &&
-      "latitude" in item &&
-      typeof item.latitude === "number" &&
-      Number.isFinite(item.latitude) &&
-      Math.abs(item.latitude) <= 90 &&
-      "longitude" in item &&
-      typeof item.longitude === "number" &&
-      Number.isFinite(item.longitude) &&
-      Math.abs(item.longitude) <= 180
-    )
-      city = {
-        name: item.name,
-        latitude: item.latitude,
-        longitude: item.longitude,
-        ...("country" in item &&
-        typeof item.country === "string" &&
-        item.country.length <= 100
-          ? { country: item.country }
-          : {}),
-        ...("admin1" in item &&
-        typeof item.admin1 === "string" &&
-        item.admin1.length <= 100
-          ? { admin1: item.admin1 }
-          : {}),
-      };
-  } catch {
-    /* Use the default if stored data is malformed. */
-  }
+  const city = parseStoredCity(value) ?? defaultCity;
   return [
     city,
     (next) => {
@@ -151,32 +123,7 @@ export function useHousehold(): [
     readHousehold,
     () => defaultHouseholdJson,
   );
-  let rest: Omit<HouseholdProfile, "sensitive"> = defaultHousehold;
-  try {
-    const parsed: unknown = JSON.parse(raw);
-    if (
-      parsed &&
-      typeof parsed === "object" &&
-      "children" in parsed &&
-      typeof parsed.children === "boolean" &&
-      "outdoorExercise" in parsed &&
-      typeof parsed.outdoorExercise === "boolean" &&
-      "cookingSmoke" in parsed &&
-      typeof parsed.cookingSmoke === "boolean" &&
-      "commute" in parsed &&
-      typeof parsed.commute === "string" &&
-      ["none", "walk", "bike", "public", "car"].includes(parsed.commute)
-    ) {
-      rest = {
-        children: parsed.children,
-        outdoorExercise: parsed.outdoorExercise,
-        cookingSmoke: parsed.cookingSmoke,
-        commute: parsed.commute as HouseholdProfile["commute"],
-      };
-    }
-  } catch {
-    /* Invalid stored preferences revert to safe defaults. */
-  }
+  const rest = parseStoredHousehold(raw) ?? defaultHousehold;
   return [
     { ...rest, sensitive },
     (profile) => {

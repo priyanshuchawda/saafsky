@@ -510,7 +510,9 @@ h3 em {
   background: #4a7340;
   border-radius: 4px 4px 0 0;
 }
-.forecast-scale { margin-bottom: 8px; }
+.forecast-scale {
+  margin-bottom: 8px;
+}
 .forecast-planner-link {
   display: inline-flex;
   align-items: center;

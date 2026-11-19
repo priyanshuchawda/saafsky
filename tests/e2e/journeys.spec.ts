@@ -1,24 +1,47 @@
 import { expect, test } from "@playwright/test";
 
-test("dashboard forecast presents accessible values and opens the planner", async ({ page }) => {
+test("dashboard forecast presents accessible values and opens the planner", async ({
+  page,
+}) => {
   const now = new Date();
-  const firstHour = Math.floor(now.getTime() / 3_600_000) * 3_600_000 + 3_600_000;
-  const time = (index: number) => new Date(firstHour + index * 3_600_000).toISOString().slice(0, 16);
-  await page.route("**/api/air?**", (route) => route.fulfill({ json: {
-    retrievedAt: now.toISOString(),
-    data: {
-      timezone: "UTC", utc_offset_seconds: 0,
-      current: { time: now.toISOString().slice(0, 16), us_aqi: 120, pm2_5: 40, pm10: 60 },
-      hourly: { time: [time(0), time(1), time(2)], us_aqi: [120, null, 180] },
-    },
-  } }));
+  const firstHour =
+    Math.floor(now.getTime() / 3_600_000) * 3_600_000 + 3_600_000;
+  const time = (index: number) =>
+    new Date(firstHour + index * 3_600_000).toISOString().slice(0, 16);
+  await page.route("**/api/air?**", (route) =>
+    route.fulfill({
+      json: {
+        retrievedAt: now.toISOString(),
+        data: {
+          timezone: "UTC",
+          utc_offset_seconds: 0,
+          current: {
+            time: now.toISOString().slice(0, 16),
+            us_aqi: 120,
+            pm2_5: 40,
+            pm10: 60,
+          },
+          hourly: {
+            time: [time(0), time(1), time(2)],
+            us_aqi: [120, null, 180],
+          },
+        },
+      },
+    }),
+  );
   await page.goto("/", { waitUntil: "networkidle" });
-  const forecast = page.getByRole("list", { name: "Hourly forecast comparison" });
+  const forecast = page.getByRole("list", {
+    name: "Hourly forecast comparison",
+  });
   await expect(forecast.locator("li")).toHaveCount(3);
   await expect(forecast.locator("li").nth(0)).toContainText("120");
   await expect(forecast.locator("li").nth(1)).toContainText("—");
-  await expect(forecast.locator("li").nth(1).locator(".forecast-bar")).toHaveCount(0);
-  await expect(page.getByText("Bar scale: 0 to 200 US AQI; values are model estimates.")).toBeVisible();
+  await expect(
+    forecast.locator("li").nth(1).locator(".forecast-bar"),
+  ).toHaveCount(0);
+  await expect(
+    page.getByText("Bar scale: 0 to 200 US AQI; values are model estimates."),
+  ).toBeVisible();
   await page.getByRole("link", { name: "Compare outing times" }).click();
   await expect(page).toHaveURL(/\/planner\/?$/);
 });
@@ -50,19 +73,31 @@ test("scenario changes for children and outdoor commuters", async ({
   ).toBeVisible();
 });
 
-test("scenario compares two households using the same illustrative air", async ({ page }) => {
+test("scenario compares two households using the same illustrative air", async ({
+  page,
+}) => {
   let apiRequests = 0;
-  page.on("request", (request) => { if (new URL(request.url()).pathname.startsWith("/api/")) apiRequests += 1; });
+  page.on("request", (request) => {
+    if (new URL(request.url()).pathname.startsWith("/api/")) apiRequests += 1;
+  });
   await page.goto("/scenarios", { waitUntil: "networkidle" });
-  const toggle = page.getByRole("button", { name: "Compare another household" });
+  const toggle = page.getByRole("button", {
+    name: "Compare another household",
+  });
   await toggle.click();
-  await expect(page.getByRole("button", { name: "Hide household comparison" })).toHaveAttribute("aria-expanded", "true");
+  await expect(
+    page.getByRole("button", { name: "Hide household comparison" }),
+  ).toHaveAttribute("aria-expanded", "true");
   const first = page.getByRole("article", { name: "Selected household plan" });
-  const second = page.getByRole("article", { name: "Comparison household plan" });
+  const second = page.getByRole("article", {
+    name: "Comparison household plan",
+  });
   await expect(first.getByText("Consider sensitive people")).toBeVisible();
   await expect(second.getByText("Reduce outdoor exertion")).toBeVisible();
   await second.getByText("Why this action?").first().click();
-  await expect(second.getByRole("link", { name: "AirNow: US AQI basics" })).toBeVisible();
+  await expect(
+    second.getByRole("link", { name: "AirNow: US AQI basics" }),
+  ).toBeVisible();
   await page.getByLabel("SAMPLE US AQI").selectOption("180");
   await page.getByLabel("COMPARE WITH").selectOption("cyclist");
   await expect(second.getByText("Review your commute")).toBeVisible();
@@ -203,7 +238,9 @@ test("planner respects activity duration and distinguishes elevated conditions",
     }),
   );
   await page.goto("/planner", { waitUntil: "networkidle" });
-  await page.getByRole("button", { name: "Use next available forecast hours" }).click();
+  await page
+    .getByRole("button", { name: "Use next available forecast hours" })
+    .click();
   await expect(page.getByLabel("EARLIEST TIME")).toHaveValue(time(0));
   await expect(page.getByLabel("LATEST TIME (EXCLUSIVE)")).toHaveValue(time(3));
   await page.getByLabel("HOUSEHOLD").selectOption("sensitive");
@@ -214,9 +251,15 @@ test("planner respects activity duration and distinguishes elevated conditions",
   await page.getByLabel("FIXED COMMITMENT START (OPTIONAL)").fill(time(1));
   await expect(page.getByText(/Enter both commitment times/)).toBeVisible();
   await page.getByLabel("FIXED COMMITMENT END (OPTIONAL)").fill(time(2));
-  await page.getByRole("button", { name: "Use next available forecast hours" }).click();
-  await expect(page.getByLabel("FIXED COMMITMENT START (OPTIONAL)")).toHaveValue(time(1));
-  await expect(page.getByLabel("FIXED COMMITMENT END (OPTIONAL)")).toHaveValue(time(2));
+  await page
+    .getByRole("button", { name: "Use next available forecast hours" })
+    .click();
+  await expect(
+    page.getByLabel("FIXED COMMITMENT START (OPTIONAL)"),
+  ).toHaveValue(time(1));
+  await expect(page.getByLabel("FIXED COMMITMENT END (OPTIONAL)")).toHaveValue(
+    time(2),
+  );
   await page.getByLabel("LATEST TIME (EXCLUSIVE)").fill(time(4));
   await expect(
     page.getByText(/All complete forecast windows exceed/),
@@ -234,18 +277,41 @@ test("planner respects activity duration and distinguishes elevated conditions",
   await expect(page.getByText(/All complete options exceed/)).toBeVisible();
 });
 
-test("changing the planner city clears city-local schedule times", async ({ page }) => {
-  await page.route("**/api/air?**", (route) => route.fulfill({ status: 503, json: { error: "Unavailable" } }));
-  await page.route("**/api/locations?**", (route) => route.fulfill({ json: { results: [
-    { name: "Pune", admin1: "Maharashtra", country: "India", latitude: 18.52, longitude: 73.85 },
-  ] } }));
+test("changing the planner city clears city-local schedule times", async ({
+  page,
+}) => {
+  await page.route("**/api/air?**", (route) =>
+    route.fulfill({ status: 503, json: { error: "Unavailable" } }),
+  );
+  await page.route("**/api/locations?**", (route) =>
+    route.fulfill({
+      json: {
+        results: [
+          {
+            name: "Pune",
+            admin1: "Maharashtra",
+            country: "India",
+            latitude: 18.52,
+            longitude: 73.85,
+          },
+        ],
+      },
+    }),
+  );
   await page.goto("/planner", { waitUntil: "networkidle" });
-  const fields = ["EARLIEST TIME", "LATEST TIME (EXCLUSIVE)", "FIXED COMMITMENT START (OPTIONAL)", "FIXED COMMITMENT END (OPTIONAL)"];
-  for (const field of fields) await page.getByLabel(field).fill("2026-11-20T09:00");
+  const fields = [
+    "EARLIEST TIME",
+    "LATEST TIME (EXCLUSIVE)",
+    "FIXED COMMITMENT START (OPTIONAL)",
+    "FIXED COMMITMENT END (OPTIONAL)",
+  ];
+  for (const field of fields)
+    await page.getByLabel(field).fill("2026-11-20T09:00");
   await page.getByLabel("YOUR LOCATION").fill("Pune");
   await page.getByRole("button", { name: "Search", exact: true }).click();
   await page.getByRole("button", { name: "Pune, Maharashtra, India" }).click();
-  for (const field of fields) await expect(page.getByLabel(field)).toHaveValue("");
+  for (const field of fields)
+    await expect(page.getByLabel(field)).toHaveValue("");
 });
 
 test("indoor advice uses the selected outdoor estimate without claiming an indoor measurement", async ({
@@ -287,20 +353,32 @@ test("indoor advice uses the selected outdoor estimate without claiming an indoo
   ).toBeVisible();
 });
 
-test("room sizing updates from area and rejects invalid values", async ({ page }) => {
+test("room sizing updates from area and rejects invalid values", async ({
+  page,
+}) => {
   await page.goto("/indoor", { waitUntil: "domcontentloaded" });
   const area = page.getByLabel("ROOM FLOOR AREA (m²)");
   await area.fill("20");
-  await expect(page.getByText("Suggested minimum smoke CADR: 244 m³/h")).toBeVisible();
-  const purifier = page.getByLabel("YOUR PURIFIER'S SMOKE CADR (m³/h, optional)");
+  await expect(
+    page.getByText("Suggested minimum smoke CADR: 244 m³/h"),
+  ).toBeVisible();
+  const purifier = page.getByLabel(
+    "YOUR PURIFIER'S SMOKE CADR (m³/h, optional)",
+  );
   await purifier.fill("200");
-  await expect(page.getByText("The reported smoke CADR is below this room-size estimate.")).toBeVisible();
+  await expect(
+    page.getByText("The reported smoke CADR is below this room-size estimate."),
+  ).toBeVisible();
   await purifier.fill("244");
-  await expect(page.getByText("The reported smoke CADR meets this room-size estimate.")).toBeVisible();
+  await expect(
+    page.getByText("The reported smoke CADR meets this room-size estimate."),
+  ).toBeVisible();
   await purifier.fill("-1");
   await purifier.blur();
   await expect(purifier).toHaveAttribute("aria-invalid", "true");
-  await expect(page.getByText("The reported smoke CADR meets this room-size estimate.")).toHaveCount(0);
+  await expect(
+    page.getByText("The reported smoke CADR meets this room-size estimate."),
+  ).toHaveCount(0);
   await area.fill("501");
   await expect(area).toHaveAttribute("aria-invalid", "true");
   await expect(page.getByText(/Suggested minimum smoke CADR:/)).toHaveCount(0);
@@ -330,7 +408,9 @@ test("assistant shows deterministic fallback without calling Gemini", async ({
   await expect(page.getByText("RULE-BASED FALLBACK")).toBeVisible();
   await expect(page.getByText("Check local conditions.")).toBeVisible();
   await page.getByText("Sources for this answer").first().click();
-  await expect(page.getByRole("link", { name: "AirNow: US AQI basics" })).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "AirNow: US AQI basics" }),
+  ).toBeVisible();
   await expect(
     page.getByRole("link", { name: "US EPA: improving indoor air" }),
   ).toBeVisible();
@@ -369,25 +449,43 @@ test("impact calculator displays a sourced-factor comparison", async ({
   await expect(page.getByRole("heading", { name: /19\.23 kg/ })).toBeVisible();
 });
 
-test("commute comparison uses current modeled air and handles a provider outage", async ({ page }) => {
+test("commute comparison uses current modeled air and handles a provider outage", async ({
+  page,
+}) => {
   const now = new Date();
-  await page.route("**/api/air?**", (route) => route.fulfill({
-    json: {
-      retrievedAt: now.toISOString(),
-      data: {
-        timezone: "UTC", utc_offset_seconds: 0,
-        current: { time: now.toISOString().slice(0, 16), us_aqi: 180, pm2_5: 80, pm10: 100 },
-        hourly: { time: [], us_aqi: [] },
+  await page.route("**/api/air?**", (route) =>
+    route.fulfill({
+      json: {
+        retrievedAt: now.toISOString(),
+        data: {
+          timezone: "UTC",
+          utc_offset_seconds: 0,
+          current: {
+            time: now.toISOString().slice(0, 16),
+            us_aqi: 180,
+            pm2_5: 80,
+            pm10: 100,
+          },
+          hourly: { time: [], us_aqi: [] },
+        },
       },
-    },
-  }));
+    }),
+  );
   await page.goto("/impact", { waitUntil: "networkidle" });
-  await expect(page.getByText(/Current modeled US AQI in Delhi: 180/)).toBeVisible();
-  await expect(page.getByText(/Consider reducing prolonged or strenuous outdoor activity/)).toBeVisible();
+  await expect(
+    page.getByText(/Current modeled US AQI in Delhi: 180/),
+  ).toBeVisible();
+  await expect(
+    page.getByText(/Consider reducing prolonged or strenuous outdoor activity/),
+  ).toBeVisible();
   await page.unrouteAll({ behavior: "wait" });
-  await page.route("**/api/air?**", (route) => route.fulfill({ status: 503, json: { error: "unavailable" } }));
+  await page.route("**/api/air?**", (route) =>
+    route.fulfill({ status: 503, json: { error: "unavailable" } }),
+  );
   await page.reload({ waitUntil: "networkidle" });
-  await expect(page.getByText(/Current city air data is unavailable or stale/)).toBeVisible();
+  await expect(
+    page.getByText(/Current city air data is unavailable or stale/),
+  ).toBeVisible();
   await expect(page.getByRole("heading", { name: /11\.77 kg/ })).toBeVisible();
 });
 
@@ -419,10 +517,20 @@ test("planner personalizes the daily plan from a mocked fresh forecast", async (
   ).toBeVisible();
 });
 
-test("restores the saved city without requesting the default city", async ({ page }) => {
+test("restores the saved city without requesting the default city", async ({
+  page,
+}) => {
   const requestedAir: string[] = [];
   await page.addInitScript(() => {
-    localStorage.setItem("saafsky:city", JSON.stringify({ name: "Pune", country: "India", latitude: 18.52, longitude: 73.85 }));
+    localStorage.setItem(
+      "saafsky:city",
+      JSON.stringify({
+        name: "Pune",
+        country: "India",
+        latitude: 18.52,
+        longitude: 73.85,
+      }),
+    );
     localStorage.setItem("saafsky:language", "hi");
   });
   await page.route("**/api/air?**", async (route) => {

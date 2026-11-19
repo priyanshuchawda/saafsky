@@ -34,9 +34,9 @@ test("shared navigation works from every page on desktop and mobile", async ({
         .getByRole("link", { name: destination.label, exact: true })
         .click();
       await expect(page).toHaveURL(new RegExp(`${destination.path}/?$`));
-      await expect(page.getByRole("heading", { level: 1 }).first()).toContainText(
-        destination.heading,
-      );
+      await expect(
+        page.getByRole("heading", { level: 1 }).first(),
+      ).toContainText(destination.heading);
     }
   }
 });

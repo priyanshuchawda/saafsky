@@ -19,7 +19,10 @@ export async function handleLocationsRequest(
     return Response.json({ results: [] });
   }
 
-  const protection = await dependencies.checkPublicRequest("locations", request);
+  const protection = await dependencies.checkPublicRequest(
+    "locations",
+    request,
+  );
   if (!protection.allowed) return rateLimitResponse(protection);
 
   try {

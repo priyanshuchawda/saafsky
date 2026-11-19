@@ -61,7 +61,6 @@ export default function Home() {
           <p className="lead">{translate(language, "heroLead")}</p>
         </div>
         <div className="art" aria-hidden="true">
-
           <p>{translate(language, "heroArt")}</p>
         </div>
       </section>
@@ -83,8 +82,12 @@ export default function Home() {
               })
             }
           >
-            <option value="adult">{translate(language, "generalGuidance")}</option>
-            <option value="sensitive">{translate(language, "sensitiveHousehold")}</option>
+            <option value="adult">
+              {translate(language, "generalGuidance")}
+            </option>
+            <option value="sensitive">
+              {translate(language, "sensitiveHousehold")}
+            </option>
           </select>
         </div>
       </section>
@@ -92,7 +95,10 @@ export default function Home() {
       <div className="heading">
         <div>
           <p className="eyebrow">{translate(language, "airAtGlance")}</p>
-          <h2>{translate(language, "todayIn")} {cityReady ? displayCity(city, language) : "…"}</h2>
+          <h2>
+            {translate(language, "todayIn")}{" "}
+            {cityReady ? displayCity(city, language) : "…"}
+          </h2>
         </div>
         <p>{translate(language, "modelEstimates")}</p>
       </div>

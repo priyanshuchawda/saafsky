@@ -13,6 +13,7 @@ const indianCities: Record<string, string> = {
 };
 
 export function displayCity(city: City, language: Language): string {
-  if (language !== "hi" || city.country?.toLowerCase() !== "india") return city.name;
+  if (language !== "hi" || city.country?.toLowerCase() !== "india")
+    return city.name;
   return indianCities[city.name.toLowerCase()] ?? city.name;
 }

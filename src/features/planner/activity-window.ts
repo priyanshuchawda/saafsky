@@ -42,7 +42,12 @@ export function nextForecastRange(
   }
   const usable = (time: number): boolean => {
     const value = values.get(time);
-    return !duplicates.has(time) && typeof value === "number" && Number.isFinite(value) && value >= 0;
+    return (
+      !duplicates.has(time) &&
+      typeof value === "number" &&
+      Number.isFinite(value) &&
+      value >= 0
+    );
   };
   for (const start of [...values.keys()].sort((a, b) => a - b)) {
     if (!usable(start)) continue;

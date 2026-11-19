@@ -27,7 +27,10 @@ test("missing air data gives conservative guidance without spending AI quota", a
     },
   });
   assert.equal(reply.mode, "fallback");
-  assert.deepEqual(reply.referencedActionIds, ["air-unavailable", "indoor-smoke"]);
+  assert.deepEqual(reply.referencedActionIds, [
+    "air-unavailable",
+    "indoor-smoke",
+  ]);
   assert.deepEqual(reply.sourceIds, ["airnow-aqi", "epa-indoor"]);
   assert.match(reply.uncertainty, /cannot answer your specific question/);
   assert.equal(budgetChecks, 0);

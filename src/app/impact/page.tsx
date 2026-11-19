@@ -51,12 +51,15 @@ export default function Impact() {
     <main id="main-content" tabIndex={-1} className="shell scenario">
       <p className="eyebrow">{translate(language, "impactEyebrow")}</p>
       <h1>
-        {translate(language, "impactTitle")} <em>{translate(language, "choices")}</em>
+        {translate(language, "impactTitle")}{" "}
+        <em>{translate(language, "choices")}</em>
       </h1>
       <p className="lead">{translate(language, "impactLead")}</p>
       <div className="toolbar impact-form">
         <div className="profile">
-          <label htmlFor="baseline-mode">{translate(language, "currentTravel")}</label>
+          <label htmlFor="baseline-mode">
+            {translate(language, "currentTravel")}
+          </label>
           <select
             id="baseline-mode"
             value={baselineMode}
@@ -70,7 +73,9 @@ export default function Impact() {
         </div>
         {baselineMode === "car" && (
           <div className="profile">
-            <label htmlFor="occupants">{translate(language, "peopleInCar")}</label>
+            <label htmlFor="occupants">
+              {translate(language, "peopleInCar")}
+            </label>
             <input
               id="occupants"
               type="number"
@@ -83,7 +88,9 @@ export default function Impact() {
           </div>
         )}
         <div className="profile">
-          <label htmlFor="distance">{translate(language, "dailyDistance")}</label>
+          <label htmlFor="distance">
+            {translate(language, "dailyDistance")}
+          </label>
           <input
             id="distance"
             type="number"
@@ -131,12 +138,18 @@ export default function Impact() {
             onChange={(e) => setMode(e.target.value as Mode)}
           >
             <option value="bus">{translate(language, "ukLocalBus")}</option>
-            <option value="rail">{translate(language, "ukNationalRail")}</option>
+            <option value="rail">
+              {translate(language, "ukNationalRail")}
+            </option>
             <option value="tram">{translate(language, "ukTram")}</option>
-            <option value="underground">{translate(language, "ukUnderground")}</option>
+            <option value="underground">
+              {translate(language, "ukUnderground")}
+            </option>
             <option value="walk">{translate(language, "walking")}</option>
             <option value="cycle">{translate(language, "cycling")}</option>
-            <option value="custom">{translate(language, "customFactor")}</option>
+            <option value="custom">
+              {translate(language, "customFactor")}
+            </option>
           </select>
         </div>
         {mode === "custom" && (
@@ -162,23 +175,34 @@ export default function Impact() {
           <>
             <h2>
               {Math.abs(result.difference).toFixed(2)} kg{" "}
-              <em>CO₂e {translate(language, result.difference >= 0 ? "less" : "more")}.</em>
+              <em>
+                CO₂e{" "}
+                {translate(language, result.difference >= 0 ? "less" : "more")}.
+              </em>
             </h2>
             <p>
-              {translate(language, "baseline")} {result.baseline.toFixed(2)} kg · {translate(language, "alternativeValue")}{" "}
+              {translate(language, "baseline")} {result.baseline.toFixed(2)} kg
+              · {translate(language, "alternativeValue")}{" "}
               {result.alternative.toFixed(2)} kg
             </p>
           </>
         ) : (
           <p>{translate(language, "enterValidFactor")}</p>
         )}
-        <p className="fine">{translate(language, "impactMethod")
-          .replace("{car}", String(UK_PETROL_CAR_KG_PER_VEHICLE_KM))
-          .replace("{bus}", String(UK_BUS_KG_PER_PASSENGER_KM))}</p>
-        <p className="fine">{translate(language, "ukRailFactors")
-          .replace("{rail}", String(UK_RAIL_KG_PER_PASSENGER_KM))
-          .replace("{tram}", String(UK_TRAM_KG_PER_PASSENGER_KM))
-          .replace("{underground}", String(UK_UNDERGROUND_KG_PER_PASSENGER_KM))}</p>
+        <p className="fine">
+          {translate(language, "impactMethod")
+            .replace("{car}", String(UK_PETROL_CAR_KG_PER_VEHICLE_KM))
+            .replace("{bus}", String(UK_BUS_KG_PER_PASSENGER_KM))}
+        </p>
+        <p className="fine">
+          {translate(language, "ukRailFactors")
+            .replace("{rail}", String(UK_RAIL_KG_PER_PASSENGER_KM))
+            .replace("{tram}", String(UK_TRAM_KG_PER_PASSENGER_KM))
+            .replace(
+              "{underground}",
+              String(UK_UNDERGROUND_KG_PER_PASSENGER_KM),
+            )}
+        </p>
         <p className="fine">
           {translate(language, "impactExposure")}{" "}
           <a href="https://assets.publishing.service.gov.uk/media/6846b0870392ed9b784c0187/2025-GHG-CF-methodology-paper.pdf">

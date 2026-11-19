@@ -22,7 +22,11 @@ export function SiteHeader() {
   return (
     <header className="shell site-header">
       <div className="top">
-        <Link className="brand" href="/" aria-label={translate(language, "home")}>
+        <Link
+          className="brand"
+          href="/"
+          aria-label={translate(language, "home")}
+        >
           saafsky<span>.</span>
         </Link>
         <p>{translate(language, "tagline")}</p>

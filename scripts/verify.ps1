@@ -4,6 +4,7 @@ param(
 
 $ErrorActionPreference = "Stop"
 $checks = @(
+  @{ Name = "Formatting"; Args = @("run", "format:check") },
   @{ Name = "ESLint"; Args = @("run", "lint") },
   @{ Name = "TypeScript"; Args = @("run", "typecheck") },
   @{ Name = "Unit tests and coverage"; Args = @("run", "test:coverage") },

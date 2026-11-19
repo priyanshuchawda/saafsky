@@ -2,7 +2,11 @@ import { ActionReason } from "@/components/action-reason";
 import type { Recommendation } from "@/features/recommendations/engine";
 import { category } from "@/lib/air";
 import type { Air } from "@/types/air";
-import { translate, translateText, type Language } from "@/features/i18n/messages";
+import {
+  translate,
+  translateText,
+  type Language,
+} from "@/features/i18n/messages";
 
 type AirQualitySummaryProps = {
   cityName: string;
@@ -26,11 +30,15 @@ export function AirQualitySummary({
       <article className="aq">
         <p className="eyebrow">{translate(language, "currentAir")}</p>
         <div className="number">
-          {aqi === null ? "—" : Math.round(aqi)} <small>{translate(language, "usAqi")}</small>
+          {aqi === null ? "—" : Math.round(aqi)}{" "}
+          <small>{translate(language, "usAqi")}</small>
         </div>
-        <strong className="category">{translateText(language, category(aqi))}</strong>
+        <strong className="category">
+          {translateText(language, category(aqi))}
+        </strong>
         <p>
-          {translate(language, "modelEstimateFor")} {cityName}. {translate(language, "conditionsVary")}
+          {translate(language, "modelEstimateFor")} {cityName}.{" "}
+          {translate(language, "conditionsVary")}
         </p>
         <div className="pollutants">
           <div>
@@ -54,9 +62,7 @@ export function AirQualitySummary({
           <br />
           <em>{translate(language, "meaningfulCare")}</em>
         </h3>
-        <p className="muted">
-          {translate(language, "basedOnCurrent")}
-        </p>
+        <p className="muted">{translate(language, "basedOnCurrent")}</p>
         <ol>
           {recommendations.map((item, index) => (
             <li key={item.id}>
@@ -69,9 +75,7 @@ export function AirQualitySummary({
             </li>
           ))}
         </ol>
-        <p className="fine">
-          {translate(language, "generalInformation")}
-        </p>
+        <p className="fine">{translate(language, "generalInformation")}</p>
       </article>
     </section>
   );

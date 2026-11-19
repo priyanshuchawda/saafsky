@@ -1,7 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { compareSmokeCadr, smokeCadrForArea } from "@/features/indoor/room-sizing";
+import {
+  compareSmokeCadr,
+  smokeCadrForArea,
+} from "@/features/indoor/room-sizing";
 import { translate, type Language } from "@/features/i18n/messages";
 
 export function RoomAirCleanerSizing({ language }: { language: Language }) {
@@ -10,11 +13,19 @@ export function RoomAirCleanerSizing({ language }: { language: Language }) {
   const [ratingTouched, setRatingTouched] = useState(false);
   const cadr = area.trim() === "" ? null : smokeCadrForArea(Number(area));
   const rating = reportedCadr.trim() === "" ? null : Number(reportedCadr);
-  const ratingValid = rating === null || (Number.isFinite(rating) && rating >= 0 && rating <= 10000);
-  const comparison = cadr !== null && rating !== null ? compareSmokeCadr(Number(area), rating) : null;
+  const ratingValid =
+    rating === null ||
+    (Number.isFinite(rating) && rating >= 0 && rating <= 10000);
+  const comparison =
+    cadr !== null && rating !== null
+      ? compareSmokeCadr(Number(area), rating)
+      : null;
 
   return (
-    <section className="plan scenario-result" aria-labelledby="room-sizing-title">
+    <section
+      className="plan scenario-result"
+      aria-labelledby="room-sizing-title"
+    >
       <p className="eyebrow">{translate(language, "roomSizer")}</p>
       <h2 id="room-sizing-title">{translate(language, "roomSizerTitle")}</h2>
       <p>{translate(language, "roomSizerLead")}</p>
@@ -35,7 +46,9 @@ export function RoomAirCleanerSizing({ language }: { language: Language }) {
           />
         </div>
         <div className="profile">
-          <label htmlFor="purifier-cadr">{translate(language, "purifierCadr")}</label>
+          <label htmlFor="purifier-cadr">
+            {translate(language, "purifierCadr")}
+          </label>
           <input
             id="purifier-cadr"
             type="number"
@@ -51,22 +64,34 @@ export function RoomAirCleanerSizing({ language }: { language: Language }) {
           />
         </div>
       </div>
-      <p id="room-area-hint" className="fine">{translate(language, "roomAreaHint")}</p>
-      <p id="purifier-cadr-hint" className="fine">{translate(language, "purifierCadrHint")}</p>
+      <p id="room-area-hint" className="fine">
+        {translate(language, "roomAreaHint")}
+      </p>
+      <p id="purifier-cadr-hint" className="fine">
+        {translate(language, "purifierCadrHint")}
+      </p>
       <div role="status" aria-live="polite">
         {cadr !== null && (
-          <p><strong>{translate(language, "recommendedCadr")}: {Math.ceil(cadr)} m³/h</strong></p>
+          <p>
+            <strong>
+              {translate(language, "recommendedCadr")}: {Math.ceil(cadr)} m³/h
+            </strong>
+          </p>
         )}
         {comparison && (
-          <p>{comparison.kind === "meets"
-            ? translate(language, "purifierMeets")
-            : translate(language, "purifierBelow")}</p>
+          <p>
+            {comparison.kind === "meets"
+              ? translate(language, "purifierMeets")
+              : translate(language, "purifierBelow")}
+          </p>
         )}
       </div>
-      <p className="fine">{translate(language, "roomSizerMethod")}{" "}
+      <p className="fine">
+        {translate(language, "roomSizerMethod")}{" "}
         <a href="https://www.epa.gov/wildfire-smoke-course/preparing-smoke-and-heat">
           {translate(language, "roomSizerSource")}
-        </a>.
+        </a>
+        .
       </p>
     </section>
   );

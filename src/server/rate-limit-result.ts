@@ -43,7 +43,9 @@ export function decideLimits(
     reason: "limited",
     retryAfter: Math.max(
       1,
-      Math.ceil((Math.max(...rejected.map((result) => result.reset)) - now) / 1000),
+      Math.ceil(
+        (Math.max(...rejected.map((result) => result.reset)) - now) / 1000,
+      ),
     ),
   };
 }

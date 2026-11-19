@@ -56,7 +56,10 @@ test("all pages render at mobile and desktop widths without horizontal overflow"
   );
 
   for (const viewport of viewports) {
-    await page.setViewportSize({ width: viewport.width, height: viewport.height });
+    await page.setViewportSize({
+      width: viewport.width,
+      height: viewport.height,
+    });
     for (const path of pages) {
       await page.goto(path, { waitUntil: "domcontentloaded" });
       await expect(page.locator("#main-content")).toBeVisible();
@@ -105,14 +108,18 @@ test("all pages render at mobile and desktop widths without horizontal overflow"
         () => document.documentElement.scrollWidth,
       );
       if (scrollWidth > viewport.width) {
-        const overflowingElements = await page.locator("body *").evaluateAll(
-          (elements) =>
+        const overflowingElements = await page
+          .locator("body *")
+          .evaluateAll((elements) =>
             elements
               .map((element) => {
                 const bounds = element.getBoundingClientRect();
                 return {
                   tag: element.tagName.toLowerCase(),
-                  className: typeof element.className === "string" ? element.className : "",
+                  className:
+                    typeof element.className === "string"
+                      ? element.className
+                      : "",
                   text: element.textContent?.trim().slice(0, 60) ?? "",
                   left: Math.round(bounds.left),
                   right: Math.round(bounds.right),
@@ -122,8 +129,10 @@ test("all pages render at mobile and desktop widths without horizontal overflow"
               .filter((element) => element.right > window.innerWidth + 1)
               .sort((left, right) => right.right - left.right)
               .slice(0, 20),
+          );
+        console.log(
+          `${path} overflow details (${await page.evaluate(() => window.innerWidth)}px): ${JSON.stringify(overflowingElements)}`,
         );
-        console.log(`${path} overflow details (${await page.evaluate(() => window.innerWidth)}px): ${JSON.stringify(overflowingElements)}`);
       }
       expect(
         scrollWidth,

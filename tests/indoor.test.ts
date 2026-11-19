@@ -25,11 +25,7 @@ test("indoor guidance covers every source, filtration and outdoor-air branch", (
   assert.match(noSmokeNoFilter[1]!.title, /cleaner-air room/);
   assert.match(noSmokeNoFilter[2]!.detail, /Reduce polluted outdoor air entry/);
 
-  const smokeWithFilterAndLowerAir = generateIndoorAdvice(
-    true,
-    true,
-    "lower",
-  );
+  const smokeWithFilterAndLowerAir = generateIndoorAdvice(true, true, "lower");
   assert.match(smokeWithFilterAndLowerAir[0]!.detail, /exhaust fan/);
   assert.match(smokeWithFilterAndLowerAir[1]!.title, /purifier effectively/);
   assert.match(smokeWithFilterAndLowerAir[2]!.detail, /consider ventilation/);
