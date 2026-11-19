@@ -1,5 +1,28 @@
 import { expect, test } from "@playwright/test";
 
+test("dashboard forecast presents accessible values and opens the planner", async ({ page }) => {
+  const now = new Date();
+  const firstHour = Math.floor(now.getTime() / 3_600_000) * 3_600_000 + 3_600_000;
+  const time = (index: number) => new Date(firstHour + index * 3_600_000).toISOString().slice(0, 16);
+  await page.route("**/api/air?**", (route) => route.fulfill({ json: {
+    retrievedAt: now.toISOString(),
+    data: {
+      timezone: "UTC", utc_offset_seconds: 0,
+      current: { time: now.toISOString().slice(0, 16), us_aqi: 120, pm2_5: 40, pm10: 60 },
+      hourly: { time: [time(0), time(1), time(2)], us_aqi: [120, null, 180] },
+    },
+  } }));
+  await page.goto("/", { waitUntil: "networkidle" });
+  const forecast = page.getByRole("list", { name: "Hourly forecast comparison" });
+  await expect(forecast.locator("li")).toHaveCount(3);
+  await expect(forecast.locator("li").nth(0)).toContainText("120");
+  await expect(forecast.locator("li").nth(1)).toContainText("—");
+  await expect(forecast.locator("li").nth(1).locator(".forecast-bar")).toHaveCount(0);
+  await expect(page.getByText("Bar scale: 0 to 200 US AQI; values are model estimates.")).toBeVisible();
+  await page.getByRole("link", { name: "Compare outing times ↗" }).click();
+  await expect(page).toHaveURL(/\/planner\/?$/);
+});
+
 test("scenario changes for children and outdoor commuters", async ({
   page,
 }) => {

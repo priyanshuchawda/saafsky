@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { translate, translateText, type Language } from "@/features/i18n/messages";
 
 type LowestForecast = { time: string; aqi: number } | null;
@@ -22,6 +23,11 @@ export function ForecastSection({
   lowest,
   language,
 }: ForecastSectionProps) {
+  const visible = upcoming.slice(0, 8);
+  const values = visible.flatMap(({ aqi }) =>
+    aqi !== null && Number.isFinite(aqi) && aqi >= 0 ? [aqi] : [],
+  );
+  const scaleMax = Math.max(50, Math.ceil(Math.max(0, ...values) / 50) * 50);
   return (
     <section>
       <div className="heading">
@@ -38,16 +44,26 @@ export function ForecastSection({
           {Math.round(lowest.aqi)}. {translate(language, "comparisonNotGuarantee")}
         </p>
       )}
-      <div className="hours">
-        {upcoming.slice(0, 8).map(({ time, aqi }, index) => (
-          <div key={`${time}-${index}`}>
-            <span>{time.replace("T", " ").slice(5)}</span>
-            <strong>{aqi ?? "—"}</strong>
-            <small>{translate(language, "usAqi")}</small>
-          </div>
-        ))}
-        {upcoming.length === 0 && <p>{translate(language, "noForecast")}</p>}
-      </div>
+      {visible.length > 0 ? (
+        <>
+          {values.length > 0 && <p className="fine forecast-scale">{translate(language, "trendScale").replace("{max}", String(scaleMax))}</p>}
+          <ol className="hours" aria-label={translate(language, "hourlyTrend")}>
+            {visible.map(({ time, aqi }, index) => (
+              <li key={`${time}-${index}`}>
+                <span>{time.replace("T", " ").slice(5)}</span>
+                <div className="forecast-bar-track" aria-hidden="true">
+                  {aqi !== null && Number.isFinite(aqi) && aqi >= 0 && (
+                    <div className="forecast-bar" style={{ height: `${(aqi / scaleMax) * 100}%` }} />
+                  )}
+                </div>
+                <strong aria-label={aqi === null ? translateText(language, "Unavailable") : undefined}>{aqi ?? "—"}</strong>
+                <small>{translate(language, "usAqi")}</small>
+              </li>
+            ))}
+          </ol>
+          <p><Link className="forecast-planner-link" href="/planner">{translate(language, "planOuting")}</Link></p>
+        </>
+      ) : <p>{translate(language, "noForecast")}</p>}
       <p className="fine">
         {translate(language, "source")}{" "}
         <a href="https://open-meteo.com/en/docs/air-quality-api">Open-Meteo</a>
