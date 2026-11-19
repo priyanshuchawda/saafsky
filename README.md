@@ -50,7 +50,7 @@ The recommendation engine also supplies the rule-based plan when the AI service 
 | **Live air dashboard** | Explore current modeled US AQI, PM2.5, PM10, an hourly forecast comparison, source attribution, and update times for a selected city. Move directly from the forecast to the outing planner. |
 | **Personal air plan** | See prioritized, household-aware actions with clear reasons and evidence links. Preferences include sensitive household members, children, outdoor exercise, commuting, and cooking smoke. |
 | **Outing planner** | Compare complete forecast windows with your available time, activity duration, household context, and fixed commitments. Fill an editable window from the next consecutive forecast hours with one action. |
-| **Indoor-air guide** | Find practical actions for cooking smoke, filtration, dust, and outdoor-air conditions; estimate a smoke CADR suited to your room's floor area. |
+| **Indoor-air guide** | Find practical actions for cooking smoke, filtration, dust, and outdoor-air conditions; estimate a smoke CADR for your room and compare a purifier's reported rating. |
 | **Commute impact** | Compare estimated transport emissions with transparent factors, occupancy, distance, and monthly travel assumptions. Review current modeled city air alongside the comparison and add a sourced factor for your own context. |
 | **Ask SaafSky** | Get a concise English or Hindi explanation of your current plan from Gemini, grounded in selected actions and approved sources. A rule-based plan is ready whenever AI is not selected or available. |
 | **Scenario explorer** | Adjust illustrative air-quality and household inputs and compare two household plans side by side, with reasons and sources. The explorer makes no external service calls. |
@@ -126,11 +126,11 @@ This verifies an AI-mode response using the key and Upstash credentials in `.env
 
 Latest measured verification on **November 19, 2026**:
 
-- **64 unit tests passed.** The coverage run measured 99.70% lines, 96.06% branches, and 98.59% functions across modules loaded by the unit suite; configured minimums are 90%, 85%, and 90% respectively.
+- **65 unit tests passed.** The coverage run measured 99.70% lines, 96.14% branches, and 98.61% functions across modules loaded by the unit suite; configured minimums are 90%, 85%, and 90% respectively.
 - **35 production-browser tests passed**, covering both languages, seven routes, keyboard-operated mobile navigation, household comparison, key journeys, and layouts from 320px through 1440px.
 - **2 public API protection tests passed**, verifying public request validation and required protection behavior.
 - **Production deployment verified** at [saafsky.vercel.app](https://saafsky.vercel.app): page, air API, city lookup, and Gemini chat in AI mode returned successfully.
-- **Client JavaScript: 247.0 KiB gzip** across 17 emitted assets, within the enforced 300 KiB project budget.
+- **Client JavaScript: 247.4 KiB gzip** across 17 emitted assets, within the enforced 300 KiB project budget.
 
 Coverage describes modules loaded by the unit suite; the browser, API protection, bundle, and live-provider checks add separate evidence for rendered behavior, request boundaries, resource size, and external integrations. Use `npm run check:bundle` to inspect the current production bundle.
 

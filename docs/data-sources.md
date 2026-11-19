@@ -10,7 +10,7 @@ Air responses use a 30-minute Next.js cache and city-search results use a 24-hou
 
 ## Indoor air cleaner sizing
 
-The indoor guide estimates a minimum smoke CADR using the [US EPA's two-thirds rule](https://www.epa.gov/wildfire-smoke-course/preparing-smoke-and-heat): the tobacco smoke CADR in cubic feet per minute is at least two-thirds of the room area in square feet. SaafSky converts square metres to square feet and the result to cubic metres per hour. This rule assumes ceilings up to 8 feet (2.44 m); higher ceilings need a larger-rated unit. The result is a sizing estimate, not a measurement of indoor pollution.
+The indoor guide estimates a minimum smoke CADR using the [US EPA's two-thirds rule](https://www.epa.gov/wildfire-smoke-course/preparing-smoke-and-heat): the tobacco smoke CADR in cubic feet per minute is at least two-thirds of the room area in square feet. SaafSky converts square metres to square feet and the result to cubic metres per hour. A user can compare that rounded-up estimate with the smoke CADR reported on their purifier's product label. This rule assumes ceilings up to 8 feet (2.44 m); higher ceilings need a larger-rated unit. The result is a sizing estimate, not a measurement of indoor pollution.
 
 ## Transport estimates
 

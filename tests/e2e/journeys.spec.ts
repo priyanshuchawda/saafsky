@@ -292,6 +292,15 @@ test("room sizing updates from area and rejects invalid values", async ({ page }
   const area = page.getByLabel("ROOM FLOOR AREA (m²)");
   await area.fill("20");
   await expect(page.getByText("Suggested minimum smoke CADR: 244 m³/h")).toBeVisible();
+  const purifier = page.getByLabel("YOUR PURIFIER'S SMOKE CADR (m³/h, optional)");
+  await purifier.fill("200");
+  await expect(page.getByText("The reported smoke CADR is below this room-size estimate.")).toBeVisible();
+  await purifier.fill("244");
+  await expect(page.getByText("The reported smoke CADR meets this room-size estimate.")).toBeVisible();
+  await purifier.fill("-1");
+  await purifier.blur();
+  await expect(purifier).toHaveAttribute("aria-invalid", "true");
+  await expect(page.getByText("The reported smoke CADR meets this room-size estimate.")).toHaveCount(0);
   await area.fill("501");
   await expect(area).toHaveAttribute("aria-invalid", "true");
   await expect(page.getByText(/Suggested minimum smoke CADR:/)).toHaveCount(0);
