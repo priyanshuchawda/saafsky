@@ -28,10 +28,11 @@ function parseWallTime(value: string): number | null {
     : null;
 }
 
-/** Offer a contiguous forecast range with an observed end boundary, without inventing hours. */
-export function nextForecastRange(
-  hours: ForecastHour[],
-): { start: string; end: string } | null {
+/** Keep duplicate wall-clock hours separate because DST can make them ambiguous. */
+function indexForecast(hours: ForecastHour[]): {
+  values: Map<number, number | null>;
+  duplicates: Set<number>;
+} {
   const values = new Map<number, number | null>();
   const duplicates = new Set<number>();
   for (const hour of hours) {
@@ -40,6 +41,14 @@ export function nextForecastRange(
     if (values.has(time)) duplicates.add(time);
     else values.set(time, hour.aqi);
   }
+  return { values, duplicates };
+}
+
+/** Offer a contiguous forecast range with an observed end boundary, without inventing hours. */
+export function nextForecastRange(
+  hours: ForecastHour[],
+): { start: string; end: string } | null {
+  const { values, duplicates } = indexForecast(hours);
   const usable = (time: number): boolean => {
     const value = values.get(time);
     return (
@@ -92,14 +101,7 @@ export function findActivityWindow(
       return { kind: "unavailable" };
     busy.push({ start: busyStart, end: busyEnd });
   }
-  const values = new Map<number, number | null>();
-  const duplicates = new Set<number>();
-  for (const hour of hours) {
-    const time = parseWallTime(hour.time);
-    if (time === null || time % HOUR_MS !== 0) continue;
-    if (values.has(time)) duplicates.add(time);
-    else values.set(time, hour.aqi);
-  }
+  const { values, duplicates } = indexForecast(hours);
   const candidates: Candidate[] = [];
   for (const time of [...values.keys()].sort((a, b) => a - b)) {
     const finish = time + constraints.durationHours * HOUR_MS;

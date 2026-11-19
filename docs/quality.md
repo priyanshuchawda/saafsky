@@ -26,11 +26,11 @@ The script runs ESLint, strict typechecking, unit tests with coverage thresholds
 
 Verified locally against the production build on **November 19, 2026**:
 
-- **71 unit tests passed.** The coverage command enforces minimums of 90% lines, 85% branches, and 90% functions. The run measured 99.74% lines, 96.15% branches, and 98.77% functions across the modules loaded by the unit suite.
+- **71 unit tests passed.** The coverage command enforces minimums of 90% lines, 85% branches, and 90% functions. The run measured 99.74% lines, 96.35% branches, and 98.78% functions across the modules loaded by the unit suite.
 - **36 production-browser tests passed**, including English and Hindi journeys, household comparison, all-page navigation, 320px through 1440px responsive layouts, touch-target sizing, axe checks, mobile keyboard navigation, and primary user journeys.
 - **2 public API protection tests passed**, checking fail-closed public behavior and request validation before provider access.
-- **Client JavaScript measured 252.7 KiB gzip across 16 emitted chunks**, below the enforced 300 KiB project-wide budget. This counts all emitted client chunks and is not a per-route first-load estimate.
-- **Production dependency audit** on November 18 reported zero known advisories with `npm audit --omit=dev` against the then-current lockfile.
+- **Client JavaScript measured 252.8 KiB gzip across 16 emitted chunks**, below the enforced 300 KiB project-wide budget. This counts all emitted client chunks and is not a per-route first-load estimate.
+- **Production dependency audit** on November 19 reported zero known advisories with `npm audit --omit=dev` against the then-current lockfile.
 - **Production smoke passed** on November 18 at [saafsky.vercel.app](https://saafsky.vercel.app): the site, air endpoint, city lookup, and Gemini chat in AI mode all returned successfully.
 - **Local live smoke passed** on November 18 for Open-Meteo air data, Open-Meteo city lookup, and the SaafSky chat route in AI mode. The reusable [live smoke script](../scripts/smoke-live.ps1) prints no secrets or generated answer text.
 

@@ -75,7 +75,11 @@ export default function IndoorAdvisor() {
             id="outdoor"
             value={outdoorMode}
             onChange={(e) =>
-              setOutdoorMode(e.target.value as "auto" | OutdoorCondition)
+              setOutdoorMode(
+                e.target.value === "elevated" || e.target.value === "unknown"
+                  ? e.target.value
+                  : "auto",
+              )
             }
           >
             <option value="auto">
