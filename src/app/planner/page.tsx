@@ -180,9 +180,15 @@ export default function Planner() {
             type="datetime-local"
             value={busyStart}
             aria-describedby={
-              invalidCommitment ? "busy-help busy-error" : "busy-help"
+              invalidCommitment
+                ? "busy-help busy-error"
+                : partialCommitment && !busyStart
+                  ? "busy-help busy-missing"
+                  : "busy-help"
             }
-            aria-invalid={invalidCommitment}
+            aria-invalid={
+              invalidCommitment || (partialCommitment && !busyStart)
+            }
             onChange={(event) => setBusyStart(event.target.value)}
           />
         </div>
@@ -195,9 +201,13 @@ export default function Planner() {
             type="datetime-local"
             value={busyEnd}
             aria-describedby={
-              invalidCommitment ? "busy-help busy-error" : "busy-help"
+              invalidCommitment
+                ? "busy-help busy-error"
+                : partialCommitment && !busyEnd
+                  ? "busy-help busy-missing"
+                  : "busy-help"
             }
-            aria-invalid={invalidCommitment}
+            aria-invalid={invalidCommitment || (partialCommitment && !busyEnd)}
             onChange={(event) => setBusyEnd(event.target.value)}
           />
         </div>
@@ -245,7 +255,9 @@ export default function Planner() {
           <p>{translate(language, "forecastStale")}</p>
         )}
         {partialCommitment && (
-          <p>{translate(language, "enterBothCommitmentTimes")}</p>
+          <p id="busy-missing">
+            {translate(language, "enterBothCommitmentTimes")}
+          </p>
         )}
         {invalidCommitment && (
           <p id="busy-error">

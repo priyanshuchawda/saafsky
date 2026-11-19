@@ -544,3 +544,21 @@ test("restores the saved city without requesting the default city", async ({
   await page.locator('a[href="/assistant"]').first().click();
   await expect(page.getByLabel(/पुणे/)).toBeVisible();
 });
+
+test("planner associates an incomplete commitment with the missing field", async ({
+  page,
+}) => {
+  await page.goto("/planner", { waitUntil: "networkidle" });
+  const start = page.locator("#busy-start");
+  const end = page.locator("#busy-end");
+  await start.fill("2026-11-20T09:00");
+  await expect(end).toHaveAttribute("aria-invalid", "true");
+  await expect(end).toHaveAccessibleDescription(/Enter both commitment times/);
+  await end.fill("2026-11-20T10:00");
+  await expect(end).toHaveAttribute("aria-invalid", "false");
+  await start.fill("");
+  await expect(start).toHaveAttribute("aria-invalid", "true");
+  await expect(start).toHaveAccessibleDescription(
+    /Enter both commitment times/,
+  );
+});
