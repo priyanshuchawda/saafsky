@@ -28,6 +28,41 @@ function parseWallTime(value: string): number | null {
     : null;
 }
 
+/** Offer a contiguous forecast range with an observed end boundary, without inventing hours. */
+export function nextForecastRange(
+  hours: ForecastHour[],
+): { start: string; end: string } | null {
+  const values = new Map<number, number | null>();
+  const duplicates = new Set<number>();
+  for (const hour of hours) {
+    const time = parseWallTime(hour.time);
+    if (time === null || time % HOUR_MS !== 0) continue;
+    if (values.has(time)) duplicates.add(time);
+    else values.set(time, hour.aqi);
+  }
+  const usable = (time: number): boolean => {
+    const value = values.get(time);
+    return !duplicates.has(time) && typeof value === "number" && Number.isFinite(value) && value >= 0;
+  };
+  for (const start of [...values.keys()].sort((a, b) => a - b)) {
+    if (!usable(start)) continue;
+    let end = start;
+    for (let i = 1; i <= 12; i++) {
+      const next = start + i * HOUR_MS;
+      if (!values.has(next) || duplicates.has(next)) break;
+      end = next;
+      if (!usable(next)) break;
+    }
+    if (end > start) {
+      return {
+        start: new Date(start).toISOString().slice(0, 16),
+        end: new Date(end).toISOString().slice(0, 16),
+      };
+    }
+  }
+  return null;
+}
+
 /** Compare complete hourly model values; duplicate wall times are excluded as ambiguous. */
 export function findActivityWindow(
   hours: ForecastHour[],

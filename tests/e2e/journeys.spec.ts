@@ -181,6 +181,9 @@ test("planner respects activity duration and distinguishes elevated conditions",
     }),
   );
   await page.goto("/planner", { waitUntil: "networkidle" });
+  await page.getByRole("button", { name: "Use next available forecast hours" }).click();
+  await expect(page.getByLabel("EARLIEST TIME")).toHaveValue(time(0));
+  await expect(page.getByLabel("LATEST TIME (EXCLUSIVE)")).toHaveValue(time(3));
   await page.getByLabel("HOUSEHOLD").selectOption("sensitive");
   await page.getByLabel("EARLIEST TIME").fill(time(0));
   await page.getByLabel("LATEST TIME (EXCLUSIVE)").fill(time(4));
@@ -189,6 +192,10 @@ test("planner respects activity duration and distinguishes elevated conditions",
   await page.getByLabel("FIXED COMMITMENT START (OPTIONAL)").fill(time(1));
   await expect(page.getByText(/Enter both commitment times/)).toBeVisible();
   await page.getByLabel("FIXED COMMITMENT END (OPTIONAL)").fill(time(2));
+  await page.getByRole("button", { name: "Use next available forecast hours" }).click();
+  await expect(page.getByLabel("FIXED COMMITMENT START (OPTIONAL)")).toHaveValue(time(1));
+  await expect(page.getByLabel("FIXED COMMITMENT END (OPTIONAL)")).toHaveValue(time(2));
+  await page.getByLabel("LATEST TIME (EXCLUSIVE)").fill(time(4));
   await expect(
     page.getByText(/All complete forecast windows exceed/),
   ).toBeVisible();
@@ -203,6 +210,20 @@ test("planner respects activity duration and distinguishes elevated conditions",
     .getByLabel("CAN THE OUTING BE POSTPONED?")
     .selectOption("essential");
   await expect(page.getByText(/All complete options exceed/)).toBeVisible();
+});
+
+test("changing the planner city clears city-local schedule times", async ({ page }) => {
+  await page.route("**/api/air?**", (route) => route.fulfill({ status: 503, json: { error: "Unavailable" } }));
+  await page.route("**/api/locations?**", (route) => route.fulfill({ json: { results: [
+    { name: "Pune", admin1: "Maharashtra", country: "India", latitude: 18.52, longitude: 73.85 },
+  ] } }));
+  await page.goto("/planner", { waitUntil: "networkidle" });
+  const fields = ["EARLIEST TIME", "LATEST TIME (EXCLUSIVE)", "FIXED COMMITMENT START (OPTIONAL)", "FIXED COMMITMENT END (OPTIONAL)"];
+  for (const field of fields) await page.getByLabel(field).fill("2026-11-20T09:00");
+  await page.getByLabel("YOUR LOCATION").fill("Pune");
+  await page.getByRole("button", { name: "Search", exact: true }).click();
+  await page.getByRole("button", { name: "Pune, Maharashtra, India" }).click();
+  for (const field of fields) await expect(page.getByLabel(field)).toHaveValue("");
 });
 
 test("indoor advice uses the selected outdoor estimate without claiming an indoor measurement", async ({

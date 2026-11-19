@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { LocationSearch } from "@/components/location-search";
 import { useAirQuality } from "@/hooks/use-air-quality";
-import { findActivityWindow } from "@/features/planner/activity-window";
+import { findActivityWindow, nextForecastRange } from "@/features/planner/activity-window";
 import { generateDailyPlan } from "@/features/planner/daily";
 import type { HouseholdProfile } from "@/features/recommendations/engine";
 import { category, upcomingForecast } from "@/lib/air";
@@ -32,6 +32,7 @@ export default function Planner() {
     air && localNow
       ? upcomingForecast(air.hourly.time, air.hourly.us_aqi, localNow)
       : [];
+  const suggestedRange = nextForecastRange(hours);
   const partialCommitment = Boolean(busyStart) !== Boolean(busyEnd);
   const invalidCommitment = Boolean(
     busyStart && busyEnd && busyEnd <= busyStart,
@@ -53,7 +54,13 @@ export default function Planner() {
       </h1>
       <p className="lead">{translate(language, "plannerLead")}</p>
       <div className="toolbar impact-form">
-        <LocationSearch onSelect={setCity} />
+        <LocationSearch onSelect={(nextCity) => {
+          setCity(nextCity);
+          setStart("");
+          setEnd("");
+          setBusyStart("");
+          setBusyEnd("");
+        }} />
         <div className="profile">
           <label htmlFor="plan-profile">{translate(language, "household")}</label>
           <select
@@ -162,6 +169,15 @@ export default function Planner() {
           />
         </div>
       </div>
+      {suggestedRange && (
+        <div className="planner-quick-range">
+          <button className="action-button" type="button" onClick={() => {
+            setStart(suggestedRange.start);
+            setEnd(suggestedRange.end);
+          }}>{translate(language, "useForecastRange")}</button>
+          <p className="fine">{translate(language, "forecastRangeHelp")}</p>
+        </div>
+      )}
       <p id="busy-help" className="fine">
         {translate(language, "commitmentHelp")}
       </p>

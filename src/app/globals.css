@@ -72,6 +72,17 @@ textarea:focus-visible {
 .scenario-result {
   margin-top: 25px;
 }
+.planner-quick-range {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  margin-top: 16px;
+}
+.planner-quick-range .fine {
+  flex: 1 1 240px;
+  margin: 0;
+}
 .scenario footer {
   margin-top: 40px;
 }
