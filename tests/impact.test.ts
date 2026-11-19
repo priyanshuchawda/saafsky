@@ -50,3 +50,10 @@ test("emission comparisons preserve arithmetic invariants", () => {
       );
     }
 });
+
+test("transport mode parsing rejects unsupported values", async () => {
+  const { parseTransportMode } =
+    await import("../src/features/sustainability/calculate.ts");
+  assert.equal(parseTransportMode("bus"), "bus");
+  assert.equal(parseTransportMode("flight"), null);
+});

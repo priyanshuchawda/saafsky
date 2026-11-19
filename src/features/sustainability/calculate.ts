@@ -1,5 +1,19 @@
 export type Mode =
   "bus" | "rail" | "tram" | "underground" | "walk" | "cycle" | "custom";
+const modes = [
+  "bus",
+  "rail",
+  "tram",
+  "underground",
+  "walk",
+  "cycle",
+  "custom",
+] as const satisfies readonly Mode[];
+
+export function parseTransportMode(value: string): Mode | null {
+  return modes.find((mode) => mode === value) ?? null;
+}
+
 export const UK_BUS_KG_PER_PASSENGER_KM = 0.10385;
 export const UK_PETROL_CAR_KG_PER_VEHICLE_KM = 0.16272;
 export const UK_RAIL_KG_PER_PASSENGER_KM = 0.03546;
@@ -28,9 +42,7 @@ export function monthlyImpact(
   customFactor = 0,
 ): { baseline: number; alternative: number; difference: number } | null {
   if (
-    !["bus", "rail", "tram", "underground", "walk", "cycle", "custom"].includes(
-      mode,
-    ) ||
+    parseTransportMode(mode) === null ||
     ![distanceKm, days, baselineFactor, customFactor].every(Number.isFinite) ||
     distanceKm < 0 ||
     distanceKm > 1000 ||

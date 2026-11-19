@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useState } from "react";
 import {
   monthlyImpact,
+  parseTransportMode,
   UK_BUS_KG_PER_PASSENGER_KM,
   UK_PETROL_CAR_KG_PER_VEHICLE_KM,
   UK_RAIL_KG_PER_PASSENGER_KM,
@@ -64,7 +65,9 @@ export default function Impact() {
             id="baseline-mode"
             value={baselineMode}
             onChange={(event) =>
-              setBaselineMode(event.target.value as "car" | "custom")
+              setBaselineMode(
+                event.target.value === "custom" ? "custom" : "car",
+              )
             }
           >
             <option value="car">{translate(language, "ukPetrolCar")}</option>
@@ -135,7 +138,9 @@ export default function Impact() {
           <select
             id="mode"
             value={mode}
-            onChange={(e) => setMode(e.target.value as Mode)}
+            onChange={(e) =>
+              setMode(parseTransportMode(e.target.value) ?? mode)
+            }
           >
             <option value="bus">{translate(language, "ukLocalBus")}</option>
             <option value="rail">

@@ -14,6 +14,11 @@ import { translate, translateText } from "@/features/i18n/messages";
 
 type ComparisonProfile = "general" | "sensitive" | "children" | "cyclist";
 
+function parseComparisonProfile(value: string): ComparisonProfile | null {
+  const options = ["general", "sensitive", "children", "cyclist"] as const;
+  return options.find((option) => option === value) ?? null;
+}
+
 function comparisonHousehold(value: ComparisonProfile): HouseholdProfile {
   return {
     sensitive: value === "sensitive",
@@ -76,7 +81,11 @@ export default function Scenarios() {
           <select
             id="scenario-profile"
             value={profile}
-            onChange={(event) => setProfile(event.target.value as Profile)}
+            onChange={(event) =>
+              setProfile(
+                event.target.value === "sensitive" ? "sensitive" : "adult",
+              )
+            }
           >
             <option value="adult">
               {translate(language, "generalGuidance")}
@@ -142,7 +151,9 @@ export default function Scenarios() {
               id="comparison-profile"
               value={comparison}
               onChange={(event) =>
-                setComparison(event.target.value as ComparisonProfile)
+                setComparison(
+                  parseComparisonProfile(event.target.value) ?? comparison,
+                )
               }
             >
               <option value="general">
