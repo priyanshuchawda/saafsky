@@ -10,6 +10,7 @@ import {
 } from "@/features/sustainability/calculate";
 import { useLanguage } from "@/hooks/use-preferences";
 import { translate } from "@/features/i18n/messages";
+import { CommuteAirContext } from "@/components/commute-air-context";
 
 export default function Impact() {
   const [language] = useLanguage();
@@ -180,6 +181,7 @@ export default function Impact() {
           .
         </p>
       </section>
+      <CommuteAirContext language={language} />
       <footer>
         <Link href="/">{translate(language, "backDashboard")}</Link>
       </footer>

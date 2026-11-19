@@ -291,6 +291,28 @@ test("impact calculator displays a sourced-factor comparison", async ({
   await expect(page.getByRole("heading", { name: /19\.23 kg/ })).toBeVisible();
 });
 
+test("commute comparison uses current modeled air and handles a provider outage", async ({ page }) => {
+  const now = new Date();
+  await page.route("**/api/air?**", (route) => route.fulfill({
+    json: {
+      retrievedAt: now.toISOString(),
+      data: {
+        timezone: "UTC", utc_offset_seconds: 0,
+        current: { time: now.toISOString().slice(0, 16), us_aqi: 180, pm2_5: 80, pm10: 100 },
+        hourly: { time: [], us_aqi: [] },
+      },
+    },
+  }));
+  await page.goto("/impact", { waitUntil: "networkidle" });
+  await expect(page.getByText(/Current modeled US AQI in Delhi: 180/)).toBeVisible();
+  await expect(page.getByText(/Consider reducing prolonged or strenuous outdoor activity/)).toBeVisible();
+  await page.unrouteAll({ behavior: "wait" });
+  await page.route("**/api/air?**", (route) => route.fulfill({ status: 503, json: { error: "unavailable" } }));
+  await page.reload({ waitUntil: "networkidle" });
+  await expect(page.getByText(/Current city air data is unavailable or stale/)).toBeVisible();
+  await expect(page.getByRole("heading", { name: /11\.77 kg/ })).toBeVisible();
+});
+
 test("planner personalizes the daily plan from a mocked fresh forecast", async ({
   page,
 }) => {
