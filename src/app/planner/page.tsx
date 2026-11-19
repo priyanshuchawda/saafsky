@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { parseCommuteMode } from "@/features/preferences/commute";
 import { useState } from "react";
 import { DailyTimeline } from "@/components/planner/daily-timeline";
 import { LocationSearch } from "@/components/location-search";
@@ -10,7 +11,6 @@ import {
   nextForecastRange,
 } from "@/features/planner/activity-window";
 import { generateDailyPlan } from "@/features/planner/daily";
-import type { HouseholdProfile } from "@/features/recommendations/engine";
 import { category, upcomingForecast } from "@/lib/air";
 import { localMinuteAt } from "@/lib/freshness";
 import { useCity, useHousehold, useLanguage } from "@/hooks/use-preferences";
@@ -101,7 +101,8 @@ export default function Planner() {
             onChange={(event) =>
               setProfile({
                 ...profile,
-                commute: event.target.value as HouseholdProfile["commute"],
+                commute:
+                  parseCommuteMode(event.target.value) ?? profile.commute,
               })
             }
           >

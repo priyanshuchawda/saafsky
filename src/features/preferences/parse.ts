@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { commuteModes } from "./commute.ts";
 import type { City } from "../../types/air.ts";
 import type { HouseholdProfile } from "../recommendations/engine.ts";
 
@@ -17,7 +18,7 @@ const storedHouseholdSchema = z.object({
   children: z.boolean(),
   outdoorExercise: z.boolean(),
   cookingSmoke: z.boolean(),
-  commute: z.enum(["none", "walk", "bike", "public", "car"]),
+  commute: z.enum(commuteModes),
 });
 
 function readJson(raw: string): unknown {

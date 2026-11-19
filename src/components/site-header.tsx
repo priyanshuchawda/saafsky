@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LanguageSelector } from "@/components/language-selector";
-import { translate, type MessageKey } from "@/features/i18n/messages";
+import { translate } from "@/features/i18n/messages";
 import { useLanguage } from "@/hooks/use-preferences";
 
 const pages = [
@@ -61,7 +61,7 @@ function PageLinks({
       key={page.href}
       aria-current={pathname === page.href ? "page" : undefined}
     >
-      {translate(language, page.label as MessageKey)}
+      {translate(language, page.label)}
     </Link>
   ));
 }

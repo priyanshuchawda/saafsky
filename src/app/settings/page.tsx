@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import { parseCommuteMode } from "@/features/preferences/commute";
 import { useState } from "react";
 import {
   clearPreferences,
@@ -7,7 +8,6 @@ import {
   useHousehold,
   useLanguage,
 } from "@/hooks/use-preferences";
-import type { HouseholdProfile } from "@/features/recommendations/engine";
 import { displayCity } from "@/features/i18n/city";
 import { translate } from "@/features/i18n/messages";
 
@@ -73,7 +73,8 @@ export default function Settings() {
               onChange={(event) =>
                 setProfile({
                   ...profile,
-                  commute: event.target.value as HouseholdProfile["commute"],
+                  commute:
+                    parseCommuteMode(event.target.value) ?? profile.commute,
                 })
               }
             >

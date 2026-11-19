@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { parseCommuteMode } from "@/features/preferences/commute";
 import { useState } from "react";
 import { ScenarioActionPlan } from "@/components/scenario-action-plan";
 import { category, type Profile } from "@/lib/air";
@@ -106,7 +107,7 @@ export default function Scenarios() {
             id="scenario-commute"
             value={commute}
             onChange={(event) =>
-              setCommute(event.target.value as HouseholdProfile["commute"])
+              setCommute(parseCommuteMode(event.target.value) ?? commute)
             }
           >
             <option value="none">{translate(language, "noneSelected")}</option>
