@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useCity, useHousehold, useLanguage } from "@/hooks/use-preferences";
 import { useAirQuality } from "@/hooks/use-air-quality";
 import { translate, translateText } from "@/features/i18n/messages";
+import { RoomAirCleanerSizing } from "@/components/room-air-cleaner-sizing";
 import {
   generateIndoorAdvice,
   outdoorCondition,
@@ -114,6 +115,7 @@ export default function IndoorAdvisor() {
           .
         </p>
       </section>
+      <RoomAirCleanerSizing language={language} />
       <footer>
         <Link href="/">{translate(language, "backDashboard")}</Link>
       </footer>

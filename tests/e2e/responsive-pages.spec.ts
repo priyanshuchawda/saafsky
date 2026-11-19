@@ -158,7 +158,7 @@ test("Hindi language persists across routes and fits mobile and desktop layouts"
   await page.goto("/", { waitUntil: "domcontentloaded" });
   await page.getByLabel("Language").selectOption("hi");
   await expect(page.locator("html")).toHaveAttribute("lang", "hi");
-  await expect(page).toHaveTitle("SaafSky");
+  await expect(page).toHaveTitle("SaafSky — Personal Air Quality Planner");
 
   for (const viewport of [
     { width: 390, height: 844 },

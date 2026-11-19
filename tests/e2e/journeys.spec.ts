@@ -221,6 +221,16 @@ test("indoor advice uses the selected outdoor estimate without claiming an indoo
   ).toBeVisible();
 });
 
+test("room sizing updates from area and rejects invalid values", async ({ page }) => {
+  await page.goto("/indoor", { waitUntil: "domcontentloaded" });
+  const area = page.getByLabel("ROOM FLOOR AREA (m²)");
+  await area.fill("20");
+  await expect(page.getByText("Suggested minimum smoke CADR: 244 m³/h")).toBeVisible();
+  await area.fill("501");
+  await expect(area).toHaveAttribute("aria-invalid", "true");
+  await expect(page.getByText(/Suggested minimum smoke CADR:/)).toHaveCount(0);
+});
+
 test("assistant shows deterministic fallback without calling Gemini", async ({
   page,
 }) => {

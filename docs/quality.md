@@ -23,15 +23,15 @@ The script runs ESLint, strict typechecking, unit tests with coverage thresholds
 
 ## Current measured evidence
 
-Verified locally against the production build on **November 18, 2026**:
+Verified locally against the production build on **November 19, 2026**:
 
-- **59 unit tests passed.** The coverage command enforces minimums of 90% lines, 85% branches, and 90% functions. The run measured 99.68% lines, 95.33% branches, and 98.48% functions across the modules loaded by the unit suite.
-- **29 production-browser tests passed**, including English and Hindi journeys, all-page navigation, 320px through 1440px responsive layouts, touch-target sizing, axe checks, mobile keyboard navigation, and primary user journeys.
+- **61 unit tests passed.** The coverage command enforces minimums of 90% lines, 85% branches, and 90% functions. The run measured 99.68% lines, 95.41% branches, and 98.51% functions across the modules loaded by the unit suite.
+- **30 production-browser tests passed**, including English and Hindi journeys, all-page navigation, 320px through 1440px responsive layouts, touch-target sizing, axe checks, mobile keyboard navigation, and primary user journeys.
 - **2 public API protection tests passed**, checking fail-closed public behavior and request validation before provider access.
-- **Client JavaScript measured 242.4 KiB gzip across 17 emitted chunks**, below the enforced 300 KiB project-wide budget. This counts all emitted client chunks and is not a per-route first-load estimate.
-- **Production dependency audit reported zero known advisories** with `npm audit --omit=dev` against the current lockfile.
-- **Production smoke passed** at [saafsky.vercel.app](https://saafsky.vercel.app): the site, air endpoint, city lookup, and Gemini chat in AI mode all returned successfully.
-- **Local live smoke passed** for Open-Meteo air data, Open-Meteo city lookup, and the SaafSky chat route in AI mode. The reusable [live smoke script](../scripts/smoke-live.ps1) prints no secrets or generated answer text.
+- **Client JavaScript measured 243.6 KiB gzip across 17 emitted chunks**, below the enforced 300 KiB project-wide budget. This counts all emitted client chunks and is not a per-route first-load estimate.
+- **Production dependency audit** on November 18 reported zero known advisories with `npm audit --omit=dev` against the then-current lockfile.
+- **Production smoke passed** on November 18 at [saafsky.vercel.app](https://saafsky.vercel.app): the site, air endpoint, city lookup, and Gemini chat in AI mode all returned successfully.
+- **Local live smoke passed** on November 18 for Open-Meteo air data, Open-Meteo city lookup, and the SaafSky chat route in AI mode. The reusable [live smoke script](../scripts/smoke-live.ps1) prints no secrets or generated answer text.
 
 Coverage reports quantify modules imported by the unit suite. Browser, API-protection, bundle, and live-provider checks add complementary evidence for rendered behavior, request boundaries, resource size, and external integration.
 

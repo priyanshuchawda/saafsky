@@ -8,6 +8,10 @@ The dashboard labels its index **US AQI** and presents PM2.5 and PM10 in µg/m³
 
 Air responses use a 30-minute Next.js cache and city-search results use a 24-hour cache. The planner compares available hourly local-time windows, accounting for the selected time period, activity duration, household context, and fixed commitments. It only presents complete forecast windows, making the comparison reproducible from the available hourly data.
 
+## Indoor air cleaner sizing
+
+The indoor guide estimates a minimum smoke CADR using the [US EPA's two-thirds rule](https://www.epa.gov/wildfire-smoke-course/preparing-smoke-and-heat): the tobacco smoke CADR in cubic feet per minute is at least two-thirds of the room area in square feet. SaafSky converts square metres to square feet and the result to cubic metres per hour. This rule assumes ceilings up to 8 feet (2.44 m); higher ceilings need a larger-rated unit. The result is a sizing estimate, not a measurement of indoor pollution.
+
 ## Transport estimates
 
 The commute page multiplies round-trip distance, travel days, and a per-passenger-kilometre factor, then compares the baseline with the chosen alternative. Vehicle factors are divided by the selected occupancy. Defaults use the [UK government's 2025 conversion factors](https://www.gov.uk/government/publications/greenhouse-gas-reporting-conversion-factors-2025): 0.16272 kg CO₂e per petrol-car vehicle-km and 0.10385 kg CO₂e per local-bus passenger-km. Users can enter a sourced factor suited to another region or transport scenario.
