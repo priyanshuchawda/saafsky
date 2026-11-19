@@ -50,6 +50,28 @@ test("scenario changes for children and outdoor commuters", async ({
   ).toBeVisible();
 });
 
+test("scenario compares two households using the same illustrative air", async ({ page }) => {
+  let apiRequests = 0;
+  page.on("request", (request) => { if (new URL(request.url()).pathname.startsWith("/api/")) apiRequests += 1; });
+  await page.goto("/scenarios", { waitUntil: "networkidle" });
+  const toggle = page.getByRole("button", { name: "Compare another household" });
+  await toggle.click();
+  await expect(page.getByRole("button", { name: "Hide household comparison" })).toHaveAttribute("aria-expanded", "true");
+  const first = page.getByRole("article", { name: "Selected household plan" });
+  const second = page.getByRole("article", { name: "Comparison household plan" });
+  await expect(first.getByText("Consider sensitive people")).toBeVisible();
+  await expect(second.getByText("Reduce outdoor exertion")).toBeVisible();
+  await second.getByText("Why this action?").first().click();
+  await expect(second.getByRole("link", { name: "AirNow: US AQI basics" })).toBeVisible();
+  await page.getByLabel("ILLUSTRATIVE US AQI").selectOption("180");
+  await page.getByLabel("COMPARE WITH").selectOption("cyclist");
+  await expect(second.getByText("Review your commute")).toBeVisible();
+  await expect(first.getByText("Review your commute")).toHaveCount(0);
+  await page.getByRole("button", { name: "Hide household comparison" }).click();
+  await expect(second).toHaveCount(0);
+  expect(apiRequests).toBe(0);
+});
+
 test("city and sensitivity follow the user and can be cleared", async ({
   page,
 }) => {

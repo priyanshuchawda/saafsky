@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { ActionReason } from "@/components/action-reason";
+import { ScenarioActionPlan } from "@/components/scenario-action-plan";
 import { category, type Profile } from "@/lib/air";
 import {
   generateRecommendations,
@@ -11,12 +11,26 @@ import {
 import { useLanguage } from "@/hooks/use-preferences";
 import { translate, translateText } from "@/features/i18n/messages";
 
+type ComparisonProfile = "general" | "sensitive" | "children" | "cyclist";
+
+function comparisonHousehold(value: ComparisonProfile): HouseholdProfile {
+  return {
+    sensitive: value === "sensitive",
+    children: value === "children",
+    commute: value === "cyclist" ? "bike" : "none",
+    outdoorExercise: false,
+    cookingSmoke: false,
+  };
+}
+
 export default function Scenarios() {
   const [language] = useLanguage();
   const [aqi, setAqi] = useState(120);
   const [profile, setProfile] = useState<Profile>("adult");
   const [children, setChildren] = useState(false);
   const [commute, setCommute] = useState<HouseholdProfile["commute"]>("none");
+  const [showComparison, setShowComparison] = useState(false);
+  const [comparison, setComparison] = useState<ComparisonProfile>("children");
   const actions = generateRecommendations(aqi, {
     sensitive: profile === "sensitive",
     children,
@@ -84,7 +98,23 @@ export default function Scenarios() {
           </select>
         </div>
       </div>
-      <section className="dashboard scenario-result" aria-live="polite">
+      <div className="scenario-comparison-controls">
+        <button type="button" className="action-button" aria-expanded={showComparison} aria-controls={showComparison ? "comparison-plan" : undefined} onClick={() => setShowComparison(!showComparison)}>
+          {translate(language, showComparison ? "hideComparison" : "compareHouseholds")}
+        </button>
+        {showComparison && (
+          <div className="profile">
+            <label htmlFor="comparison-profile">{translate(language, "comparisonHousehold")}</label>
+            <select id="comparison-profile" value={comparison} onChange={(event) => setComparison(event.target.value as ComparisonProfile)}>
+              <option value="general">{translate(language, "comparisonGeneral")}</option>
+              <option value="sensitive">{translate(language, "comparisonSensitive")}</option>
+              <option value="children">{translate(language, "comparisonChildren")}</option>
+              <option value="cyclist">{translate(language, "comparisonCyclist")}</option>
+            </select>
+          </div>
+        )}
+      </div>
+      <section id="scenario-results" className={`dashboard scenario-result${showComparison ? " scenario-comparing" : ""}`} aria-live="polite">
         <article className="aq">
           <p className="eyebrow">{translate(language, "illustrativeAir")}</p>
           <div className="number">
@@ -93,25 +123,8 @@ export default function Scenarios() {
           <strong className="category">{translateText(language, category(aqi))}</strong>
           <p>{translate(language, "noLiveData")}</p>
         </article>
-        <article className="plan">
-          <p className="eyebrow">{translate(language, "exampleActionPlan")}</p>
-          <h2>
-            {translate(language, "whatChanges")} <em>{translate(language, "today")}</em>
-          </h2>
-          <ol>
-            {actions.map((item, i) => (
-              <li key={item.id}>
-                <span>0{i + 1}</span>
-                <div>
-                  <strong>{translateText(language, item.title)}</strong>
-                  <p>{translateText(language, item.description)}</p>
-                  <ActionReason action={item} language={language} />
-                </div>
-              </li>
-            ))}
-          </ol>
-          <p className="fine">{translate(language, "generalInformation")}</p>
-        </article>
+        <ScenarioActionPlan actions={actions} language={language} comparison={false} />
+        {showComparison && <ScenarioActionPlan actions={generateRecommendations(aqi, comparisonHousehold(comparison))} language={language} comparison />}
       </section>
       <p className="fine">
         {translate(language, "scenarioEvidence")}{" "}

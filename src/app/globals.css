@@ -72,6 +72,30 @@ textarea:focus-visible {
 .scenario-result {
   margin-top: 25px;
 }
+.scenario-comparison-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 12px 16px;
+  margin-top: 16px;
+}
+.scenario-comparison-controls .profile {
+  flex: 1 1 240px;
+  max-width: 360px;
+}
+.scenario-comparison-controls label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.scenario-comparing {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.scenario-comparing .aq {
+  grid-column: 1 / -1;
+  min-height: auto;
+}
 .planner-quick-range {
   display: flex;
   flex-wrap: wrap;

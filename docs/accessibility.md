@@ -12,6 +12,7 @@ SaafSky uses native links, buttons, form controls, disclosures, headings, and li
 | Compare forecast hours | Each visual bar accompanies its time and numeric AQI in a named list; missing values remain visible as unavailable. The bar scale is described in text. | `tests/e2e/journeys.spec.ts` checks values, missing-data behavior, and navigation to the planner. |
 | Use the interface on small screens | Navigation collapses into an expandable menu; forms stack; content reflows without horizontal page overflow. | `tests/e2e/responsive-pages.spec.ts` checks 320px, 390px, 768px, 1024px, and 1440px widths. |
 | Choose a reading language | English and Hindi labels, guidance, navigation, and chat responses follow the selected language; the choice persists in the browser. | `tests/i18n.test.ts` and the Hindi production-browser journey verify translated content, preference persistence, and the language sent to chat. |
+| Compare household plans | A native disclosure button exposes the comparison selector and individually named plans; each plan retains its reason and source links. | `tests/e2e/accessibility.spec.ts` runs axe and checks horizontal fit with the comparison open at 320px. |
 | Operate touch controls | Visible primary buttons, inputs, selects, navigation links, and disclosures have at least 48px height. | Responsive browser test checks rendered target sizes on every product page. |
 
 ## Reproduce checks

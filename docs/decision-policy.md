@@ -2,6 +2,8 @@
 
 SaafSky turns a validated US AQI value and household choices into a prioritized action plan. Each action has a stable ID, category, priority, reason codes, and evidence IDs. The interface explains why each action appears; sources are maintained in `src/features/recommendations/evidence.ts`. Gemini explains those selected actions, and its action and evidence references are checked against the supplied catalog.
 
+The scenario explorer can compare the selected household with a second preset under the same illustrative AQI. Each plan is generated independently by the same recommendation function, with its own reasons and evidence links. The comparison runs locally and does not change saved preferences or request live data.
+
 ## Air-quality guidance
 
 When current data needs a refresh, the dashboard identifies that state and points people toward an official local source. General indoor smoke guidance remains available. Above US AQI 100, the policy adds caution for sensitive groups. Above 150, or above 100 for a household marked sensitive or with children, it recommends reducing prolonged or strenuous outdoor activity. Above 200, it adds an essential-trips precaution. Commute and cooking choices add relevant actions to the same plan.
