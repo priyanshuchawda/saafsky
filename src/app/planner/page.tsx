@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { DailyTimeline } from "@/components/planner/daily-timeline";
 import { LocationSearch } from "@/components/location-search";
 import { useAirQuality } from "@/hooks/use-air-quality";
 import {
@@ -218,25 +219,7 @@ export default function Planner() {
       <p id="busy-help" className="fine">
         {translate(language, "commitmentHelp")}
       </p>
-      <section className="plan scenario-result" aria-live="polite">
-        <p className="eyebrow">{translate(language, "dailyPlan")}</p>
-        <h2>
-          {translate(language, "morningToEvening")}{" "}
-          <em>{translate(language, "evening")}</em>
-        </h2>
-        <ol>
-          {steps.map((step) => (
-            <li key={step.id}>
-              <span>{translateText(language, step.period)}</span>
-              <div>
-                <strong>{translateText(language, step.title)}</strong>
-                <p>{translateText(language, step.detail)}</p>
-              </div>
-            </li>
-          ))}
-        </ol>
-        <p className="fine">{translate(language, "planCaveat")}</p>
-      </section>
+      <DailyTimeline steps={steps} language={language} />
       <section className="plan scenario-result" aria-live="polite">
         <p className="eyebrow">
           {translate(language, "forecastFor")}{" "}
