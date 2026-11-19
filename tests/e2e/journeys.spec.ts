@@ -562,3 +562,44 @@ test("planner associates an incomplete commitment with the missing field", async
     /Enter both commitment times/,
   );
 });
+
+test("preferences remain usable when browser storage rejects writes", async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    Storage.prototype.setItem = function () {
+      throw new DOMException("Storage is full", "QuotaExceededError");
+    };
+    Storage.prototype.removeItem = function () {
+      throw new DOMException("Storage is unavailable", "SecurityError");
+    };
+  });
+  await page.route("**/api/air?**", (route) =>
+    route.fulfill({ status: 503, json: {} }),
+  );
+  await page.route("**/api/locations?**", (route) =>
+    route.fulfill({
+      json: {
+        results: [
+          { name: "Pune", country: "India", latitude: 18.52, longitude: 73.85 },
+        ],
+      },
+    }),
+  );
+  await page.goto("/", { waitUntil: "networkidle" });
+  await page.locator("#profile").selectOption("sensitive");
+  await expect(page.locator("#profile")).toHaveValue("sensitive");
+  await page.locator("#city").fill("Pune");
+  await page.getByRole("button", { name: "Search", exact: true }).click();
+  await page.getByRole("button", { name: "Pune, India" }).click();
+  await expect(
+    page.getByRole("heading", { name: /Today in Pune/ }),
+  ).toBeVisible();
+  await page.getByLabel("Language").selectOption("hi");
+  await expect(page.getByRole("heading", { name: /थोड़ा खुलकर/ })).toBeVisible();
+  await expect(page.locator("#site-language")).toHaveValue("hi");
+  await page.locator('a[href="/settings"]').first().click();
+  await page.getByRole("button", { name: "प्राथमिकताएँ मिटाएँ" }).click();
+  await expect(page.locator("#site-language")).toHaveValue("en");
+  await expect(page.getByText(/Delhi, India/)).toBeVisible();
+});

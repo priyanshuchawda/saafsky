@@ -20,8 +20,6 @@ const sensitiveKey = "saafsky:sensitive";
 const householdKey = "saafsky:household";
 const languageKey = "saafsky:language";
 const eventName = "saafsky:preferences";
-let fallbackCity = defaultCityJson;
-let fallbackSensitive = "false";
 const defaultHousehold = {
   children: false,
   outdoorExercise: false,
@@ -29,8 +27,8 @@ const defaultHousehold = {
   cookingSmoke: false,
 } as const;
 const defaultHouseholdJson = JSON.stringify(defaultHousehold);
-let fallbackHousehold = defaultHouseholdJson;
-let fallbackLanguage: Language = "en";
+const memoryValues = new Map<string, string>();
+const unsavedKeys = new Set<string>();
 
 function subscribe(callback: () => void): () => void {
   window.addEventListener("storage", callback);
@@ -40,34 +38,63 @@ function subscribe(callback: () => void): () => void {
     window.removeEventListener(eventName, callback);
   };
 }
-function readCity(): string {
+type StorageAccess = () => Storage;
+const local = (): Storage => localStorage;
+const session = (): Storage => sessionStorage;
+
+/** A failed write must not be overwritten by a later successful read. */
+function readPreference(
+  storage: StorageAccess,
+  key: string,
+  fallback: string,
+): string {
+  if (unsavedKeys.has(key)) return memoryValues.get(key) ?? fallback;
   try {
-    return localStorage.getItem(cityKey) ?? defaultCityJson;
+    return storage().getItem(key) ?? fallback;
   } catch {
-    return fallbackCity;
+    return memoryValues.get(key) ?? fallback;
   }
+}
+
+function writePreference(
+  storage: StorageAccess,
+  key: string,
+  value: string,
+): void {
+  memoryValues.set(key, value);
+  try {
+    storage().setItem(key, value);
+    unsavedKeys.delete(key);
+  } catch {
+    unsavedKeys.add(key);
+  }
+}
+
+function removePreference(
+  storage: StorageAccess,
+  key: string,
+  fallback: string,
+): void {
+  memoryValues.set(key, fallback);
+  try {
+    storage().removeItem(key);
+    unsavedKeys.delete(key);
+  } catch {
+    unsavedKeys.add(key);
+  }
+}
+
+function readCity(): string {
+  return readPreference(local, cityKey, defaultCityJson);
 }
 function readSensitive(): string {
-  try {
-    return sessionStorage.getItem(sensitiveKey) ?? "false";
-  } catch {
-    return fallbackSensitive;
-  }
+  return readPreference(session, sensitiveKey, "false");
 }
 function readHousehold(): string {
-  try {
-    return sessionStorage.getItem(householdKey) ?? defaultHouseholdJson;
-  } catch {
-    return fallbackHousehold;
-  }
+  return readPreference(session, householdKey, defaultHouseholdJson);
 }
 function readLanguage(): Language {
-  try {
-    const value = localStorage.getItem(languageKey);
-    return value === "hi" ? "hi" : "en";
-  } catch {
-    return fallbackLanguage;
-  }
+  return readPreference(local, languageKey, "en") === "hi" ? "hi" : "en";
 }
 function notify(): void {
   window.dispatchEvent(new Event(eventName));
@@ -87,12 +114,7 @@ export function useCity(): [City, (city: City) => void, boolean] {
   return [
     city,
     (next) => {
-      fallbackCity = JSON.stringify(next);
-      try {
-        localStorage.setItem(cityKey, fallbackCity);
-      } catch {
-        /* Use in-memory state. */
-      }
+      writePreference(local, cityKey, JSON.stringify(next));
       notify();
     },
     ready,
@@ -103,12 +125,7 @@ export function useSensitivity(): [boolean, (sensitive: boolean) => void] {
   return [
     value === "true",
     (next) => {
-      fallbackSensitive = String(next);
-      try {
-        sessionStorage.setItem(sensitiveKey, fallbackSensitive);
-      } catch {
-        /* Use in-memory state. */
-      }
+      writePreference(session, sensitiveKey, String(next));
       notify();
     },
   ];
@@ -128,12 +145,7 @@ export function useHousehold(): [
     { ...rest, sensitive },
     (profile) => {
       const { sensitive: nextSensitive, ...other } = profile;
-      fallbackHousehold = JSON.stringify(other);
-      try {
-        sessionStorage.setItem(householdKey, fallbackHousehold);
-      } catch {
-        /* Use in-memory state. */
-      }
+      writePreference(session, householdKey, JSON.stringify(other));
       setSensitive(nextSensitive);
     },
   ];
@@ -147,32 +159,15 @@ export function useLanguage(): [Language, (language: Language) => void] {
   return [
     language,
     (next) => {
-      fallbackLanguage = next;
-      try {
-        localStorage.setItem(languageKey, next);
-      } catch {
-        /* Use in-memory state. */
-      }
+      writePreference(local, languageKey, next);
       notify();
     },
   ];
 }
 export function clearPreferences(): void {
-  fallbackCity = defaultCityJson;
-  fallbackSensitive = "false";
-  fallbackHousehold = defaultHouseholdJson;
-  fallbackLanguage = "en";
-  try {
-    localStorage.removeItem(cityKey);
-    localStorage.removeItem(languageKey);
-  } catch {
-    /* Storage is optional. */
-  }
-  try {
-    sessionStorage.removeItem(sensitiveKey);
-    sessionStorage.removeItem(householdKey);
-  } catch {
-    /* Storage is optional. */
-  }
+  removePreference(local, cityKey, defaultCityJson);
+  removePreference(local, languageKey, "en");
+  removePreference(session, sensitiveKey, "false");
+  removePreference(session, householdKey, defaultHouseholdJson);
   notify();
 }
