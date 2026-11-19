@@ -1,16 +1,13 @@
 "use client";
 import Link from "next/link";
-import { useState } from "react";
+import { useImpactCalculator } from "@/hooks/use-impact-calculator";
 import {
-  monthlyImpact,
   parseTransportMode,
   UK_BUS_KG_PER_PASSENGER_KM,
   UK_PETROL_CAR_KG_PER_VEHICLE_KM,
   UK_RAIL_KG_PER_PASSENGER_KM,
   UK_TRAM_KG_PER_PASSENGER_KM,
   UK_UNDERGROUND_KG_PER_PASSENGER_KM,
-  petrolCarPassengerFactor,
-  type Mode,
 } from "@/features/sustainability/calculate";
 import { useLanguage } from "@/hooks/use-preferences";
 import { translate } from "@/features/i18n/messages";
@@ -18,36 +15,23 @@ import { CommuteAirContext } from "@/components/commute-air-context";
 
 export default function Impact() {
   const [language] = useLanguage();
-  const [distance, setDistance] = useState("10");
-  const [days, setDays] = useState("20");
-  const [baseline, setBaseline] = useState("");
-  const [baselineMode, setBaselineMode] = useState<"car" | "custom">("car");
-  const [occupants, setOccupants] = useState("1");
-  const [custom, setCustom] = useState("");
-  const [mode, setMode] = useState<Mode>("bus");
-  const baselineFactor =
-    baselineMode === "car"
-      ? occupants.trim()
-        ? petrolCarPassengerFactor(Number(occupants))
-        : null
-      : baseline.trim()
-        ? Number(baseline)
-        : null;
-  const complete =
-    distance.trim() !== "" &&
-    days.trim() !== "" &&
-    baselineFactor !== null &&
-    (mode !== "custom" || custom.trim() !== "");
-  const result =
-    complete && baselineFactor !== null
-      ? monthlyImpact(
-          Number(distance),
-          Number(days),
-          baselineFactor,
-          mode,
-          mode === "custom" ? Number(custom) : 0,
-        )
-      : null;
+  const {
+    distance,
+    setDistance,
+    days,
+    setDays,
+    baseline,
+    setBaseline,
+    baselineMode,
+    setBaselineMode,
+    occupants,
+    setOccupants,
+    custom,
+    setCustom,
+    mode,
+    setMode,
+    result,
+  } = useImpactCalculator();
   return (
     <main id="main-content" tabIndex={-1} className="shell scenario">
       <p className="eyebrow">{translate(language, "impactEyebrow")}</p>
