@@ -16,6 +16,12 @@ test("impact uses distance, days and per-passenger factors", () => {
   assert.equal(monthlyImpact(10, 32, 0.2, "bus"), null);
 });
 
+test("UK rail presets use documented passenger-kilometre factors", () => {
+  assert.ok(Math.abs(monthlyImpact(10, 20, 0.2, "rail")!.alternative - 7.092) < 1e-9);
+  assert.ok(Math.abs(monthlyImpact(10, 20, 0.2, "tram")!.alternative - 5.72) < 1e-9);
+  assert.ok(Math.abs(monthlyImpact(10, 20, 0.2, "underground")!.alternative - 5.56) < 1e-9);
+});
+
 test("car attribution accounts for occupancy and rejects invalid values", () => {
   assert.equal(petrolCarPassengerFactor(2), 0.16272 / 2);
   assert.equal(petrolCarPassengerFactor(0), null);

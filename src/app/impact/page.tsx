@@ -5,6 +5,9 @@ import {
   monthlyImpact,
   UK_BUS_KG_PER_PASSENGER_KM,
   UK_PETROL_CAR_KG_PER_VEHICLE_KM,
+  UK_RAIL_KG_PER_PASSENGER_KM,
+  UK_TRAM_KG_PER_PASSENGER_KM,
+  UK_UNDERGROUND_KG_PER_PASSENGER_KM,
   petrolCarPassengerFactor,
   type Mode,
 } from "@/features/sustainability/calculate";
@@ -128,6 +131,9 @@ export default function Impact() {
             onChange={(e) => setMode(e.target.value as Mode)}
           >
             <option value="bus">{translate(language, "ukLocalBus")}</option>
+            <option value="rail">{translate(language, "ukNationalRail")}</option>
+            <option value="tram">{translate(language, "ukTram")}</option>
+            <option value="underground">{translate(language, "ukUnderground")}</option>
             <option value="walk">{translate(language, "walking")}</option>
             <option value="cycle">{translate(language, "cycling")}</option>
             <option value="custom">{translate(language, "customFactor")}</option>
@@ -169,6 +175,10 @@ export default function Impact() {
         <p className="fine">{translate(language, "impactMethod")
           .replace("{car}", String(UK_PETROL_CAR_KG_PER_VEHICLE_KM))
           .replace("{bus}", String(UK_BUS_KG_PER_PASSENGER_KM))}</p>
+        <p className="fine">{translate(language, "ukRailFactors")
+          .replace("{rail}", String(UK_RAIL_KG_PER_PASSENGER_KM))
+          .replace("{tram}", String(UK_TRAM_KG_PER_PASSENGER_KM))
+          .replace("{underground}", String(UK_UNDERGROUND_KG_PER_PASSENGER_KM))}</p>
         <p className="fine">
           {translate(language, "impactExposure")}{" "}
           <a href="https://assets.publishing.service.gov.uk/media/6846b0870392ed9b784c0187/2025-GHG-CF-methodology-paper.pdf">
