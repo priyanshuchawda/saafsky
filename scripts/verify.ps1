@@ -24,7 +24,7 @@ foreach ($check in $checks) {
   $lines = @($output | ForEach-Object { "$_" } | Where-Object { $_.Trim() })
 
   if ($exitCode -ne 0) {
-    $errors = @($lines | Select-String -Pattern "error|failed|FAIL|✖" -CaseSensitive:$false)
+    $errors = @($lines | Select-String -Pattern "error|failed|FAIL|\u2716" -CaseSensitive:$false)
     if ($errors.Count -gt 0) {
       $errors | Select-Object -Last 20 | ForEach-Object { Write-Output $_.Line }
     }
@@ -34,7 +34,7 @@ foreach ($check in $checks) {
 
   if ($check.Name -eq "Unit tests and coverage") {
     $lines |
-      Select-String -Pattern "^ℹ tests |^ℹ pass |^ℹ fail |^ℹ all files" |
+      Select-String -Pattern "^\u2139 tests |^\u2139 pass |^\u2139 fail |^\u2139 all files" |
       ForEach-Object { Write-Output $_.Line }
   } else {
     $lines | Select-Object -Last 5 | ForEach-Object { Write-Output $_ }

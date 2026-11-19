@@ -68,7 +68,8 @@ function readLanguage(): Language {
 function notify(): void {
   window.dispatchEvent(new Event(eventName));
 }
-export function useCity(): [City, (city: City) => void] {
+export function useCity(): [City, (city: City) => void, boolean] {
+  const ready = useSyncExternalStore(subscribe, () => true, () => false);
   const value = useSyncExternalStore(
     subscribe,
     readCity,
@@ -122,6 +123,7 @@ export function useCity(): [City, (city: City) => void] {
       }
       notify();
     },
+    ready,
   ];
 }
 export function useSensitivity(): [boolean, (sensitive: boolean) => void] {

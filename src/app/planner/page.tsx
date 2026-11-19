@@ -10,11 +10,12 @@ import type { HouseholdProfile } from "@/features/recommendations/engine";
 import { category, upcomingForecast } from "@/lib/air";
 import { localMinuteAt } from "@/lib/freshness";
 import { useCity, useHousehold, useLanguage } from "@/hooks/use-preferences";
+import { displayCity } from "@/features/i18n/city";
 import { translate, translateText } from "@/features/i18n/messages";
 
 export default function Planner() {
   const [language] = useLanguage();
-  const [city, setCity] = useCity();
+  const [city, setCity, cityReady] = useCity();
   const [start, setStart] = useState("");
   const [end, setEnd] = useState("");
   const [durationHours, setDurationHours] = useState(1);
@@ -22,7 +23,7 @@ export default function Planner() {
   const [busyStart, setBusyStart] = useState("");
   const [busyEnd, setBusyEnd] = useState("");
   const [profile, setProfile] = useHousehold();
-  const state = useAirQuality(city);
+  const state = useAirQuality(cityReady ? city : null);
   const air = state.kind === "success" && state.fresh ? state.data : null;
   const localNow =
     state.kind === "success"
@@ -202,7 +203,7 @@ export default function Planner() {
         </p>
       </section>
       <section className="plan scenario-result" aria-live="polite">
-        <p className="eyebrow">{translate(language, "forecastFor")} {city.name.toUpperCase()}</p>
+        <p className="eyebrow">{translate(language, "forecastFor")} {cityReady ? displayCity(city, language).toUpperCase() : "…"}</p>
         <h2>
           {translate(language, "availableWindow")} <em>{translate(language, "window")}</em>
         </h2>

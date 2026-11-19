@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useCity, useHousehold, useLanguage } from "@/hooks/use-preferences";
 import { useAirQuality } from "@/hooks/use-air-quality";
+import { displayCity } from "@/features/i18n/city";
 import { translate, translateText } from "@/features/i18n/messages";
 import { RoomAirCleanerSizing } from "@/components/room-air-cleaner-sizing";
 import {
@@ -13,9 +14,9 @@ import {
 
 export default function IndoorAdvisor() {
   const [language] = useLanguage();
-  const [city] = useCity();
+  const [city, , cityReady] = useCity();
   const [profile, setProfile] = useHousehold();
-  const airState = useAirQuality(city);
+  const airState = useAirQuality(cityReady ? city : null);
   const [purifier, setPurifier] = useState(false);
   const [outdoorMode, setOutdoorMode] = useState<"auto" | OutdoorCondition>(
     "auto",
@@ -83,8 +84,8 @@ export default function IndoorAdvisor() {
           ? airState.kind === "error"
             ? translateText(language, airState.message)
             : aqi === null
-              ? translate(language, "selectedCityDataUnavailable").replace("{city}", city.name)
-              : translate(language, "outdoorEstimate").replace("{city}", city.name).replace("{aqi}", String(Math.round(aqi)))
+              ? translate(language, "selectedCityDataUnavailable").replace("{city}", displayCity(city, language))
+              : translate(language, "outdoorEstimate").replace("{city}", displayCity(city, language)).replace("{aqi}", String(Math.round(aqi)))
           : translate(language, "usingSelectedOutdoorContext")}
       </p>
       <section className="plan scenario-result" aria-live="polite">

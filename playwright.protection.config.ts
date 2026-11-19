@@ -4,7 +4,7 @@ export default defineConfig({
   testDir: "./tests/protection",
   use: { baseURL: "http://localhost:3101" },
   webServer: {
-    command: "npm run start -- --port 3101",
+    command: "node ./node_modules/next/dist/bin/next start --port 3101",
     url: "http://localhost:3101",
     reuseExistingServer: false,
     timeout: 120_000,

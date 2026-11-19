@@ -8,11 +8,12 @@ import {
   useLanguage,
 } from "@/hooks/use-preferences";
 import type { HouseholdProfile } from "@/features/recommendations/engine";
+import { displayCity } from "@/features/i18n/city";
 import { translate } from "@/features/i18n/messages";
 
 export default function Settings() {
   const [language] = useLanguage();
-  const [city] = useCity();
+  const [city, , cityReady] = useCity();
   const [profile, setProfile] = useHousehold();
   const [message, setMessage] = useState("");
   return (
@@ -26,7 +27,7 @@ export default function Settings() {
         <p>
           {translate(language, "selectedCity")}{" "}
           <strong>
-            {[city.name, city.admin1, city.country].filter(Boolean).join(", ")}
+            {[cityReady ? displayCity(city, language) : "…", city.admin1, city.country].filter(Boolean).join(", ")}
           </strong>
         </p>
         <p>

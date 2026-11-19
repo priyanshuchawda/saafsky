@@ -9,13 +9,14 @@ import { useAirQuality } from "@/hooks/use-air-quality";
 import { useCity, useHousehold, useLanguage } from "@/hooks/use-preferences";
 import { lowestForecastPeriod, upcomingForecast } from "@/lib/air";
 import { localMinuteAt } from "@/lib/freshness";
+import { displayCity } from "@/features/i18n/city";
 import { translate, translateText } from "@/features/i18n/messages";
 
 export default function Home() {
   const [language] = useLanguage();
-  const [city, setCity] = useCity();
+  const [city, setCity, cityReady] = useCity();
   const [profile, setProfile] = useHousehold();
-  const state = useAirQuality(city);
+  const state = useAirQuality(cityReady ? city : null);
   const air = state.kind === "success" ? state.data : null;
   const updated = state.kind === "success" ? state.retrievedAt : "";
   const fresh = state.kind === "success" && state.fresh;
@@ -60,7 +61,7 @@ export default function Home() {
           <p className="lead">{translate(language, "heroLead")}</p>
         </div>
         <div className="art" aria-hidden="true">
-          ✳
+
           <p>{translate(language, "heroArt")}</p>
         </div>
       </section>
@@ -91,7 +92,7 @@ export default function Home() {
       <div className="heading">
         <div>
           <p className="eyebrow">{translate(language, "airAtGlance")}</p>
-          <h2>{translate(language, "todayIn")} {city.name} ↗</h2>
+          <h2>{translate(language, "todayIn")} {cityReady ? displayCity(city, language) : "…"}</h2>
         </div>
         <p>{translate(language, "modelEstimates")}</p>
       </div>
@@ -102,7 +103,7 @@ export default function Home() {
       )}
 
       <AirQualitySummary
-        cityName={city.name}
+        cityName={cityReady ? displayCity(city, language) : "…"}
         aqi={aqi}
         current={air?.current ?? null}
         fresh={fresh}
@@ -110,7 +111,7 @@ export default function Home() {
         language={language}
       />
       <ForecastSection
-        cityName={city.name}
+        cityName={cityReady ? displayCity(city, language) : "…"}
         timezone={air?.timezone}
         currentModelTime={air?.current.time}
         retrievedAt={updated}
@@ -120,7 +121,7 @@ export default function Home() {
       />
 
       <footer>
-        <strong>✳ saafsky.</strong>
+        <strong>saafsky.</strong>
         <span>{translate(language, "footerTagline")}</span>
         <Link href="/impact">{translate(language, "compareCommute")}</Link>
         <Link href="/assistant">{translate(language, "assistant")}</Link>

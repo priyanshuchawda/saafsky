@@ -19,7 +19,7 @@ test("dashboard forecast presents accessible values and opens the planner", asyn
   await expect(forecast.locator("li").nth(1)).toContainText("—");
   await expect(forecast.locator("li").nth(1).locator(".forecast-bar")).toHaveCount(0);
   await expect(page.getByText("Bar scale: 0 to 200 US AQI; values are model estimates.")).toBeVisible();
-  await page.getByRole("link", { name: "Compare outing times ↗" }).click();
+  await page.getByRole("link", { name: "Compare outing times" }).click();
   await expect(page).toHaveURL(/\/planner\/?$/);
 });
 
@@ -43,7 +43,7 @@ test("scenario changes for children and outdoor commuters", async ({
   await expect(
     action.getByRole("link", { name: "AirNow: US AQI basics" }),
   ).toHaveAttribute("href", "https://www.airnow.gov/aqi/aqi-basics/");
-  await page.getByLabel("ILLUSTRATIVE US AQI").selectOption("180");
+  await page.getByLabel("SAMPLE US AQI").selectOption("180");
   await page.getByLabel("COMMUTE", { exact: true }).selectOption("bike");
   await expect(
     page.getByText("Review your commute", { exact: true }),
@@ -63,7 +63,7 @@ test("scenario compares two households using the same illustrative air", async (
   await expect(second.getByText("Reduce outdoor exertion")).toBeVisible();
   await second.getByText("Why this action?").first().click();
   await expect(second.getByRole("link", { name: "AirNow: US AQI basics" })).toBeVisible();
-  await page.getByLabel("ILLUSTRATIVE US AQI").selectOption("180");
+  await page.getByLabel("SAMPLE US AQI").selectOption("180");
   await page.getByLabel("COMPARE WITH").selectOption("cyclist");
   await expect(second.getByText("Review your commute")).toBeVisible();
   await expect(first.getByText("Review your commute")).toHaveCount(0);
@@ -417,4 +417,22 @@ test("planner personalizes the daily plan from a mocked fresh forecast", async (
       { exact: false },
     ),
   ).toBeVisible();
+});
+
+test("restores the saved city without requesting the default city", async ({ page }) => {
+  const requestedAir: string[] = [];
+  await page.addInitScript(() => {
+    localStorage.setItem("saafsky:city", JSON.stringify({ name: "Pune", country: "India", latitude: 18.52, longitude: 73.85 }));
+    localStorage.setItem("saafsky:language", "hi");
+  });
+  await page.route("**/api/air?**", async (route) => {
+    requestedAir.push(route.request().url());
+    await route.fulfill({ status: 503, json: {} });
+  });
+  await page.goto("/", { waitUntil: "networkidle" });
+  await expect(page.getByRole("heading", { name: /पुणे/ })).toBeVisible();
+  expect(requestedAir).toHaveLength(1);
+  expect(requestedAir[0]).toContain("lat=18.52");
+  await page.locator('a[href="/assistant"]').first().click();
+  await expect(page.getByLabel(/पुणे/)).toBeVisible();
 });

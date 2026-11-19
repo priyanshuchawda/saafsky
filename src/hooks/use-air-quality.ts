@@ -19,8 +19,10 @@ type AirState =
       checkedAt: number;
     };
 
-export function useAirQuality(city: City): AirState {
-  const key = `${city.latitude},${city.longitude}`;
+export function useAirQuality(city: City | null): AirState {
+  const latitude = city?.latitude;
+  const longitude = city?.longitude;
+  const key = latitude !== undefined && longitude !== undefined ? `${latitude},${longitude}` : "pending";
   const [result, setResult] = useState<{ key: string; state: AirState }>({
     key,
     state: { kind: "loading" },
@@ -28,6 +30,7 @@ export function useAirQuality(city: City): AirState {
   const state: AirState =
     result.key === key ? result.state : { kind: "loading" };
   useEffect(() => {
+    if (latitude === undefined || longitude === undefined) return;
     let controller: AbortController | null = null;
     let lastAttempt = 0;
     let disposed = false;
@@ -36,7 +39,7 @@ export function useAirQuality(city: City): AirState {
       lastAttempt = Date.now();
       const current = new AbortController();
       controller = current;
-      fetch(`/api/air?lat=${city.latitude}&lon=${city.longitude}`, {
+      fetch(`/api/air?lat=${latitude}&lon=${longitude}`, {
         signal: current.signal,
       })
         .then(async (response) => {
@@ -95,7 +98,7 @@ export function useAirQuality(city: City): AirState {
       window.clearInterval(timer);
       document.removeEventListener("visibilitychange", refreshWhenVisible);
     };
-  }, [city.latitude, city.longitude, key]);
+  }, [latitude, longitude, key]);
   useEffect(() => {
     const state = result.key === key ? result.state : null;
     if (!state || state.kind !== "success" || !state.fresh) return;

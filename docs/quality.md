@@ -25,10 +25,10 @@ The script runs ESLint, strict typechecking, unit tests with coverage thresholds
 
 Verified locally against the production build on **November 19, 2026**:
 
-- **66 unit tests passed.** The coverage command enforces minimums of 90% lines, 85% branches, and 90% functions. The run measured 99.70% lines, 96.12% branches, and 98.61% functions across the modules loaded by the unit suite.
-- **35 production-browser tests passed**, including English and Hindi journeys, household comparison, all-page navigation, 320px through 1440px responsive layouts, touch-target sizing, axe checks, mobile keyboard navigation, and primary user journeys.
+- **67 unit tests passed.** The coverage command enforces minimums of 90% lines, 85% branches, and 90% functions. The run measured 99.71% lines, 96.16% branches, and 98.63% functions across the modules loaded by the unit suite.
+- **36 production-browser tests passed**, including English and Hindi journeys, household comparison, all-page navigation, 320px through 1440px responsive layouts, touch-target sizing, axe checks, mobile keyboard navigation, and primary user journeys.
 - **2 public API protection tests passed**, checking fail-closed public behavior and request validation before provider access.
-- **Client JavaScript measured 247.8 KiB gzip across 17 emitted chunks**, below the enforced 300 KiB project-wide budget. This counts all emitted client chunks and is not a per-route first-load estimate.
+- **Client JavaScript measured 249.6 KiB gzip across 17 emitted chunks**, below the enforced 300 KiB project-wide budget. This counts all emitted client chunks and is not a per-route first-load estimate.
 - **Production dependency audit** on November 18 reported zero known advisories with `npm audit --omit=dev` against the then-current lockfile.
 - **Production smoke passed** on November 18 at [saafsky.vercel.app](https://saafsky.vercel.app): the site, air endpoint, city lookup, and Gemini chat in AI mode all returned successfully.
 - **Local live smoke passed** on November 18 for Open-Meteo air data, Open-Meteo city lookup, and the SaafSky chat route in AI mode. The reusable [live smoke script](../scripts/smoke-live.ps1) prints no secrets or generated answer text.

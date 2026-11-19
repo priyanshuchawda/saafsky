@@ -7,6 +7,7 @@ import { evidenceCatalog } from "@/features/recommendations/evidence";
 import { assistantResponseSchema } from "@/features/assistant/validate";
 import { RateLimitError, throwIfHttpError } from "@/lib/api-errors";
 import { useCity, useHousehold, useLanguage } from "@/hooks/use-preferences";
+import { displayCity } from "@/features/i18n/city";
 import { translate, translateText, type Language } from "@/features/i18n/messages";
 
 type Reply = {
@@ -18,7 +19,7 @@ type Reply = {
 type Turn = { question: string; reply: Reply; language: Language };
 export default function Assistant() {
   const [language] = useLanguage();
-  const [city, setCity] = useCity();
+  const [city, setCity, cityReady] = useCity();
   const [profile, setProfile] = useHousehold();
   const [question, setQuestion] = useState("");
   const [turns, setTurns] = useState<Turn[]>([]);
@@ -119,7 +120,7 @@ export default function Assistant() {
         aria-label={translate(language, "assistant")}
       >
         <label htmlFor="question">
-          {translate(language, "questionAbout")} {city.name.toUpperCase()}
+          {translate(language, "questionAbout")} {cityReady ? displayCity(city, language).toUpperCase() : "…"}
         </label>
         <textarea
           id="question"

@@ -2,15 +2,16 @@
 
 import Link from "next/link";
 import { commuteAirContext } from "@/features/sustainability/exposure";
+import { displayCity } from "@/features/i18n/city";
 import { translate, translateText, type Language } from "@/features/i18n/messages";
 import { useAirQuality } from "@/hooks/use-air-quality";
 import { useCity, useHousehold } from "@/hooks/use-preferences";
 import { category } from "@/lib/air";
 
 export function CommuteAirContext({ language }: { language: Language }) {
-  const [city] = useCity();
+  const [city, , cityReady] = useCity();
   const [household] = useHousehold();
-  const air = useAirQuality(city);
+  const air = useAirQuality(cityReady ? city : null);
   const aqi = air.kind === "success" && air.fresh ? air.data.current.us_aqi : null;
   const context = commuteAirContext(aqi, household.sensitive || household.children);
   const messageKey = {
@@ -30,7 +31,7 @@ export function CommuteAirContext({ language }: { language: Language }) {
         ) : (
           <>
             {aqi !== null && context !== "unknown" && (
-              <p><strong>{translate(language, "commuteAirCurrent").replace("{city}", city.name)} {Math.round(aqi)} · {translateText(language, category(aqi))}</strong></p>
+              <p><strong>{translate(language, "commuteAirCurrent").replace("{city}", displayCity(city, language))} {Math.round(aqi)} · {translateText(language, category(aqi))}</strong></p>
             )}
             <p>{translate(language, messageKey[context])}</p>
           </>
