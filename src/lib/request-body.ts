@@ -12,7 +12,7 @@ export async function readBoundedJson(
   if (!request.body) throw new SyntaxError("Missing body");
 
   const reader = request.body.getReader();
-  const decoder = new TextDecoder();
+  const decoder = new TextDecoder("utf-8", { fatal: true });
   let bytes = 0;
   let text = "";
 

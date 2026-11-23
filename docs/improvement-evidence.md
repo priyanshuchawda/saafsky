@@ -8,6 +8,7 @@ local and preserve existing routes and public response shapes.
 | --- | --- | --- |
 | Low-contrast functional borders | Updated the control borders in `src/app/globals.css`; the computed-color browser test first failed at 1.40:1–1.63:1 and passed after the change. | This targeted measurement does not replace complete contrast or screen-reader review. |
 | Unknown evidence IDs | `findEvidence` rejects inherited properties for client-provided IDs; `tests/evidence.test.ts` covers known and unknown IDs including prototype names. | Schema validation and source whitelisting do not verify every claim in free-form model prose. |
+| Malformed request encoding | The bounded JSON reader rejects invalid UTF-8 rather than replacing invalid bytes; unit and HTTP tests cover rejection and preserve valid Hindi text. | Request validation remains one layer of the public API's defenses. |
 | Untyped recommendation references | Catalog-derived reason and evidence unions protect controlled recommendation definitions. The assistant contract uses schema-inferred types. | Translation still partly relies on matching English text. |
 | Fragile explanation translation | Recommendation reason descriptions now select English and Hindi by typed reason ID; the legacy translation path remains for compatibility. | Other recommendation, planner, indoor, and error copy still needs migration to stable keys. |
 | Repeated invalid-AQI checks | `src/lib/aqi-validity.ts` centralizes missing, negative, and non-finite handling across affected modules; `tests/aqi-validity.test.ts` and existing domain tests cover boundaries. | More timezone and forecast edge-case review remains valuable. |
@@ -35,7 +36,7 @@ is implied by these checks.
 
 ## Local verification on 2026-11-23
 
-`./scripts/verify.ps1 -Browser` passed formatting, lint, TypeScript, 74 unit
+`./scripts/verify.ps1 -Browser` passed formatting, lint, TypeScript, 75 unit
 tests, the production build, the bundle budget, 43 production-browser tests,
 and two public-mode API protection tests. Provider credentials were set to
 empty values for this verification run. Unit coverage of modules loaded by the
