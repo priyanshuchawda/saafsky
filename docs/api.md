@@ -49,6 +49,8 @@ The response may contain a `results` array with up to eight validated matches. E
 
 Returns an explanation of the server-generated recommendation plan. The request must use JSON and pass the same-origin check when an `Origin` header is present. The body limit is 12,288 bytes.
 
+All chat responses, including validation and protection errors, send `Cache-Control: no-store` to discourage storage by browsers and intermediaries.
+
 | Field | Type | Rules |
 | --- | --- | --- |
 | `question` | string | Trimmed; 1–500 characters. |

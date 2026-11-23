@@ -14,6 +14,7 @@ test("responses send security headers and reject cross-origin chat", async ({
     data: {},
   });
   expect(blocked.status()).toBe(403);
+  expect(blocked.headers()["cache-control"]).toContain("no-store");
 });
 
 test("API rejects invalid coordinates and oversized chat bodies", async ({
@@ -28,9 +29,11 @@ test("API rejects invalid coordinates and oversized chat bodies", async ({
     data: { question: "x".repeat(13_000) },
   });
   expect(oversized.status()).toBe(413);
+  expect(oversized.headers()["cache-control"]).toContain("no-store");
   const invalidEncoding = await request.post("/api/chat", {
     headers: { "content-type": "application/json" },
     data: Buffer.from([0x7b, 0x22, 0x78, 0x22, 0x3a, 0x22, 0xff, 0x22, 0x7d]),
   });
   expect(invalidEncoding.status()).toBe(400);
+  expect(invalidEncoding.headers()["cache-control"]).toContain("no-store");
 });

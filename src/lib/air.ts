@@ -1,14 +1,16 @@
 import { generateRecommendations } from "../features/recommendations/engine.ts";
 import { isValidAqi } from "./aqi-validity.ts";
+import { US_AQI_UPPER_BOUND } from "./aqi-policy.ts";
 
 export type Profile = "adult" | "sensitive";
 export function category(aqi: number | null): string {
   if (!isValidAqi(aqi)) return "Unavailable";
-  if (aqi <= 50) return "Good";
-  if (aqi <= 100) return "Moderate";
-  if (aqi <= 150) return "Unhealthy for sensitive groups";
-  if (aqi <= 200) return "Unhealthy";
-  if (aqi <= 300) return "Very unhealthy";
+  if (aqi <= US_AQI_UPPER_BOUND.good) return "Good";
+  if (aqi <= US_AQI_UPPER_BOUND.moderate) return "Moderate";
+  if (aqi <= US_AQI_UPPER_BOUND.sensitiveGroups)
+    return "Unhealthy for sensitive groups";
+  if (aqi <= US_AQI_UPPER_BOUND.unhealthy) return "Unhealthy";
+  if (aqi <= US_AQI_UPPER_BOUND.veryUnhealthy) return "Very unhealthy";
   return "Hazardous";
 }
 

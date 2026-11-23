@@ -28,6 +28,7 @@ test("public API fails closed when shared protection is unconfigured", async ({
       error: "Request protection is temporarily unavailable.",
     });
   }
+  expect(results[2]?.headers()["cache-control"]).toContain("no-store");
 });
 
 test("invalid inputs and cross-origin chat are rejected before provider access", async ({

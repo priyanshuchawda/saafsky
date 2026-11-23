@@ -1,4 +1,5 @@
 import type { ForecastHour } from "./plan.ts";
+import { US_AQI_UPPER_BOUND } from "../../lib/aqi-policy.ts";
 
 type Constraints = {
   start: string;
@@ -133,7 +134,12 @@ export function findActivityWindow(
   );
   const best = candidates[0];
   if (!best) return { kind: "unavailable" };
-  if (best.peakAqi > (constraints.sensitive ? 100 : 150))
+  if (
+    best.peakAqi >
+    (constraints.sensitive
+      ? US_AQI_UPPER_BOUND.moderate
+      : US_AQI_UPPER_BOUND.sensitiveGroups)
+  )
     return constraints.essential
       ? { kind: "elevated", ...best }
       : { kind: "no-suitable" };

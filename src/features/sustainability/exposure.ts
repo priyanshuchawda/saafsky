@@ -1,4 +1,5 @@
 import { isValidAqi } from "../../lib/aqi-validity.ts";
+import { US_AQI_UPPER_BOUND } from "../../lib/aqi-policy.ts";
 
 /** Classify modeled city conditions for a qualitative commute consideration. */
 export function commuteAirContext(
@@ -6,7 +7,11 @@ export function commuteAirContext(
   sensitive: boolean,
 ): "unknown" | "general" | "caution" | "elevated" {
   if (!isValidAqi(aqi)) return "unknown";
-  if (aqi > 150 || (aqi > 100 && sensitive)) return "elevated";
-  if (aqi > 100) return "caution";
+  if (
+    aqi > US_AQI_UPPER_BOUND.sensitiveGroups ||
+    (aqi > US_AQI_UPPER_BOUND.moderate && sensitive)
+  )
+    return "elevated";
+  if (aqi > US_AQI_UPPER_BOUND.moderate) return "caution";
   return "general";
 }

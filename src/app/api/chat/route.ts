@@ -14,24 +14,34 @@ import { readBoundedJson, RequestBodyTooLarge } from "@/lib/request-body";
 import { hasAllowedJsonOrigin } from "@/lib/request-origin";
 import { chatInputSchema } from "@/lib/schemas";
 
+function privateJson(body: unknown, status = 200): NextResponse {
+  return NextResponse.json(body, {
+    status,
+    headers: { "Cache-Control": "no-store" },
+  });
+}
+
 export async function POST(request: Request) {
   if (!hasAllowedJsonOrigin(request))
-    return NextResponse.json(
+    return privateJson(
       { error: "Invalid request origin or content type." },
-      { status: 403 },
+      403,
     );
   let parsed;
   try {
     parsed = chatInputSchema.safeParse(await readBoundedJson(request, 12_288));
   } catch (error) {
     if (error instanceof RequestBodyTooLarge)
-      return NextResponse.json({ error: "Request too large" }, { status: 413 });
-    return NextResponse.json({ error: "Invalid request" }, { status: 400 });
+      return privateJson({ error: "Request too large" }, 413);
+    return privateJson({ error: "Invalid request" }, 400);
   }
-  if (!parsed.success)
-    return NextResponse.json({ error: "Invalid request" }, { status: 400 });
+  if (!parsed.success) return privateJson({ error: "Invalid request" }, 400);
   const protection = await checkPublicRequest("chat", request);
-  if (!protection.allowed) return rateLimitResponse(protection);
+  if (!protection.allowed) {
+    const response = rateLimitResponse(protection);
+    response.headers.set("Cache-Control", "no-store");
+    return response;
+  }
   const { question, latitude, longitude, profile, history, language } =
     parsed.data;
   let forecast: ForecastContext | null = null;
@@ -65,7 +75,7 @@ export async function POST(request: Request) {
     ]);
     return decideLimits([day, short], Date.now()).allowed;
   };
-  return NextResponse.json(
+  return privateJson(
     await createAssistantReply(profile, {
       language,
       getAqi,

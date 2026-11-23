@@ -1,5 +1,6 @@
 import type { EvidenceId, ReasonCode } from "./evidence.ts";
 import { isValidAqi } from "../../lib/aqi-validity.ts";
+import { US_AQI_UPPER_BOUND } from "../../lib/aqi-policy.ts";
 
 export type HouseholdProfile = {
   sensitive: boolean;
@@ -54,7 +55,10 @@ export function generateRecommendations(
     ];
   }
   const vulnerable = profile.sensitive || profile.children;
-  if (aqi > 150 || (aqi > 100 && vulnerable)) {
+  if (
+    aqi > US_AQI_UPPER_BOUND.sensitiveGroups ||
+    (aqi > US_AQI_UPPER_BOUND.moderate && vulnerable)
+  ) {
     actions.push({
       id: "reduce-outdoor-exertion",
       title: "Reduce outdoor exertion",
@@ -70,7 +74,7 @@ export function generateRecommendations(
       ],
       evidenceIds: ["airnow-aqi"],
     });
-  } else if (aqi > 100) {
+  } else if (aqi > US_AQI_UPPER_BOUND.moderate) {
     actions.push({
       id: "sensitive-caution",
       title: "Consider sensitive people",
@@ -93,7 +97,7 @@ export function generateRecommendations(
       evidenceIds: ["airnow-aqi"],
     });
   }
-  if (aqi > 200)
+  if (aqi > US_AQI_UPPER_BOUND.unhealthy)
     actions.unshift({
       id: "essential-trips",
       title: "Plan essential trips",
@@ -104,7 +108,10 @@ export function generateRecommendations(
       reasonCodes: ["very_unhealthy_aqi"],
       evidenceIds: ["airnow-aqi"],
     });
-  if (aqi > 150 && (profile.commute === "walk" || profile.commute === "bike"))
+  if (
+    aqi > US_AQI_UPPER_BOUND.sensitiveGroups &&
+    (profile.commute === "walk" || profile.commute === "bike")
+  )
     actions.push({
       id: "commute-exposure",
       title: "Review your commute",

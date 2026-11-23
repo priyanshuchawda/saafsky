@@ -1,11 +1,12 @@
 import { isValidAqi } from "../../lib/aqi-validity.ts";
+import { US_AQI_UPPER_BOUND } from "../../lib/aqi-policy.ts";
 
 export type OutdoorCondition = "elevated" | "lower" | "unknown";
 export type IndoorAction = { id: string; title: string; detail: string };
 
 export function outdoorCondition(aqi: number | null): OutdoorCondition {
   if (!isValidAqi(aqi)) return "unknown";
-  return aqi > 100 ? "elevated" : "lower";
+  return aqi > US_AQI_UPPER_BOUND.moderate ? "elevated" : "lower";
 }
 export function generateIndoorAdvice(
   smoke: boolean,
