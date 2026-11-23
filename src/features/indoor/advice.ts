@@ -1,8 +1,10 @@
+import { isValidAqi } from "../../lib/aqi-validity.ts";
+
 export type OutdoorCondition = "elevated" | "lower" | "unknown";
 export type IndoorAction = { id: string; title: string; detail: string };
 
 export function outdoorCondition(aqi: number | null): OutdoorCondition {
-  if (aqi === null || !Number.isFinite(aqi) || aqi < 0) return "unknown";
+  if (!isValidAqi(aqi)) return "unknown";
   return aqi > 100 ? "elevated" : "lower";
 }
 export function generateIndoorAdvice(

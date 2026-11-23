@@ -1,4 +1,4 @@
-export const reasonDescriptions: Record<string, string> = {
+export const reasonDescriptions = {
   missing_air_data:
     "Current air data is missing or too old to use for this plan.",
   available_air_data:
@@ -15,8 +15,8 @@ export const reasonDescriptions: Record<string, string> = {
   indoor_source_control:
     "Reducing indoor sources can help manage indoor pollution.",
   cooking_smoke: "You indicated that cooking smoke is usually present.",
-};
-export const evidenceCatalog: Record<string, { label: string; url: string }> = {
+} satisfies Record<string, string>;
+export const evidenceCatalog = {
   "airnow-aqi": {
     label: "AirNow: US AQI basics",
     url: "https://www.airnow.gov/aqi/aqi-basics/",
@@ -29,4 +29,18 @@ export const evidenceCatalog: Record<string, { label: string; url: string }> = {
     label: "US EPA: near-road pollution",
     url: "https://www.epa.gov/sites/default/files/2015-11/documents/420f14044_0.pdf",
   },
-};
+} satisfies Record<string, { label: string; url: string }>;
+
+export type ReasonCode = keyof typeof reasonDescriptions;
+export type EvidenceId = keyof typeof evidenceCatalog;
+
+function isEvidenceId(id: string): id is EvidenceId {
+  return Object.hasOwn(evidenceCatalog, id);
+}
+
+/** Public responses contain untrusted IDs; do not traverse the object prototype. */
+export function findEvidence(
+  id: string,
+): { label: string; url: string } | undefined {
+  return isEvidenceId(id) ? evidenceCatalog[id] : undefined;
+}

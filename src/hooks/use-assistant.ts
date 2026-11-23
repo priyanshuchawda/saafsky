@@ -5,6 +5,7 @@ import type { FormEvent } from "react";
 import type { City } from "@/types/air";
 import type { HouseholdProfile } from "@/features/recommendations/engine";
 import { assistantResponseSchema } from "@/features/assistant/validate";
+import type { AssistantResponse } from "@/features/assistant/validate";
 import { RateLimitError, throwIfHttpError } from "@/lib/api-errors";
 import {
   translate,
@@ -12,12 +13,10 @@ import {
   type Language,
 } from "@/features/i18n/messages";
 
-type Reply = {
-  answer: string;
-  uncertainty: string;
-  mode: "ai" | "fallback";
-  sourceIds: string[];
-};
+type Reply = Pick<
+  AssistantResponse,
+  "answer" | "uncertainty" | "mode" | "sourceIds"
+>;
 type Turn = { question: string; reply: Reply; language: Language };
 type RequestStatus =
   { kind: "idle" } | { kind: "pending" } | { kind: "error"; message: string };

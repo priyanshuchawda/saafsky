@@ -1,8 +1,9 @@
 import { generateRecommendations } from "../features/recommendations/engine.ts";
+import { isValidAqi } from "./aqi-validity.ts";
 
 export type Profile = "adult" | "sensitive";
 export function category(aqi: number | null): string {
-  if (aqi === null || !Number.isFinite(aqi) || aqi < 0) return "Unavailable";
+  if (!isValidAqi(aqi)) return "Unavailable";
   if (aqi <= 50) return "Good";
   if (aqi <= 100) return "Moderate";
   if (aqi <= 150) return "Unhealthy for sensitive groups";
@@ -29,8 +30,7 @@ export function lowestForecastPeriod(
   return upcomingForecast(times, values, currentTime)
     .slice(0, 24)
     .reduce<{ time: string; aqi: number } | null>((best, item) => {
-      if (item.aqi === null || !Number.isFinite(item.aqi) || item.aqi < 0)
-        return best;
+      if (!isValidAqi(item.aqi)) return best;
       return !best || item.aqi < best.aqi
         ? { time: item.time, aqi: item.aqi }
         : best;

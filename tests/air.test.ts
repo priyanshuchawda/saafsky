@@ -4,6 +4,7 @@ import { advice, category, lowestForecastPeriod } from "../src/lib/air.ts";
 
 test("US AQI categories honor boundaries", () => {
   for (const [value, expected] of [
+    [0, "Good"],
     [50, "Good"],
     [51, "Moderate"],
     [100, "Moderate"],
@@ -18,6 +19,9 @@ test("US AQI categories honor boundaries", () => {
     assert.equal(category(value), expected);
   assert.equal(category(null), "Unavailable");
   assert.equal(category(NaN), "Unavailable");
+  assert.equal(category(Infinity), "Unavailable");
+  assert.equal(category(-Infinity), "Unavailable");
+  assert.equal(category(-1), "Unavailable");
 });
 
 test("forecast comparison ignores past and missing values", () => {

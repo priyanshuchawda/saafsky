@@ -4,9 +4,10 @@ import {
   assistantResponseSchema,
   validateAssistantReply,
 } from "../src/features/assistant/validate.ts";
+import type { Recommendation } from "../src/features/recommendations/engine.ts";
 
 test("assistant output accepts only action-linked evidence references", () => {
-  const actions = [
+  const actions: Recommendation[] = [
     {
       id: "check",
       title: "Check conditions",

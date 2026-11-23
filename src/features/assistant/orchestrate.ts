@@ -4,19 +4,17 @@ import type {
   Recommendation,
 } from "../recommendations/engine.ts";
 import { translateText, type Language } from "../i18n/messages.ts";
-
-type Explanation = {
-  answer: string;
-  referencedActionIds: string[];
-  sourceIds: string[];
-  uncertainty: string;
-};
+import type { AssistantExplanation, AssistantResponse } from "./validate.ts";
+import { isValidAqi } from "../../lib/aqi-validity.ts";
 
 type AssistantDependencies = {
   getAqi: () => Promise<number | null>;
   aiConfigured: boolean;
   checkAiBudget: () => Promise<boolean>;
-  explain: (aqi: number, actions: Recommendation[]) => Promise<Explanation>;
+  explain: (
+    aqi: number,
+    actions: Recommendation[],
+  ) => Promise<AssistantExplanation>;
   language?: Language;
 };
 
@@ -24,14 +22,14 @@ type AssistantDependencies = {
 export async function createAssistantReply(
   profile: HouseholdProfile,
   dependencies: AssistantDependencies,
-): Promise<Explanation & { mode: "ai" | "fallback" }> {
+): Promise<AssistantResponse> {
   let aqi: number | null = null;
   try {
     aqi = await dependencies.getAqi();
   } catch {
     // The recommendation engine treats unknown conditions conservatively.
   }
-  if (aqi !== null && (!Number.isFinite(aqi) || aqi < 0)) aqi = null;
+  if (!isValidAqi(aqi)) aqi = null;
   const actions = generateRecommendations(aqi, profile);
   const language = dependencies.language ?? "en";
   const fallback = {

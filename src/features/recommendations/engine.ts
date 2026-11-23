@@ -1,3 +1,6 @@
+import type { EvidenceId, ReasonCode } from "./evidence.ts";
+import { isValidAqi } from "../../lib/aqi-validity.ts";
+
 export type HouseholdProfile = {
   sensitive: boolean;
   children: boolean;
@@ -11,8 +14,8 @@ export type Recommendation = {
   description: string;
   priority: "high" | "medium" | "low";
   category: "health" | "indoor" | "transport";
-  reasonCodes: string[];
-  evidenceIds: string[];
+  reasonCodes: ReasonCode[];
+  evidenceIds: EvidenceId[];
 };
 
 function indoorSmokeAdvice(profile: HouseholdProfile): Recommendation {
@@ -24,7 +27,7 @@ function indoorSmokeAdvice(profile: HouseholdProfile): Recommendation {
     category: "indoor",
     reasonCodes: [
       "indoor_source_control",
-      ...(profile.cookingSmoke ? ["cooking_smoke"] : []),
+      ...(profile.cookingSmoke ? (["cooking_smoke"] as const) : []),
     ],
     evidenceIds: ["epa-indoor"],
   };
@@ -35,7 +38,7 @@ export function generateRecommendations(
   profile: HouseholdProfile,
 ): Recommendation[] {
   const actions: Recommendation[] = [];
-  if (aqi === null || !Number.isFinite(aqi) || aqi < 0) {
+  if (!isValidAqi(aqi)) {
     return [
       {
         id: "air-unavailable",
@@ -62,8 +65,8 @@ export function generateRecommendations(
       category: "health",
       reasonCodes: [
         "elevated_aqi",
-        ...(vulnerable ? ["sensitive_household"] : []),
-        ...(profile.outdoorExercise ? ["outdoor_exercise"] : []),
+        ...(vulnerable ? (["sensitive_household"] as const) : []),
+        ...(profile.outdoorExercise ? (["outdoor_exercise"] as const) : []),
       ],
       evidenceIds: ["airnow-aqi"],
     });

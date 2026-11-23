@@ -1,3 +1,5 @@
+import { isValidAqi } from "../../lib/aqi-validity.ts";
+
 export type ForecastHour = { time: string; aqi: number | null };
 export type PlanResult =
   | { kind: "unavailable" }
@@ -12,12 +14,7 @@ export function planOutdoorWindow(
   if (!start || !end || end <= start) return { kind: "unavailable" };
   const candidates = hours
     .filter(
-      (hour) =>
-        hour.time >= start &&
-        hour.time < end &&
-        typeof hour.aqi === "number" &&
-        Number.isFinite(hour.aqi) &&
-        hour.aqi >= 0,
+      (hour) => hour.time >= start && hour.time < end && isValidAqi(hour.aqi),
     )
     .sort((a, b) => a.time.localeCompare(b.time));
   let best: { time: string; aqi: number } | null = null;

@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { useAssistant } from "@/hooks/use-assistant";
 import { LocationSearch } from "@/components/location-search";
-import { evidenceCatalog } from "@/features/recommendations/evidence";
+import { findEvidence } from "@/features/recommendations/evidence";
 import { useCity, useHousehold, useLanguage } from "@/hooks/use-preferences";
 import { displayCity } from "@/features/i18n/city";
 import { translate } from "@/features/i18n/messages";
@@ -97,7 +97,7 @@ export default function Assistant() {
                   </summary>
                   <ul>
                     {turn.reply.sourceIds.map((sourceId) => {
-                      const source = evidenceCatalog[sourceId];
+                      const source = findEvidence(sourceId);
                       return source ? (
                         <li key={sourceId}>
                           <a href={source.url}>{source.label}</a>

@@ -38,7 +38,14 @@ export function SiteHeader() {
       >
         <PageLinks language={language} pathname={pathname} />
       </nav>
-      <details className="mobile-nav">
+      <details
+        className="mobile-nav"
+        onClick={(event) => {
+          if (event.target instanceof Element && event.target.closest("a")) {
+            event.currentTarget.open = false;
+          }
+        }}
+      >
         <summary>{translate(language, "explore")}</summary>
         <nav aria-label={translate(language, "pages")}>
           <PageLinks language={language} pathname={pathname} />

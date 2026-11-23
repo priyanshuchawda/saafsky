@@ -19,7 +19,6 @@
     "format": "prettier --write \"src/**/*.{ts,tsx,css}\" \"tests/**/*.ts\""
   },
   "dependencies": {
-    "@elevenlabs/elevenlabs-js": "^2.79.0",
     "@google/genai": "^3.4.0",
     "@upstash/ratelimit": "^2.2.1",
     "@upstash/redis": "^1.41.0",
@@ -30,6 +29,7 @@
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.14.0",
+    "@elevenlabs/elevenlabs-js": "^2.79.0",
     "@playwright/test": "^1.65.1",
     "@tailwindcss/turbopack": "4.3.3",
     "@types/node": "^20",

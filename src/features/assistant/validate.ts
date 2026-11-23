@@ -10,15 +10,17 @@ const outputSchema = z.object({
 export const assistantResponseSchema = outputSchema.extend({
   mode: z.enum(["ai", "fallback"]),
 });
+export type AssistantExplanation = z.infer<typeof outputSchema>;
+export type AssistantResponse = z.infer<typeof assistantResponseSchema>;
 export function validateAssistantReply(
   raw: string,
   actions: Recommendation[],
-): z.infer<typeof outputSchema> {
+): AssistantExplanation {
   const parsed = outputSchema.parse(JSON.parse(raw));
   const actionsById = new Map(actions.map((action) => [action.id, action]));
   if (parsed.referencedActionIds.some((id) => !actionsById.has(id)))
     throw new Error("Unknown action reference");
-  const allowedSources = new Set(
+  const allowedSources = new Set<string>(
     parsed.referencedActionIds.flatMap(
       (id) => actionsById.get(id)?.evidenceIds ?? [],
     ),

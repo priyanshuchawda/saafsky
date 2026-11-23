@@ -1,13 +1,7 @@
 import type { Recommendation } from "@/features/recommendations/engine";
-import {
-  evidenceCatalog,
-  reasonDescriptions,
-} from "@/features/recommendations/evidence";
-import {
-  translate,
-  translateText,
-  type Language,
-} from "@/features/i18n/messages";
+import { evidenceCatalog } from "@/features/recommendations/evidence";
+import { translateReason } from "@/features/i18n/reasons";
+import { translate, type Language } from "@/features/i18n/messages";
 
 function isDefined<T>(value: T | undefined): value is T {
   return value !== undefined;
@@ -20,9 +14,9 @@ export function ActionReason({
   action: Recommendation;
   language: Language;
 }) {
-  const reasons = action.reasonCodes
-    .map((code) => reasonDescriptions[code])
-    .filter(isDefined);
+  const reasons = action.reasonCodes.map((code) =>
+    translateReason(language, code),
+  );
   const evidence = action.evidenceIds
     .map((id) => evidenceCatalog[id])
     .filter(isDefined);
@@ -31,7 +25,7 @@ export function ActionReason({
       <summary>{translate(language, "actionWhy")}</summary>
       <ul>
         {reasons.map((reason) => (
-          <li key={reason}>{translateText(language, reason)}</li>
+          <li key={reason}>{reason}</li>
         ))}
       </ul>
       <p>

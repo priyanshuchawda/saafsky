@@ -2,7 +2,7 @@ export const hindiMessages = {
   language: "भाषा",
   english: "English",
   hindi: "हिन्दी",
-  home: "साफ़स्काई होम",
+  home: "saafsky होम",
   tagline: "आपकी साँस की हवा को समझने में थोड़ी मदद",
   pages: "साफ़स्काई पेज",
   explore: "साफ़स्काई देखें",

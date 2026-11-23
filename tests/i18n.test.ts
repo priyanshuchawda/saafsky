@@ -8,6 +8,16 @@ import {
 } from "../src/features/i18n/messages.ts";
 import { generateRecommendations } from "../src/features/recommendations/engine.ts";
 import { reasonDescriptions } from "../src/features/recommendations/evidence.ts";
+import { translateReason } from "../src/features/i18n/reasons.ts";
+
+test("reason translations use stable IDs in both languages", () => {
+  for (const code of Object.keys(
+    reasonDescriptions,
+  ) as (keyof typeof reasonDescriptions)[]) {
+    assert.equal(translateReason("en", code), reasonDescriptions[code]);
+    assert.notEqual(translateReason("hi", code), reasonDescriptions[code]);
+  }
+});
 import { generateDailyPlan } from "../src/features/planner/daily.ts";
 import { generateIndoorAdvice } from "../src/features/indoor/advice.ts";
 

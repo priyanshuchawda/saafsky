@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { isValidAqi } from "@/lib/aqi-validity";
 import {
   translate,
   translateText,
@@ -28,9 +29,7 @@ export function ForecastSection({
   language,
 }: ForecastSectionProps) {
   const visible = upcoming.slice(0, 8);
-  const values = visible.flatMap(({ aqi }) =>
-    aqi !== null && Number.isFinite(aqi) && aqi >= 0 ? [aqi] : [],
-  );
+  const values = visible.flatMap(({ aqi }) => (isValidAqi(aqi) ? [aqi] : []));
   const scaleMax = Math.max(50, Math.ceil(Math.max(0, ...values) / 50) * 50);
   return (
     <section>
@@ -67,7 +66,7 @@ export function ForecastSection({
               <li key={`${time}-${index}`}>
                 <span>{time.replace("T", " ").slice(5)}</span>
                 <div className="forecast-bar-track" aria-hidden="true">
-                  {aqi !== null && Number.isFinite(aqi) && aqi >= 0 && (
+                  {isValidAqi(aqi) && (
                     <div
                       className="forecast-bar"
                       style={{ height: `${(aqi / scaleMax) * 100}%` }}
