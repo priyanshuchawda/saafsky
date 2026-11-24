@@ -1,6 +1,7 @@
 import { ActionReason } from "@/components/action-reason";
 import type { Recommendation } from "@/features/recommendations/engine";
 import { category } from "@/lib/air";
+import { localizeRecommendation } from "@/features/i18n/recommendations";
 import type { Air } from "@/types/air";
 import {
   translate,
@@ -68,8 +69,8 @@ export function AirQualitySummary({
             <li key={item.id}>
               <span>0{index + 1}</span>
               <div>
-                <strong>{translateText(language, item.title)}</strong>
-                <p>{translateText(language, item.description)}</p>
+                <strong>{localizeRecommendation(language, item).title}</strong>
+                <p>{localizeRecommendation(language, item).description}</p>
                 <ActionReason action={item} language={language} />
               </div>
             </li>

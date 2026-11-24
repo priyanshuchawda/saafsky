@@ -1,10 +1,7 @@
 import { ActionReason } from "@/components/action-reason";
-import {
-  translate,
-  translateText,
-  type Language,
-} from "@/features/i18n/messages";
+import { translate, type Language } from "@/features/i18n/messages";
 import type { Recommendation } from "@/features/recommendations/engine";
+import { localizeRecommendation } from "@/features/i18n/recommendations";
 
 export function ScenarioActionPlan({
   actions,
@@ -45,8 +42,8 @@ export function ScenarioActionPlan({
           <li key={item.id}>
             <span>0{index + 1}</span>
             <div>
-              <strong>{translateText(language, item.title)}</strong>
-              <p>{translateText(language, item.description)}</p>
+              <strong>{localizeRecommendation(language, item).title}</strong>
+              <p>{localizeRecommendation(language, item).description}</p>
               <ActionReason action={item} language={language} />
             </div>
           </li>

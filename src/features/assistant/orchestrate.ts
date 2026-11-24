@@ -4,6 +4,7 @@ import type {
   Recommendation,
 } from "../recommendations/engine.ts";
 import { translateText, type Language } from "../i18n/messages.ts";
+import { localizeRecommendation } from "../i18n/recommendations.ts";
 import type { AssistantExplanation, AssistantResponse } from "./validate.ts";
 import { isValidAqi } from "../../lib/aqi-validity.ts";
 
@@ -34,7 +35,7 @@ export async function createAssistantReply(
   const language = dependencies.language ?? "en";
   const fallback = {
     answer: actions
-      .map((action) => translateText(language, action.description))
+      .map((action) => localizeRecommendation(language, action).description)
       .join(" "),
     referencedActionIds: actions.map((action) => action.id),
     sourceIds: [...new Set(actions.flatMap((action) => action.evidenceIds))],

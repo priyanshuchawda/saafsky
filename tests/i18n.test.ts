@@ -9,6 +9,42 @@ import {
 import { generateRecommendations } from "../src/features/recommendations/engine.ts";
 import { reasonDescriptions } from "../src/features/recommendations/evidence.ts";
 import { translateReason } from "../src/features/i18n/reasons.ts";
+import { localizeRecommendation } from "../src/features/i18n/recommendations.ts";
+
+test("recommendation translations follow action identity, including exercise variants", () => {
+  const seen = new Set<string>();
+  for (const sensitive of [false, true]) {
+    for (const outdoorExercise of [false, true]) {
+      const profile = {
+        sensitive,
+        children: sensitive,
+        outdoorExercise,
+        commute: "bike" as const,
+        cookingSmoke: true,
+      };
+      for (const aqi of [null, 40, 120, 180, 250]) {
+        for (const action of generateRecommendations(aqi, profile)) {
+          seen.add(action.id);
+          const localized = localizeRecommendation("hi", action);
+          assert.equal(localized.title, translateText("hi", action.title));
+          assert.equal(
+            localized.description,
+            translateText("hi", action.description),
+          );
+          assert.deepEqual(
+            localizeRecommendation("hi", {
+              ...action,
+              title: "Changed English",
+              description: "Changed English",
+            }),
+            localized,
+          );
+        }
+      }
+    }
+  }
+  assert.equal(seen.size, 7);
+});
 
 test("reason translations use stable IDs in both languages", () => {
   for (const code of Object.keys(
