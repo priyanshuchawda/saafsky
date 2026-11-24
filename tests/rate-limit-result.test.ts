@@ -28,3 +28,12 @@ test("rate limits report the longest rejected window and round up", () => {
     { allowed: false, reason: "limited", retryAfter: 6 },
   );
 });
+
+test("malformed reset times fail closed instead of producing invalid retry headers", () => {
+  for (const reset of [NaN, Infinity, -1]) {
+    assert.deepEqual(decideLimits([{ success: false, reset }], 10_000), {
+      allowed: false,
+      reason: "unavailable",
+    });
+  }
+});

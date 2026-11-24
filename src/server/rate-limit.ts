@@ -1,8 +1,8 @@
 import { Redis } from "@upstash/redis";
 import { Ratelimit } from "@upstash/ratelimit";
 import { trustedClientKey } from "@/server/client-key";
-import { decideLimits } from "@/server/rate-limit-result";
-import type { LimitDecision } from "@/server/rate-limit-result";
+import { applyRateLimitStages } from "@/server/rate-limit-stages";
+import type { LimitDecision, LimitResult } from "@/server/rate-limit-result";
 
 type Decision = LimitDecision;
 type Scope = "air" | "locations" | "chat";
@@ -36,24 +36,28 @@ export async function checkPublicRequest(
       limiter: Ratelimit.fixedWindow(scope === "chat" ? 50 : 1000, "1 d"),
       prefix: `saafsky:${scope}:daily`,
     });
-    const checks = [minute.limit("global"), daily.limit("global")];
+    const visitorChecks: (() => Promise<LimitResult>)[] = [];
     if (client) {
       const perClient = new Ratelimit({
         redis,
         limiter: Ratelimit.fixedWindow(scope === "chat" ? 3 : 15, "1 m"),
         prefix: `saafsky:${scope}:visitor`,
       });
-      checks.push(perClient.limit(client));
+      visitorChecks.push(() => perClient.limit(client));
       if (scope === "chat") {
         const perDay = new Ratelimit({
           redis,
           limiter: Ratelimit.fixedWindow(5, "1 d"),
           prefix: "saafsky:chat:visitor-day",
         });
-        checks.push(perDay.limit(client));
+        visitorChecks.push(() => perDay.limit(client));
       }
     }
-    return decideLimits(await Promise.all(checks), Date.now());
+    return await applyRateLimitStages(
+      client ? () => visitorChecks.map((check) => check()) : null,
+      () => [minute.limit("global"), daily.limit("global")],
+      Date.now,
+    );
   } catch {
     return { allowed: false, reason: "unavailable" };
   }

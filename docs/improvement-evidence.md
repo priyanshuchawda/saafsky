@@ -10,6 +10,7 @@ local and preserve existing routes and public response shapes.
 | Unknown evidence IDs | `findEvidence` rejects inherited properties for client-provided IDs; `tests/evidence.test.ts` covers known and unknown IDs including prototype names. | Schema validation and source whitelisting do not verify every claim in free-form model prose. |
 | Malformed request encoding | The bounded JSON reader rejects invalid UTF-8 rather than replacing invalid bytes; unit and HTTP tests cover rejection and preserve valid Hindi text. | Request validation remains one layer of the public API's defenses. |
 | Chat response caching | Success and error responses explicitly send `Cache-Control: no-store`; browser tests check validation and fail-closed responses. | This directive does not control behavior of clients that deliberately ignore it. |
+| Shared quota fairness | Trusted visitor limits run before global limits, so visitor-rejected requests do not consume shared counters. `tests/rate-limit-stages.test.ts` exercises denial, timeout, error and simulated concurrent requests. Invalid reset values fail closed instead of emitting an invalid retry header. | Visitor and global checks are separate Redis operations, so eligible requests add a sequential round trip. Simulated tests do not prove Upstash's distributed atomic behavior; many distinct visitors can still exhaust shared capacity. |
 | Untyped recommendation references | Catalog-derived reason and evidence unions protect controlled recommendation definitions. The assistant contract uses schema-inferred types. | Translation still partly relies on matching English text. |
 | Fragile explanation translation | Recommendation reason descriptions now select English and Hindi by typed reason ID; the legacy translation path remains for compatibility. | Other recommendation, planner, indoor, and error copy still needs migration to stable keys. |
 | Repeated invalid-AQI checks | `src/lib/aqi-validity.ts` centralizes missing, negative, and non-finite handling across affected modules; `tests/aqi-validity.test.ts` and existing domain tests cover boundaries. | More timezone and forecast edge-case review remains valuable. |
@@ -36,13 +37,13 @@ local and preserve existing routes and public response shapes.
 No external certification, complete security assessment, or evaluation score
 is implied by these checks.
 
-## Local verification on 2026-11-23
+## Local verification on 2026-11-24
 
-`./scripts/verify.ps1 -Browser` passed formatting, lint, TypeScript, 76 unit
+`./scripts/verify.ps1 -Browser` passed formatting, lint, TypeScript, 81 unit
 tests, the production build, the bundle budget, 43 production-browser tests,
 and two public-mode API protection tests. Provider credentials were set to
 empty values for this verification run. Unit coverage of modules loaded by the
-suite was 99.75% lines, 96.58% branches and 98.84% functions; other production
+suite was 99.75% lines, 96.66% branches and 98.85% functions; other production
 modules are not represented by those percentages. The client JavaScript total
 was 254.8 KiB gzip across 16 assets, compared with 252.9 KiB at baseline. The
 additional keyed Hindi copy contributes to the increase; the configured limit is

@@ -32,7 +32,12 @@ export function decideLimits(
 ): LimitDecision {
   if (
     results.length === 0 ||
-    results.some((result) => result.reason === "timeout")
+    results.some(
+      (result) =>
+        result.reason === "timeout" ||
+        !Number.isFinite(result.reset) ||
+        result.reset < 0,
+    )
   ) {
     return { allowed: false, reason: "unavailable" };
   }
