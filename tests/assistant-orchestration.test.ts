@@ -2,6 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { createAssistantReply } from "../src/features/assistant/orchestrate.ts";
 import type { HouseholdProfile } from "../src/features/recommendations/engine.ts";
+import { withModelFallback } from "../src/features/assistant/model-fallback.ts";
 
 const profile: HouseholdProfile = {
   sensitive: true,
@@ -79,4 +80,78 @@ test("AI explanations receive rule-selected actions and appear only within budge
   assert.equal(reply.mode, "ai");
   assert.equal(reply.answer, "Consider an indoor alternative.");
   assert.deepEqual(reply.sourceIds, ["airnow-aqi"]);
+});
+
+test("concurrent assistant attempts respect a shared simulated AI budget", async () => {
+  let remaining = 4;
+  let modelCalls = 0;
+  const reserve = async () => {
+    if (remaining === 0) return false;
+    remaining--;
+    return true;
+  };
+  const responses = await Promise.all(
+    Array.from({ length: 10 }, () =>
+      createAssistantReply(profile, {
+        getAqi: async () => 180,
+        aiConfigured: true,
+        checkAiBudget: reserve,
+        explain: async () =>
+          withModelFallback(
+            "first",
+            "second",
+            async (model) => {
+              modelCalls++;
+              if (model === "first")
+                throw Object.assign(new Error("unavailable"), { status: 429 });
+              return {
+                answer: "Review conditions.",
+                referencedActionIds: [],
+                sourceIds: [],
+                uncertainty: "",
+              };
+            },
+            reserve,
+          ),
+      }),
+    ),
+  );
+  assert.equal(remaining, 0);
+  assert.equal(modelCalls, 4);
+  assert.ok(responses.every((response) => response.mode === "fallback"));
+});
+
+test("an alternate model requires its own simulated budget reservation", async () => {
+  let remaining = 2;
+  let calls = 0;
+  const reserve = async () => {
+    if (remaining === 0) return false;
+    remaining--;
+    return true;
+  };
+  const response = await createAssistantReply(profile, {
+    getAqi: async () => 180,
+    aiConfigured: true,
+    checkAiBudget: reserve,
+    explain: async () =>
+      withModelFallback(
+        "first",
+        "second",
+        async (model) => {
+          calls++;
+          if (model === "first")
+            throw Object.assign(new Error("unavailable"), { status: 503 });
+          return {
+            answer: "Review conditions.",
+            referencedActionIds: [],
+            sourceIds: [],
+            uncertainty: "",
+          };
+        },
+        reserve,
+      ),
+  });
+  assert.equal(response.mode, "ai");
+  assert.equal(calls, 2);
+  assert.equal(remaining, 0);
 });
