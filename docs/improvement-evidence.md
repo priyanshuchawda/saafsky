@@ -12,7 +12,7 @@ local and preserve existing routes and public response shapes.
 | Chat response caching | Success and error responses explicitly send `Cache-Control: no-store`; browser tests check validation and fail-closed responses. | This directive does not control behavior of clients that deliberately ignore it. |
 | Shared quota fairness | Trusted visitor limits run before global limits, so visitor-rejected requests do not consume shared counters. `tests/rate-limit-stages.test.ts` exercises denial, timeout, error and simulated concurrent requests. Invalid reset values fail closed instead of emitting an invalid retry header. | Visitor and global checks are separate Redis operations, so eligible requests add a sequential round trip. Simulated tests do not prove Upstash's distributed atomic behavior; many distinct visitors can still exhaust shared capacity. |
 | Untyped recommendation references | Catalog-derived reason and evidence unions protect controlled recommendation definitions. The assistant contract uses schema-inferred types. | Translation still partly relies on matching English text. |
-| Fragile explanation translation | Recommendation cards and deterministic assistant fallback now select Hindi copy by stable action ID, including the exercise variant. Reason descriptions use typed reason IDs. The legacy translation path remains for compatibility. | Planner, indoor, category, and error copy still needs migration to stable keys. |
+| Fragile explanation translation | Recommendation cards and deterministic assistant fallback select Hindi copy by stable action ID. Indoor guidance uses typed content variants; reason descriptions use typed reason IDs. The legacy translation path remains for compatibility. | Planner, category, and error copy still needs migration to stable keys. |
 | Repeated invalid-AQI checks | `src/lib/aqi-validity.ts` centralizes missing, negative, and non-finite handling across affected modules; `tests/aqi-validity.test.ts` and existing domain tests cover boundaries. | More timezone and forecast edge-case review remains valuable. |
 | Wall-time validation | Freshness, provider schemas and planner windows share a calendar-validating wall-time parser; impossible dates no longer normalize into fresh readings. Existing duplicate-hour safeguards remain in place. | A wall-clock index is not a zoned instant; broader timezone and real-world DST checks remain valuable. |
 | Air endpoint contract | The injected provider result uses the schema-derived response type, and the endpoint test now asserts a complete valid payload rather than an incomplete fixture. | A compile-time contract does not replace runtime validation of external providers. |
@@ -50,9 +50,9 @@ browser server because local port 3100 was occupied by an outbound connection;
 the production-browser suite passed when rerun on port 3198, followed by the
 protection suite. Provider credentials were set to
 empty values for this verification run. Unit coverage of modules loaded by the
-suite was 99.76% lines, 96.71% branches and 98.88% functions; other production
+suite was 99.77% lines, 96.54% branches and 98.89% functions; other production
 modules are not represented by those percentages. The client JavaScript total
-was 256.3 KiB gzip across 16 assets, compared with 252.9 KiB at baseline. The
+was 257.1 KiB gzip across 16 assets, compared with 252.9 KiB at baseline. The
 additional keyed Hindi copy contributes to the increase; the configured limit is
 300 KiB. npm's dependency audit reported zero known vulnerabilities.
 

@@ -10,6 +10,7 @@ import { generateRecommendations } from "../src/features/recommendations/engine.
 import { reasonDescriptions } from "../src/features/recommendations/evidence.ts";
 import { translateReason } from "../src/features/i18n/reasons.ts";
 import { localizeRecommendation } from "../src/features/i18n/recommendations.ts";
+import { localizeIndoorAction } from "../src/features/i18n/indoor.ts";
 
 test("recommendation translations follow action identity, including exercise variants", () => {
   const seen = new Set<string>();
@@ -131,6 +132,19 @@ test("all indoor advisor branches have Hindi copy", () => {
         for (const action of generateIndoorAdvice(smoke, purifier, outdoor)) {
           assert.notEqual(translateText("hi", action.title), action.title);
           assert.notEqual(translateText("hi", action.detail), action.detail);
+          const localized = localizeIndoorAction("hi", action);
+          assert.deepEqual(localized, {
+            title: translateText("hi", action.title),
+            detail: translateText("hi", action.detail),
+          });
+          assert.deepEqual(
+            localizeIndoorAction("hi", {
+              ...action,
+              title: "Changed English",
+              detail: "Changed English",
+            }),
+            localized,
+          );
         }
       }
     }

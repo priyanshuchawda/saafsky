@@ -5,6 +5,7 @@ import { useCity, useHousehold, useLanguage } from "@/hooks/use-preferences";
 import { useAirQuality } from "@/hooks/use-air-quality";
 import { displayCity } from "@/features/i18n/city";
 import { translate, translateText } from "@/features/i18n/messages";
+import { localizeIndoorAction } from "@/features/i18n/indoor";
 import { RoomAirCleanerSizing } from "@/components/room-air-cleaner-sizing";
 import {
   generateIndoorAdvice,
@@ -117,8 +118,8 @@ export default function IndoorAdvisor() {
             <li key={action.id}>
               <span>0{index + 1}</span>
               <div>
-                <strong>{translateText(language, action.title)}</strong>
-                <p>{translateText(language, action.detail)}</p>
+                <strong>{localizeIndoorAction(language, action).title}</strong>
+                <p>{localizeIndoorAction(language, action).detail}</p>
               </div>
             </li>
           ))}

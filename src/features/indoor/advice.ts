@@ -2,7 +2,20 @@ import { isValidAqi } from "../../lib/aqi-validity.ts";
 import { US_AQI_UPPER_BOUND } from "../../lib/aqi-policy.ts";
 
 export type OutdoorCondition = "elevated" | "lower" | "unknown";
-export type IndoorAction = { id: string; title: string; detail: string };
+export type IndoorContentKey =
+  | "sources-smoke"
+  | "sources-general"
+  | "filtration-available"
+  | "filtration-unavailable"
+  | "ventilation-elevated"
+  | "ventilation-lower"
+  | "ventilation-unknown";
+export type IndoorAction = {
+  id: string;
+  title: string;
+  detail: string;
+  contentKey: IndoorContentKey;
+};
 
 export function outdoorCondition(aqi: number | null): OutdoorCondition {
   if (!isValidAqi(aqi)) return "unknown";
@@ -16,6 +29,7 @@ export function generateIndoorAdvice(
   return [
     {
       id: "sources",
+      contentKey: smoke ? "sources-smoke" : "sources-general",
       title: "Reduce indoor sources",
       detail: smoke
         ? "Reduce cooking smoke where possible and use an exhaust fan vented outdoors while cooking."
@@ -23,6 +37,7 @@ export function generateIndoorAdvice(
     },
     {
       id: "filtration",
+      contentKey: purifier ? "filtration-available" : "filtration-unavailable",
       title: purifier
         ? "Use your purifier effectively"
         : "Choose a cleaner-air room",
@@ -32,6 +47,7 @@ export function generateIndoorAdvice(
     },
     {
       id: "ventilation",
+      contentKey: `ventilation-${outdoor}`,
       title: "Balance ventilation and safety",
       detail:
         outdoor === "elevated"
