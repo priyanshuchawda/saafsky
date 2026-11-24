@@ -69,14 +69,17 @@ export function ForecastSection({
                     />
                   )}
                 </div>
-                <strong
-                  aria-label={
-                    aqi === null
-                      ? translate(language, "dataUnavailableCapitalized")
-                      : undefined
-                  }
-                >
-                  {aqi ?? "—"}
+                <strong>
+                  {aqi === null ? (
+                    <>
+                      <span className="sr-only">
+                        {translate(language, "dataUnavailableCapitalized")}
+                      </span>
+                      <span aria-hidden="true">—</span>
+                    </>
+                  ) : (
+                    aqi
+                  )}
                 </strong>
                 <small>{translate(language, "usAqi")}</small>
               </li>

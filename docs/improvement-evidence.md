@@ -21,6 +21,7 @@ local and preserve existing routes and public response shapes.
 | Normal-state accessibility | Browser axe checks exercise all seven routes in English and Hindi with mocked current forecast data in addition to existing error-state scans. The expanded test found a Hindi home-link name mismatch; the accessible name now includes the visible brand text. | Automated checks cannot establish WCAG conformance. |
 | Assistant navigation translation | The dashboard link uses the existing language dictionary; a browser test verifies English and Hindi labels. | Other legacy sentence-based translations still require migration. |
 | Assistant pending focus | The pending submit control retains focus and exposes its unavailable state; an active-request guard prevents repeated submissions, including after a language switch. Browser tests cover the focus and request behavior. | Real assistive-technology verification and a broader review of live-region announcements remain outstanding. |
+| Missing forecast text | Missing hourly values retain the visible dash and expose localized text to assistive technology; a production-browser regression test verifies the alternative. | Manual screen-reader verification remains outstanding. |
 | Narration dependency | ElevenLabs moved from production to development dependencies. The existing narration script remains available for a separate video workflow. | Production-only installs intentionally do not include this development tool. |
 
 ## Security and accessibility backlog
@@ -41,14 +42,12 @@ local and preserve existing routes and public response shapes.
 No external certification, complete security assessment, or evaluation score
 is implied by these checks.
 
-## Local verification on 2026-11-24
+## Local verification on 2026-11-25
 
 Formatting, lint, TypeScript, 87 unit tests, the production build, the bundle
-budget, 45 production-browser tests, and two public-mode API protection tests
-passed. The initial `./scripts/verify.ps1 -Browser` run could not start the
-browser server because local port 3100 was occupied by an outbound connection;
-the production-browser suite passed when rerun on port 3198, followed by the
-protection suite. Provider credentials were set to
+budget, 46 production-browser tests, and two public-mode API protection tests
+passed with `./scripts/verify.ps1 -Browser`. An earlier run encountered a
+local port 3100 conflict and was verified on port 3198. Provider credentials were set to
 empty values for this verification run. Unit coverage of modules loaded by the
 suite was 99.78% lines, 96.58% branches and 98.99% functions; other production
 modules are not represented by those percentages. The client JavaScript total

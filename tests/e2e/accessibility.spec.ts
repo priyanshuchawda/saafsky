@@ -41,6 +41,44 @@ test("keyboard users can skip repeated navigation", async ({ page }) => {
   await expect(page.locator("#main-content")).toBeFocused();
 });
 
+test("missing forecast values have readable text for assistive technology", async ({
+  page,
+}) => {
+  const now = new Date();
+  const start = new Date(now);
+  start.setUTCMinutes(0, 0, 0);
+  const hours = Array.from({ length: 24 }, (_, index) => {
+    const hour = new Date(start);
+    hour.setUTCHours(start.getUTCHours() + index);
+    return hour.toISOString().slice(0, 16);
+  });
+  await page.route("**/api/air?**", (route) =>
+    route.fulfill({
+      json: {
+        retrievedAt: now.toISOString(),
+        data: {
+          timezone: "UTC",
+          utc_offset_seconds: 0,
+          current: {
+            time: now.toISOString().slice(0, 16),
+            us_aqi: 120,
+            pm2_5: 40,
+            pm10: 60,
+          },
+          hourly: {
+            time: hours,
+            us_aqi: hours.map((_, index) => (index === 1 ? null : 120)),
+          },
+        },
+      },
+    }),
+  );
+  await page.goto("/", { waitUntil: "networkidle" });
+  await expect(page.locator(".hours strong .sr-only")).toHaveText(
+    "Unavailable",
+  );
+});
+
 test("pages with a current forecast pass automated accessibility checks", async ({
   page,
 }) => {
