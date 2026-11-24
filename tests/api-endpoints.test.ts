@@ -2,6 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { handleAirRequest } from "../src/server/air-endpoint.ts";
 import { handleLocationsRequest } from "../src/server/locations-endpoint.ts";
+import { airResponseSchema } from "../src/lib/schemas.ts";
 
 const allowed = async () => ({ allowed: true as const });
 
@@ -33,16 +34,28 @@ test("air endpoint normalizes coordinates and returns validated provider data", 
       checkPublicRequest: allowed,
       loadAir: async (latitude, longitude) => {
         coordinates = [latitude, longitude];
-        return { retrievedAt: "2026-01-01T00:00:00.000Z" };
+        return {
+          retrievedAt: "2026-01-01T00:00:00.000Z",
+          data: {
+            timezone: "Asia/Kolkata",
+            utc_offset_seconds: 19800,
+            current: {
+              time: "2026-01-01T05:30",
+              us_aqi: 120,
+              pm2_5: null,
+              pm10: 60,
+            },
+            hourly: { time: ["2026-01-01T06:00"], us_aqi: [110] },
+          },
+        };
       },
     },
   );
 
   assert.equal(response.status, 200);
   assert.deepEqual(coordinates, [28.614, 77.23]);
-  assert.deepEqual(await response.json(), {
-    retrievedAt: "2026-01-01T00:00:00.000Z",
-  });
+  const body: unknown = await response.json();
+  assert.equal(airResponseSchema.safeParse(body).success, true);
 });
 
 test("air endpoint maps provider errors and rate-limit decisions safely", async () => {

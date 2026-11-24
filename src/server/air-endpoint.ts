@@ -1,9 +1,10 @@
 import { parseCoordinates } from "../lib/coordinates.ts";
 import { rateLimitResponse } from "./rate-limit-result.ts";
 import type { LimitDecision } from "./rate-limit-result.ts";
+import type { AirResponse } from "../types/air.ts";
 
 type AirEndpointDependencies = {
-  loadAir: (latitude: number, longitude: number) => Promise<unknown>;
+  loadAir: (latitude: number, longitude: number) => Promise<AirResponse>;
   checkPublicRequest: (
     scope: "air",
     request: Request,
