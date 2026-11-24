@@ -1,14 +1,17 @@
 import {
   generateRecommendations,
   type HouseholdProfile,
+  type Recommendation,
 } from "../recommendations/engine.ts";
 
+export type DailyStepId = "morning" | "daytime" | "evening";
 export type DailyStep = {
-  id: string;
+  id: DailyStepId;
   period: string;
   title: string;
   detail: string;
   actionIds: string[];
+  detailActions: Recommendation[];
 };
 export function generateDailyPlan(
   aqi: number | null,
@@ -27,6 +30,7 @@ export function generateDailyPlan(
         health.map((action) => action.description).join(" ") ||
         "Check local conditions before leaving.",
       actionIds: health.map((action) => action.id),
+      detailActions: health,
     },
     {
       id: "daytime",
@@ -36,6 +40,7 @@ export function generateDailyPlan(
         commute?.description ??
         "Use the forecast window comparison below for flexible outings; the lowest forecast is not necessarily safe.",
       actionIds: commute ? [commute.id] : [],
+      detailActions: commute ? [commute] : [],
     },
     {
       id: "evening",
@@ -45,6 +50,7 @@ export function generateDailyPlan(
         indoor?.description ??
         "Check local guidance before changing ventilation or activity.",
       actionIds: indoor ? [indoor.id] : [],
+      detailActions: indoor ? [indoor] : [],
     },
   ];
 }

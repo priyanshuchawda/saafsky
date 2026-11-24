@@ -1,9 +1,6 @@
 import type { DailyStep } from "@/features/planner/daily";
-import {
-  translate,
-  translateText,
-  type Language,
-} from "@/features/i18n/messages";
+import { translate, type Language } from "@/features/i18n/messages";
+import { localizeDailyStep } from "@/features/i18n/daily";
 
 export function DailyTimeline({
   steps,
@@ -20,15 +17,18 @@ export function DailyTimeline({
         <em>{translate(language, "evening")}</em>
       </h2>
       <ol>
-        {steps.map((step) => (
-          <li key={step.id}>
-            <span>{translateText(language, step.period)}</span>
-            <div>
-              <strong>{translateText(language, step.title)}</strong>
-              <p>{translateText(language, step.detail)}</p>
-            </div>
-          </li>
-        ))}
+        {steps.map((step) => {
+          const copy = localizeDailyStep(language, step);
+          return (
+            <li key={step.id}>
+              <span>{copy.period}</span>
+              <div>
+                <strong>{copy.title}</strong>
+                <p>{copy.detail}</p>
+              </div>
+            </li>
+          );
+        })}
       </ol>
       <p className="fine">{translate(language, "planCaveat")}</p>
     </section>
