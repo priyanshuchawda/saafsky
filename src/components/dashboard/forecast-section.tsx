@@ -1,10 +1,6 @@
 import Link from "next/link";
 import { isValidAqi } from "@/lib/aqi-validity";
-import {
-  translate,
-  translateText,
-  type Language,
-} from "@/features/i18n/messages";
+import { translate, type Language } from "@/features/i18n/messages";
 
 type LowestForecast = { time: string; aqi: number } | null;
 type ForecastEntry = { time: string; aqi: number | null };
@@ -76,7 +72,7 @@ export function ForecastSection({
                 <strong
                   aria-label={
                     aqi === null
-                      ? translateText(language, "Unavailable")
+                      ? translate(language, "dataUnavailableCapitalized")
                       : undefined
                   }
                 >
@@ -104,13 +100,13 @@ export function ForecastSection({
         </a>
         . {translate(language, "forecastTime")}{" "}
         {currentModelTime?.replace("T", " ") ??
-          translateText(language, "unavailable")}
+          translate(language, "dataUnavailable")}
         . {translate(language, "retrieved")}{" "}
         {retrievedAt
           ? new Date(retrievedAt).toLocaleString(
               language === "hi" ? "hi-IN" : "en-US",
             )
-          : translateText(language, "unavailable")}
+          : translate(language, "dataUnavailable")}
         . {translate(language, "forecastEstimate")} {cityName}.
       </p>
     </section>

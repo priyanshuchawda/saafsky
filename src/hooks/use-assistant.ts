@@ -7,11 +7,8 @@ import type { HouseholdProfile } from "@/features/recommendations/engine";
 import { assistantResponseSchema } from "@/features/assistant/validate";
 import type { AssistantResponse } from "@/features/assistant/validate";
 import { RateLimitError, throwIfHttpError } from "@/lib/api-errors";
-import {
-  translate,
-  translateText,
-  type Language,
-} from "@/features/i18n/messages";
+import { translate, type Language } from "@/features/i18n/messages";
+import { localizeRateLimit } from "@/features/i18n/errors";
 
 type Reply = Pick<
   AssistantResponse,
@@ -95,7 +92,7 @@ export function useAssistant(
           kind: "error",
           message:
             error instanceof RateLimitError
-              ? translateText(language, error.message)
+              ? localizeRateLimit(language, error)
               : translate(language, "assistantUnavailable"),
         });
     } finally {

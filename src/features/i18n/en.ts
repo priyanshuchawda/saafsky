@@ -1,4 +1,10 @@
 export const englishMessages = {
+  dataUnavailable: "unavailable",
+  dataUnavailableCapitalized: "Unavailable",
+  fallbackNoAir:
+    "Current air data is unavailable, so this general plan cannot answer your specific question.",
+  fallbackNoAi:
+    "The AI explanation is unavailable. This general plan may not answer your specific question.",
   language: "Language",
   english: "English",
   hindi: "हिन्दी",
@@ -242,6 +248,7 @@ export const englishMessages = {
   loadingAir: "Loading air quality…",
   airUnavailable:
     "Your air update is taking a little longer. Please try again shortly.",
+  airFetchFailed: "Air data is unavailable. Please try again later.",
   staleAir:
     "The model data or retrieval time is stale or unavailable. Check a local official source for current conditions.",
   todayIn: "Today in",

@@ -16,7 +16,8 @@ import { translateAqiCategory } from "@/features/i18n/aqi";
 import { localMinuteAt } from "@/lib/freshness";
 import { useCity, useHousehold, useLanguage } from "@/hooks/use-preferences";
 import { displayCity } from "@/features/i18n/city";
-import { translate, translateText } from "@/features/i18n/messages";
+import { translate } from "@/features/i18n/messages";
+import { localizeAirError } from "@/features/i18n/errors";
 
 export default function Planner() {
   const [language] = useLanguage();
@@ -250,7 +251,7 @@ export default function Planner() {
           <p>{translate(language, "loadingForecast")}</p>
         )}
         {state.kind === "error" && (
-          <p>{translateText(language, state.message)}</p>
+          <p>{localizeAirError(language, state.rateLimit)}</p>
         )}
         {state.kind === "success" && !state.fresh && (
           <p>{translate(language, "forecastStale")}</p>

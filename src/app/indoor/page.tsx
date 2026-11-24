@@ -4,7 +4,8 @@ import { useState } from "react";
 import { useCity, useHousehold, useLanguage } from "@/hooks/use-preferences";
 import { useAirQuality } from "@/hooks/use-air-quality";
 import { displayCity } from "@/features/i18n/city";
-import { translate, translateText } from "@/features/i18n/messages";
+import { translate } from "@/features/i18n/messages";
+import { localizeAirError } from "@/features/i18n/errors";
 import { localizeIndoorAction } from "@/features/i18n/indoor";
 import { RoomAirCleanerSizing } from "@/components/room-air-cleaner-sizing";
 import {
@@ -96,7 +97,7 @@ export default function IndoorAdvisor() {
       <p className="fine" role="status">
         {outdoorMode === "auto"
           ? airState.kind === "error"
-            ? translateText(language, airState.message)
+            ? localizeAirError(language, airState.rateLimit)
             : aqi === null
               ? translate(language, "selectedCityDataUnavailable").replace(
                   "{city}",

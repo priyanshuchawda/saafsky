@@ -10,7 +10,8 @@ import { useCity, useHousehold, useLanguage } from "@/hooks/use-preferences";
 import { lowestForecastPeriod, upcomingForecast } from "@/lib/air";
 import { localMinuteAt } from "@/lib/freshness";
 import { displayCity } from "@/features/i18n/city";
-import { translate, translateText } from "@/features/i18n/messages";
+import { translate } from "@/features/i18n/messages";
+import { localizeAirError } from "@/features/i18n/errors";
 
 export default function Home() {
   const [language] = useLanguage();
@@ -24,7 +25,7 @@ export default function Home() {
     state.kind === "loading"
       ? translate(language, "loadingAir")
       : state.kind === "error"
-        ? translateText(language, state.message)
+        ? localizeAirError(language, state.rateLimit)
         : !state.fresh
           ? translate(language, "staleAir")
           : "";

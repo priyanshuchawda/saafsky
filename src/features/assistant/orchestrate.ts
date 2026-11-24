@@ -3,7 +3,7 @@ import type {
   HouseholdProfile,
   Recommendation,
 } from "../recommendations/engine.ts";
-import { translateText, type Language } from "../i18n/messages.ts";
+import { translate, type Language } from "../i18n/messages.ts";
 import { localizeRecommendation } from "../i18n/recommendations.ts";
 import type { AssistantExplanation, AssistantResponse } from "./validate.ts";
 import { isValidAqi } from "../../lib/aqi-validity.ts";
@@ -39,11 +39,9 @@ export async function createAssistantReply(
       .join(" "),
     referencedActionIds: actions.map((action) => action.id),
     sourceIds: [...new Set(actions.flatMap((action) => action.evidenceIds))],
-    uncertainty: translateText(
+    uncertainty: translate(
       language,
-      aqi === null
-        ? "Current air data is unavailable, so this general plan cannot answer your specific question."
-        : "The AI explanation is unavailable. This general plan may not answer your specific question.",
+      aqi === null ? "fallbackNoAir" : "fallbackNoAi",
     ),
     mode: "fallback" as const,
   };

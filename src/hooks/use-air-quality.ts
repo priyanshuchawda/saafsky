@@ -10,7 +10,7 @@ const REFRESH_INTERVAL_MS = 30 * 60_000;
 
 type AirState =
   | { kind: "loading" }
-  | { kind: "error"; message: string }
+  | { kind: "error"; message: string; rateLimit: RateLimitError | null }
   | {
       kind: "success";
       data: Air;
@@ -74,6 +74,7 @@ export function useAirQuality(city: City | null): AirState {
               key,
               state: {
                 kind: "error",
+                rateLimit: error instanceof RateLimitError ? error : null,
                 message:
                   error instanceof RateLimitError
                     ? error.message

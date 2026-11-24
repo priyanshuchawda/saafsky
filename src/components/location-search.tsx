@@ -5,7 +5,8 @@ import type { FormEvent } from "react";
 import type { City } from "@/types/air";
 import { locationSchema } from "@/lib/schemas";
 import { RateLimitError, throwIfHttpError } from "@/lib/api-errors";
-import { translate, translateText } from "@/features/i18n/messages";
+import { translate } from "@/features/i18n/messages";
+import { localizeRateLimit } from "@/features/i18n/errors";
 import { useLanguage } from "@/hooks/use-preferences";
 
 export function LocationSearch({
@@ -50,7 +51,7 @@ export function LocationSearch({
       if (!controller.signal.aborted)
         setStatus(
           error instanceof RateLimitError
-            ? translateText(language, error.message)
+            ? localizeRateLimit(language, error)
             : translate(language, "citySearchUnavailable"),
         );
     }

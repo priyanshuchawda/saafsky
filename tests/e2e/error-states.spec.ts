@@ -1,5 +1,21 @@
 import { expect, test } from "@playwright/test";
 
+test("air rate limits without a retry header are localized after a language change", async ({
+  page,
+}) => {
+  await page.route("**/api/air?**", (route) =>
+    route.fulfill({ status: 429, json: { error: "limited" } }),
+  );
+  await page.goto("/", { waitUntil: "networkidle" });
+  await expect(
+    page.getByText("Request limit reached. Please try again later."),
+  ).toBeVisible();
+  await page.locator("#site-language").selectOption("hi");
+  await expect(
+    page.getByText("अनुरोध की सीमा पूरी हो गई है। कृपया थोड़ी देर बाद फिर कोशिश करें।"),
+  ).toBeVisible();
+});
+
 test("rate limits show separate retry messages for air, search and assistant", async ({
   page,
 }) => {

@@ -12,6 +12,13 @@ import { translateReason } from "../src/features/i18n/reasons.ts";
 import { localizeRecommendation } from "../src/features/i18n/recommendations.ts";
 import { localizeIndoorAction } from "../src/features/i18n/indoor.ts";
 import { localizeDailyStep } from "../src/features/i18n/daily.ts";
+
+test("availability and fallback messages use localized stable keys", () => {
+  assert.equal(translate("en", "dataUnavailable"), "unavailable");
+  assert.equal(translate("hi", "dataUnavailable"), "उपलब्ध नहीं");
+  assert.match(translate("hi", "fallbackNoAir"), /डेटा उपलब्ध नहीं/);
+  assert.match(translate("hi", "fallbackNoAi"), /AI का स्पष्टीकरण/);
+});
 import { translateAqiCategory } from "../src/features/i18n/aqi.ts";
 
 test("AQI categories use stable keys across boundaries and languages", () => {
