@@ -17,6 +17,7 @@ local and preserve existing routes and public response shapes.
 | Distributed AQI boundaries | `src/lib/aqi-policy.ts` defines the US AQI category boundaries used by classification, guidance and planning; boundary and existing domain tests preserve behavior. | Policy changes still require evidence review and appropriate regression tests. |
 | Mobile navigation | The menu closes when a navigation link is selected. The keyboard test reproduced the previously open menu and now verifies closure. | Real assistive-technology testing remains unverified. |
 | Normal-state accessibility | Browser axe checks exercise all seven routes in English and Hindi with mocked current forecast data in addition to existing error-state scans. The expanded test found a Hindi home-link name mismatch; the accessible name now includes the visible brand text. | Automated checks cannot establish WCAG conformance. |
+| Assistant navigation translation | The dashboard link uses the existing language dictionary; a browser test verifies English and Hindi labels. | Other legacy sentence-based translations still require migration. |
 | Narration dependency | ElevenLabs moved from production to development dependencies. The existing narration script remains available for a separate video workflow. | Production-only installs intentionally do not include this development tool. |
 
 ## Security and accessibility backlog
@@ -40,7 +41,7 @@ is implied by these checks.
 ## Local verification on 2026-11-24
 
 `./scripts/verify.ps1 -Browser` passed formatting, lint, TypeScript, 81 unit
-tests, the production build, the bundle budget, 43 production-browser tests,
+tests, the production build, the bundle budget, 44 production-browser tests,
 and two public-mode API protection tests. Provider credentials were set to
 empty values for this verification run. Unit coverage of modules loaded by the
 suite was 99.75% lines, 96.66% branches and 98.85% functions; other production

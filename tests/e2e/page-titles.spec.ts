@@ -1,5 +1,21 @@
 import { expect, test } from "@playwright/test";
 
+test("assistant dashboard link follows the selected language", async ({
+  page,
+}) => {
+  await page.route("**/api/air?**", (route) =>
+    route.fulfill({ status: 503, json: { error: "Unavailable" } }),
+  );
+  await page.goto("/assistant", { waitUntil: "networkidle" });
+  await expect(
+    page.getByRole("link", { name: "← Back to dashboard" }),
+  ).toBeVisible();
+  await page.locator("#site-language").selectOption("hi");
+  await expect(
+    page.getByRole("link", { name: "← डैशबोर्ड पर वापस जाएँ" }),
+  ).toBeVisible();
+});
+
 const pages = [
   ["/", "SaafSky — Personal Air Quality Planner"],
   ["/planner", "Daily Planner | SaafSky"],

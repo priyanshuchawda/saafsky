@@ -124,7 +124,7 @@ export default function Assistant() {
         </section>
       )}
       <footer>
-        <Link href="/">← Back to dashboard</Link>
+        <Link href="/">{translate(language, "backDashboard")}</Link>
       </footer>
     </main>
   );
