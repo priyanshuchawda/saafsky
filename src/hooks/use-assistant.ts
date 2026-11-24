@@ -40,14 +40,15 @@ export function useAssistant(
   useEffect(() => () => activeRequest.current?.abort(), []);
   function clearConversation() {
     activeRequest.current?.abort();
+    activeRequest.current = null;
     setTurns([]);
     setRequestStatus({ kind: "idle" });
   }
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (activeRequest.current) return;
     const text = question.trim();
     if (!text) return;
-    activeRequest.current?.abort();
     const controller = new AbortController();
     activeRequest.current = controller;
     setRequestStatus({ kind: "pending" });
@@ -97,6 +98,8 @@ export function useAssistant(
               ? translateText(language, error.message)
               : translate(language, "assistantUnavailable"),
         });
+    } finally {
+      if (activeRequest.current === controller) activeRequest.current = null;
     }
   }
   return {

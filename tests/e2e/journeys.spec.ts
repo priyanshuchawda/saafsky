@@ -607,11 +607,13 @@ test("preferences remain usable when browser storage rejects writes", async ({
 test("assistant keeps an active request pending when language changes", async ({
   page,
 }) => {
+  let requests = 0;
   let release = () => {};
   const gate = new Promise<void>((resolve) => {
     release = resolve;
   });
   await page.route("**/api/chat", async (route) => {
+    requests++;
     await gate;
     await route.fulfill({
       json: {
@@ -631,6 +633,10 @@ test("assistant keeps an active request pending when language changes", async ({
     );
     await submit.click();
     await expect(submit).toBeDisabled();
+    await expect(submit).toBeFocused();
+    await expect.poll(() => requests).toBe(1);
+    await submit.evaluate((button) => button.closest("form")?.requestSubmit());
+    expect(requests).toBe(1);
     await page.locator("#site-language").selectOption("hi");
     const hindiSubmit = page.getByRole("button", { name: "साफ़स्काई से पूछें" });
     await expect(hindiSubmit).toBeDisabled();

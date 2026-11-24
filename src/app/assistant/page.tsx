@@ -71,7 +71,7 @@ export default function Assistant() {
           rows={4}
           placeholder={translate(language, "commuteQuestionPlaceholder")}
         />
-        <button className="action-button" disabled={isPending}>
+        <button className="action-button" aria-disabled={isPending}>
           {translate(language, "askSaafSky")}
         </button>
       </form>

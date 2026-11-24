@@ -20,6 +20,7 @@ local and preserve existing routes and public response shapes.
 | Mobile navigation | The menu closes when a navigation link is selected. The keyboard test reproduced the previously open menu and now verifies closure. | Real assistive-technology testing remains unverified. |
 | Normal-state accessibility | Browser axe checks exercise all seven routes in English and Hindi with mocked current forecast data in addition to existing error-state scans. The expanded test found a Hindi home-link name mismatch; the accessible name now includes the visible brand text. | Automated checks cannot establish WCAG conformance. |
 | Assistant navigation translation | The dashboard link uses the existing language dictionary; a browser test verifies English and Hindi labels. | Other legacy sentence-based translations still require migration. |
+| Assistant pending focus | The pending submit control retains focus and exposes its unavailable state; an active-request guard prevents repeated submissions, including after a language switch. Browser tests cover the focus and request behavior. | Real assistive-technology verification and a broader review of live-region announcements remain outstanding. |
 | Narration dependency | ElevenLabs moved from production to development dependencies. The existing narration script remains available for a separate video workflow. | Production-only installs intentionally do not include this development tool. |
 
 ## Security and accessibility backlog
