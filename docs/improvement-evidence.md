@@ -42,6 +42,10 @@ local and preserve existing routes and public response shapes.
 - Expand typed translation keys, privacy-safe diagnostics, and independent
   coverage of hooks and server boundaries without changing existing behavior.
 
+The November 25 `npm audit --omit=dev --audit-level=high` run reported zero
+known vulnerabilities in production dependencies. It does not assess the
+application or undisclosed vulnerabilities.
+
 No external certification, complete security assessment, or evaluation score
 is implied by these checks.
 
