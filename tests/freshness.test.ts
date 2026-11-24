@@ -35,3 +35,11 @@ test("local forecast time uses the selected city's time zone and DST", () => {
   assert.equal(localMinuteAt(Number.NaN, "Asia/Kolkata"), null);
   assert.equal(localMinuteAt(instant, "invalid/timezone"), null);
 });
+
+test("freshness rejects invalid calendar dates rather than normalizing them", () => {
+  const now = Date.parse("2026-03-02T12:00:00Z");
+  assert.equal(
+    isFresh("2026-03-02T12:00:00Z", "2026-02-30T12:00", 0, now),
+    false,
+  );
+});

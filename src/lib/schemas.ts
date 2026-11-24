@@ -1,16 +1,13 @@
 import { z } from "zod";
+import { parseWallTime } from "./wall-time.ts";
 
 const pollutant = z.number().finite().nonnegative().nullable();
 const localTimestamp = z
   .string()
-  .regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/)
-  .refine((value) => {
-    const instant = Date.parse(`${value}:00Z`);
-    return (
-      Number.isFinite(instant) &&
-      new Date(instant).toISOString().slice(0, 16) === value
-    );
-  }, "Invalid forecast timestamp");
+  .refine(
+    (value) => parseWallTime(value) !== null,
+    "Invalid forecast timestamp",
+  );
 const timeZone = z
   .string()
   .min(1)

@@ -14,6 +14,7 @@ local and preserve existing routes and public response shapes.
 | Untyped recommendation references | Catalog-derived reason and evidence unions protect controlled recommendation definitions. The assistant contract uses schema-inferred types. | Translation still partly relies on matching English text. |
 | Fragile explanation translation | Recommendation reason descriptions now select English and Hindi by typed reason ID; the legacy translation path remains for compatibility. | Other recommendation, planner, indoor, and error copy still needs migration to stable keys. |
 | Repeated invalid-AQI checks | `src/lib/aqi-validity.ts` centralizes missing, negative, and non-finite handling across affected modules; `tests/aqi-validity.test.ts` and existing domain tests cover boundaries. | More timezone and forecast edge-case review remains valuable. |
+| Wall-time validation | Freshness, provider schemas and planner windows share a calendar-validating wall-time parser; impossible dates no longer normalize into fresh readings. Existing duplicate-hour safeguards remain in place. | A wall-clock index is not a zoned instant; broader timezone and real-world DST checks remain valuable. |
 | Distributed AQI boundaries | `src/lib/aqi-policy.ts` defines the US AQI category boundaries used by classification, guidance and planning; boundary and existing domain tests preserve behavior. | Policy changes still require evidence review and appropriate regression tests. |
 | Mobile navigation | The menu closes when a navigation link is selected. The keyboard test reproduced the previously open menu and now verifies closure. | Real assistive-technology testing remains unverified. |
 | Normal-state accessibility | Browser axe checks exercise all seven routes in English and Hindi with mocked current forecast data in addition to existing error-state scans. The expanded test found a Hindi home-link name mismatch; the accessible name now includes the visible brand text. | Automated checks cannot establish WCAG conformance. |
@@ -40,13 +41,13 @@ is implied by these checks.
 
 ## Local verification on 2026-11-24
 
-`./scripts/verify.ps1 -Browser` passed formatting, lint, TypeScript, 81 unit
+`./scripts/verify.ps1 -Browser` passed formatting, lint, TypeScript, 82 unit
 tests, the production build, the bundle budget, 44 production-browser tests,
 and two public-mode API protection tests. Provider credentials were set to
 empty values for this verification run. Unit coverage of modules loaded by the
-suite was 99.75% lines, 96.66% branches and 98.85% functions; other production
+suite was 99.75% lines, 96.67% branches and 98.85% functions; other production
 modules are not represented by those percentages. The client JavaScript total
-was 254.8 KiB gzip across 16 assets, compared with 252.9 KiB at baseline. The
+was 255.0 KiB gzip across 16 assets, compared with 252.9 KiB at baseline. The
 additional keyed Hindi copy contributes to the increase; the configured limit is
 300 KiB. npm's dependency audit reported zero known vulnerabilities.
 

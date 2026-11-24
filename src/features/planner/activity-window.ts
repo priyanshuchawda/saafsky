@@ -1,5 +1,6 @@
 import type { ForecastHour } from "./plan.ts";
 import { US_AQI_UPPER_BOUND } from "../../lib/aqi-policy.ts";
+import { parseWallTime } from "../../lib/wall-time.ts";
 
 type Constraints = {
   start: string;
@@ -19,15 +20,6 @@ export type ActivityWindow =
     }
   | { kind: "no-suitable" | "unavailable" };
 const HOUR_MS = 3_600_000;
-
-function parseWallTime(value: string): number | null {
-  if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(value)) return null;
-  const time = Date.parse(`${value}:00Z`);
-  return Number.isFinite(time) &&
-    new Date(time).toISOString().slice(0, 16) === value
-    ? time
-    : null;
-}
 
 /** Keep duplicate wall-clock hours separate because DST can make them ambiguous. */
 function indexForecast(hours: ForecastHour[]): {
