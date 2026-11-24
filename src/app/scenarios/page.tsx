@@ -4,13 +4,14 @@ import Link from "next/link";
 import { parseCommuteMode } from "@/features/preferences/commute";
 import { useState } from "react";
 import { ScenarioActionPlan } from "@/components/scenario-action-plan";
-import { category, type Profile } from "@/lib/air";
+import type { Profile } from "@/lib/air";
+import { translateAqiCategory } from "@/features/i18n/aqi";
 import {
   generateRecommendations,
   type HouseholdProfile,
 } from "@/features/recommendations/engine";
 import { useLanguage } from "@/hooks/use-preferences";
-import { translate, translateText } from "@/features/i18n/messages";
+import { translate } from "@/features/i18n/messages";
 
 type ComparisonProfile = "general" | "sensitive" | "children" | "cyclist";
 
@@ -62,15 +63,17 @@ export default function Scenarios() {
             value={aqi}
             onChange={(event) => setAqi(Number(event.target.value))}
           >
-            <option value={40}>40 — {translateText(language, "Good")}</option>
+            <option value={40}>
+              40 — {translateAqiCategory(language, 40)}
+            </option>
             <option value={120}>
-              120 — {translateText(language, "Unhealthy for sensitive groups")}
+              120 — {translateAqiCategory(language, 120)}
             </option>
             <option value={180}>
-              180 — {translateText(language, "Unhealthy")}
+              180 — {translateAqiCategory(language, 180)}
             </option>
             <option value={250}>
-              250 — {translateText(language, "Very unhealthy")}
+              250 — {translateAqiCategory(language, 250)}
             </option>
           </select>
         </div>
@@ -183,7 +186,7 @@ export default function Scenarios() {
             {aqi} <small>{translate(language, "usAqi")}</small>
           </div>
           <strong className="category">
-            {translateText(language, category(aqi))}
+            {translateAqiCategory(language, aqi)}
           </strong>
           <p>{translate(language, "noLiveData")}</p>
         </article>

@@ -3,15 +3,27 @@ import { isValidAqi } from "./aqi-validity.ts";
 import { US_AQI_UPPER_BOUND } from "./aqi-policy.ts";
 
 export type Profile = "adult" | "sensitive";
+export const AQI_CATEGORY_LABELS = {
+  unavailable: "Unavailable",
+  good: "Good",
+  moderate: "Moderate",
+  sensitive: "Unhealthy for sensitive groups",
+  unhealthy: "Unhealthy",
+  veryUnhealthy: "Very unhealthy",
+  hazardous: "Hazardous",
+} as const;
+export type AqiCategoryKey = keyof typeof AQI_CATEGORY_LABELS;
+export function categoryKey(aqi: number | null): AqiCategoryKey {
+  if (!isValidAqi(aqi)) return "unavailable";
+  if (aqi <= US_AQI_UPPER_BOUND.good) return "good";
+  if (aqi <= US_AQI_UPPER_BOUND.moderate) return "moderate";
+  if (aqi <= US_AQI_UPPER_BOUND.sensitiveGroups) return "sensitive";
+  if (aqi <= US_AQI_UPPER_BOUND.unhealthy) return "unhealthy";
+  if (aqi <= US_AQI_UPPER_BOUND.veryUnhealthy) return "veryUnhealthy";
+  return "hazardous";
+}
 export function category(aqi: number | null): string {
-  if (!isValidAqi(aqi)) return "Unavailable";
-  if (aqi <= US_AQI_UPPER_BOUND.good) return "Good";
-  if (aqi <= US_AQI_UPPER_BOUND.moderate) return "Moderate";
-  if (aqi <= US_AQI_UPPER_BOUND.sensitiveGroups)
-    return "Unhealthy for sensitive groups";
-  if (aqi <= US_AQI_UPPER_BOUND.unhealthy) return "Unhealthy";
-  if (aqi <= US_AQI_UPPER_BOUND.veryUnhealthy) return "Very unhealthy";
-  return "Hazardous";
+  return AQI_CATEGORY_LABELS[categoryKey(aqi)];
 }
 
 export function advice(aqi: number | null, profile: Profile): string[] {

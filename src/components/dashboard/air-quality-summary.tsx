@@ -1,13 +1,9 @@
 import { ActionReason } from "@/components/action-reason";
 import type { Recommendation } from "@/features/recommendations/engine";
-import { category } from "@/lib/air";
+import { translateAqiCategory } from "@/features/i18n/aqi";
 import { localizeRecommendation } from "@/features/i18n/recommendations";
 import type { Air } from "@/types/air";
-import {
-  translate,
-  translateText,
-  type Language,
-} from "@/features/i18n/messages";
+import { translate, type Language } from "@/features/i18n/messages";
 
 type AirQualitySummaryProps = {
   cityName: string;
@@ -35,7 +31,7 @@ export function AirQualitySummary({
           <small>{translate(language, "usAqi")}</small>
         </div>
         <strong className="category">
-          {translateText(language, category(aqi))}
+          {translateAqiCategory(language, aqi)}
         </strong>
         <p>
           {translate(language, "modelEstimateFor")} {cityName}.{" "}

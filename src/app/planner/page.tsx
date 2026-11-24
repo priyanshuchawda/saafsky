@@ -11,7 +11,8 @@ import {
   nextForecastRange,
 } from "@/features/planner/activity-window";
 import { generateDailyPlan } from "@/features/planner/daily";
-import { category, upcomingForecast } from "@/lib/air";
+import { upcomingForecast } from "@/lib/air";
+import { translateAqiCategory } from "@/features/i18n/aqi";
 import { localMinuteAt } from "@/lib/freshness";
 import { useCity, useHousehold, useLanguage } from "@/hooks/use-preferences";
 import { displayCity } from "@/features/i18n/city";
@@ -278,7 +279,7 @@ export default function Planner() {
                 {result.start.replace("T", " ")}–{result.end.replace("T", " ")}
               </strong>{" "}
               · {translate(language, "peakUsAqi")} {Math.round(result.peakAqi)}{" "}
-              ({translateText(language, category(result.peakAqi))}).{" "}
+              ({translateAqiCategory(language, result.peakAqi)}).{" "}
               {translate(language, "estimateNotSafe")}
             </p>
           ) : result.kind === "no-suitable" ? (

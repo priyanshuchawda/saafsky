@@ -12,6 +12,22 @@ import { translateReason } from "../src/features/i18n/reasons.ts";
 import { localizeRecommendation } from "../src/features/i18n/recommendations.ts";
 import { localizeIndoorAction } from "../src/features/i18n/indoor.ts";
 import { localizeDailyStep } from "../src/features/i18n/daily.ts";
+import { translateAqiCategory } from "../src/features/i18n/aqi.ts";
+
+test("AQI categories use stable keys across boundaries and languages", () => {
+  for (const [aqi, english, hindi] of [
+    [null, "Unavailable", "उपलब्ध नहीं"],
+    [50, "Good", "अच्छी"],
+    [51, "Moderate", "मध्यम"],
+    [101, "Unhealthy for sensitive groups", "संवेदनशील समूहों के लिए अस्वस्थ"],
+    [151, "Unhealthy", "अस्वस्थ"],
+    [201, "Very unhealthy", "बहुत अस्वस्थ"],
+    [301, "Hazardous", "खतरनाक"],
+  ] as const) {
+    assert.equal(translateAqiCategory("en", aqi), english);
+    assert.equal(translateAqiCategory("hi", aqi), hindi);
+  }
+});
 
 test("recommendation translations follow action identity, including exercise variants", () => {
   const seen = new Set<string>();

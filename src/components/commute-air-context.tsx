@@ -3,14 +3,10 @@
 import Link from "next/link";
 import { commuteAirContext } from "@/features/sustainability/exposure";
 import { displayCity } from "@/features/i18n/city";
-import {
-  translate,
-  translateText,
-  type Language,
-} from "@/features/i18n/messages";
+import { translate, type Language } from "@/features/i18n/messages";
 import { useAirQuality } from "@/hooks/use-air-quality";
 import { useCity, useHousehold } from "@/hooks/use-preferences";
-import { category } from "@/lib/air";
+import { translateAqiCategory } from "@/features/i18n/aqi";
 
 export function CommuteAirContext({ language }: { language: Language }) {
   const [city, , cityReady] = useCity();
@@ -48,7 +44,7 @@ export function CommuteAirContext({ language }: { language: Language }) {
                     "{city}",
                     displayCity(city, language),
                   )}{" "}
-                  {Math.round(aqi)} · {translateText(language, category(aqi))}
+                  {Math.round(aqi)} · {translateAqiCategory(language, aqi)}
                 </strong>
               </p>
             )}
