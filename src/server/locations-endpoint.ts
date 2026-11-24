@@ -1,6 +1,8 @@
 import { locationSchema } from "../lib/schemas.ts";
 import { rateLimitResponse } from "./rate-limit-result.ts";
 import type { LimitDecision } from "./rate-limit-result.ts";
+import { reportServiceFailure } from "./diagnostics.ts";
+import { UpstreamHttpError } from "../lib/upstream-error.ts";
 
 type LocationsEndpointDependencies = {
   checkPublicRequest: (
@@ -38,10 +40,11 @@ export async function handleLocationsRequest(
       next: { revalidate: 86400 },
       signal: AbortSignal.timeout(8000),
     });
-    if (!response.ok) throw new Error("Provider error");
+    if (!response.ok) throw new UpstreamHttpError(response.status);
 
     return Response.json(locationSchema.parse(await response.json()));
-  } catch {
+  } catch (error) {
+    reportServiceFailure("locations", error);
     return Response.json(
       { error: "Location search is unavailable." },
       { status: 503 },

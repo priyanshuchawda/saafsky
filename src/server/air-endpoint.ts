@@ -2,6 +2,7 @@ import { parseCoordinates } from "../lib/coordinates.ts";
 import { rateLimitResponse } from "./rate-limit-result.ts";
 import type { LimitDecision } from "./rate-limit-result.ts";
 import type { AirResponse } from "../types/air.ts";
+import { reportServiceFailure } from "./diagnostics.ts";
 
 type AirEndpointDependencies = {
   loadAir: (latitude: number, longitude: number) => Promise<AirResponse>;
@@ -29,7 +30,8 @@ export async function handleAirRequest(
       coordinates.longitude,
     );
     return Response.json(data);
-  } catch {
+  } catch (error) {
+    reportServiceFailure("air", error);
     return Response.json(
       { error: "Air data is temporarily unavailable." },
       { status: 503 },

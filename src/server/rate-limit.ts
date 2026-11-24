@@ -3,6 +3,7 @@ import { Ratelimit } from "@upstash/ratelimit";
 import { trustedClientKey } from "@/server/client-key";
 import { applyRateLimitStages } from "@/server/rate-limit-stages";
 import type { LimitDecision, LimitResult } from "@/server/rate-limit-result";
+import { reportServiceFailure } from "@/server/diagnostics";
 
 type Decision = LimitDecision;
 type Scope = "air" | "locations" | "chat";
@@ -58,7 +59,8 @@ export async function checkPublicRequest(
       () => [minute.limit("global"), daily.limit("global")],
       Date.now,
     );
-  } catch {
+  } catch (error) {
+    reportServiceFailure("rate_limit", error);
     return { allowed: false, reason: "unavailable" };
   }
 }

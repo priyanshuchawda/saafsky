@@ -10,9 +10,10 @@ local and preserve existing routes and public response shapes.
 | Unknown evidence IDs | `findEvidence` rejects inherited properties for client-provided IDs; `tests/evidence.test.ts` covers known and unknown IDs including prototype names. | Schema validation and source whitelisting do not verify every claim in free-form model prose. |
 | Malformed request encoding | The bounded JSON reader rejects invalid UTF-8 rather than replacing invalid bytes; unit and HTTP tests cover rejection and preserve valid Hindi text. | Request validation remains one layer of the public API's defenses. |
 | Chat response caching | Success and error responses explicitly send `Cache-Control: no-store`; browser tests check validation and fail-closed responses. | This directive does not control behavior of clients that deliberately ignore it. |
+| Provider diagnostics | Air, location and limiter exceptions emit only a service name and coarse failure category. Unit and endpoint tests verify classifications, unchanged public errors and redaction. | Gemini diagnostics, correlation IDs, metrics and real infrastructure monitoring remain outstanding. |
 | Partial Content Security Policy | A local report-only experiment covered all seven route entries and a deliberately invalid base URL; the enforced policy restricts base URLs, form destinations, embedded objects and framing. Production-browser journeys and a blocked-base check passed. | Script and style sources are not restricted; this is not a complete XSS defense. No production report collector or cross-browser proof is claimed. |
 | Shared quota fairness | Trusted visitor limits run before global limits, so visitor-rejected requests do not consume shared counters. `tests/rate-limit-stages.test.ts` exercises denial, timeout, error and simulated concurrent requests. Invalid reset values fail closed instead of emitting an invalid retry header. | Visitor and global checks are separate Redis operations, so eligible requests add a sequential round trip. Simulated tests do not prove Upstash's distributed atomic behavior; many distinct visitors can still exhaust shared capacity. |
-| Untyped recommendation references | Catalog-derived reason and evidence unions protect controlled recommendation definitions. The assistant contract uses schema-inferred types. | Translation still partly relies on matching English text. |
+| Untyped recommendation references | Catalog-derived reason and evidence unions protect controlled recommendation definitions. The assistant contract uses schema-inferred types. | A legacy sentence-matching helper remains available for compatibility. |
 | Fragile explanation translation | Recommendations, indoor guidance, planner steps, AQI categories, availability messages, and deterministic fallbacks use stable identifiers. Rate-limit text uses structured retry metadata. Application code no longer calls the legacy sentence-matching translator, which remains exported for compatibility. | Remaining parameterized interface text and legacy compatibility behavior need further review. |
 | Repeated invalid-AQI checks | `src/lib/aqi-validity.ts` centralizes missing, negative, and non-finite handling across affected modules; `tests/aqi-validity.test.ts` and existing domain tests cover boundaries. | More timezone and forecast edge-case review remains valuable. |
 | Wall-time validation | Freshness, provider schemas and planner windows share a calendar-validating wall-time parser; impossible dates no longer normalize into fresh readings. Existing duplicate-hour safeguards remain in place. | A wall-clock index is not a zoned instant; broader timezone and real-world DST checks remain valuable. |
@@ -45,12 +46,12 @@ is implied by these checks.
 
 ## Local verification on 2026-11-25
 
-Formatting, lint, TypeScript, 87 unit tests, the production build, the bundle
+Formatting, lint, TypeScript, 89 unit tests, the production build, the bundle
 budget, 47 production-browser tests, and two public-mode API protection tests
 passed with `./scripts/verify.ps1 -Browser`. An earlier run encountered a
 local port 3100 conflict and was verified on port 3198. Provider credentials were set to
 empty values for this verification run. Unit coverage of modules loaded by the
-suite was 99.78% lines, 96.58% branches and 98.99% functions; other production
+suite was 99.79% lines, 96.68% branches and 99.04% functions; other production
 modules are not represented by those percentages. The client JavaScript total
 was 260.2 KiB gzip across 16 assets, compared with 252.9 KiB at baseline. The
 additional keyed Hindi copy contributes to the increase; the configured limit is
@@ -59,7 +60,7 @@ additional keyed Hindi copy contributes to the increase; the configured limit is
 | Criterion | Verified evidence | Further work |
 | --- | --- | --- |
 | Code quality | Typed references, shared response types, common AQI validity and passing static checks. | Complete the staged translation and time-handling review. |
-| Security | Request protection tests, typed/validated IDs and dependency audit. | CSP experiment, concurrency and live deployment review. |
+| Security | Request protection tests, typed/validated IDs, a partial CSP and dependency audit. | Stricter script policy, concurrency and live deployment review. |
 | Efficiency | Production build and compressed bundle budget. | Per-route performance and network profiling. |
 | Testing | Unit, browser, accessibility and public-mode suites passed locally. | Add remaining failure, cancellation and provider contract cases. |
 | Accessibility | Keyboard menu test, control-border checks and bilingual success-state axe scans. | Manual screen-reader, zoom, focus, and broader contrast review. |

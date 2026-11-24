@@ -1,4 +1,5 @@
 import { airSchema } from "../../lib/schemas.ts";
+import { UpstreamHttpError } from "../../lib/upstream-error.ts";
 
 type Fetcher = (url: URL, init: RequestInit) => Promise<Response>;
 export async function fetchAirForecast(
@@ -17,7 +18,7 @@ export async function fetchAirForecast(
     timezone: "auto",
   }).toString();
   const response = await fetcher(url, { signal: AbortSignal.timeout(8000) });
-  if (!response.ok) throw new Error("Air-quality provider returned an error");
+  if (!response.ok) throw new UpstreamHttpError(response.status);
   const data = airSchema.parse(await response.json());
   return { data, retrievedAt: now().toISOString() };
 }
