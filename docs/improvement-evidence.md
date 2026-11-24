@@ -10,6 +10,7 @@ local and preserve existing routes and public response shapes.
 | Unknown evidence IDs | `findEvidence` rejects inherited properties for client-provided IDs; `tests/evidence.test.ts` covers known and unknown IDs including prototype names. | Schema validation and source whitelisting do not verify every claim in free-form model prose. |
 | Malformed request encoding | The bounded JSON reader rejects invalid UTF-8 rather than replacing invalid bytes; unit and HTTP tests cover rejection and preserve valid Hindi text. | Request validation remains one layer of the public API's defenses. |
 | Chat response caching | Success and error responses explicitly send `Cache-Control: no-store`; browser tests check validation and fail-closed responses. | This directive does not control behavior of clients that deliberately ignore it. |
+| Partial Content Security Policy | A local report-only experiment covered all seven route entries and a deliberately invalid base URL; the enforced policy restricts base URLs, form destinations, embedded objects and framing. Production-browser journeys and a blocked-base check passed. | Script and style sources are not restricted; this is not a complete XSS defense. No production report collector or cross-browser proof is claimed. |
 | Shared quota fairness | Trusted visitor limits run before global limits, so visitor-rejected requests do not consume shared counters. `tests/rate-limit-stages.test.ts` exercises denial, timeout, error and simulated concurrent requests. Invalid reset values fail closed instead of emitting an invalid retry header. | Visitor and global checks are separate Redis operations, so eligible requests add a sequential round trip. Simulated tests do not prove Upstash's distributed atomic behavior; many distinct visitors can still exhaust shared capacity. |
 | Untyped recommendation references | Catalog-derived reason and evidence unions protect controlled recommendation definitions. The assistant contract uses schema-inferred types. | Translation still partly relies on matching English text. |
 | Fragile explanation translation | Recommendations, indoor guidance, planner steps, AQI categories, availability messages, and deterministic fallbacks use stable identifiers. Rate-limit text uses structured retry metadata. Application code no longer calls the legacy sentence-matching translator, which remains exported for compatibility. | Remaining parameterized interface text and legacy compatibility behavior need further review. |
@@ -26,9 +27,9 @@ local and preserve existing routes and public response shapes.
 
 ## Security and accessibility backlog
 
-- A Content Security Policy is not yet enforced. Next.js nonce-based policies
-  require dynamic rendering; a report-only experiment and production-route
-  compatibility checks are needed before selecting a policy.
+- The enforced CSP is partial. A stricter script policy requires a separate
+  compatibility and performance review: Next.js nonce-based policies require
+  dynamic rendering, and the current policy does not restrict script sources.
 - Test the complete keyboard and screen-reader experience with real assistive
   technology, including Hindi, focus movement, and dynamic announcements.
 - Existing AI responses validate the JSON shape and source IDs, but natural
@@ -45,7 +46,7 @@ is implied by these checks.
 ## Local verification on 2026-11-25
 
 Formatting, lint, TypeScript, 87 unit tests, the production build, the bundle
-budget, 46 production-browser tests, and two public-mode API protection tests
+budget, 47 production-browser tests, and two public-mode API protection tests
 passed with `./scripts/verify.ps1 -Browser`. An earlier run encountered a
 local port 3100 conflict and was verified on port 3198. Provider credentials were set to
 empty values for this verification run. Unit coverage of modules loaded by the

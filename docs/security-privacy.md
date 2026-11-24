@@ -14,7 +14,7 @@ Gemini free-tier content may be used to improve Google's products. Keep question
 - Zod validates incoming requests and external responses. Chat requests have body and output limits, a model timeout, and origin checks when an Origin header is present.
 - Shared Upstash quotas protect routes. On Vercel, a keyed pseudonymous visitor identifier supports additional per-visitor limits. Public requests require functioning rate-limit configuration and trusted visitor information.
 - The assistant receives server-selected actions. Responses are schema-validated and action and evidence references are checked against the approved catalog. Generated prose still requires careful interpretation.
-- Security response headers provide browser protections. The current configuration does not include a complete Content Security Policy.
+- Security response headers include a partial Content Security Policy restricting base URLs, form destinations, embedded objects, and framing. It does not restrict scripts or styles and therefore is not a complete XSS defense. A report-only candidate was exercised locally before enforcement; no report-collection endpoint is deployed.
 
 Provider availability and shared quotas can affect requests. Public deployments should use owner-controlled Upstash credentials and an independently generated `RATE_LIMIT_HASH_SECRET`.
 
