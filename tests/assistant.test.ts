@@ -74,3 +74,47 @@ test("browser assistant responses require a known mode and structured output", (
     false,
   );
 });
+
+test("assistant rejects forged references and oversized generated text", () => {
+  const actions: Recommendation[] = [
+    {
+      id: "check",
+      title: "Check",
+      description: "Review conditions.",
+      priority: "low",
+      category: "health",
+      reasonCodes: ["available_air_data"],
+      evidenceIds: ["airnow-aqi"],
+    },
+  ];
+  const reply = {
+    answer: "Check conditions.",
+    referencedActionIds: ["check"],
+    sourceIds: ["airnow-aqi"],
+    uncertainty: "",
+  };
+  for (const forged of [
+    "__proto__",
+    "constructor",
+    "<script>alert(1)</script>",
+  ]) {
+    assert.throws(() =>
+      validateAssistantReply(
+        JSON.stringify({ ...reply, referencedActionIds: [forged] }),
+        actions,
+      ),
+    );
+    assert.throws(() =>
+      validateAssistantReply(
+        JSON.stringify({ ...reply, sourceIds: [forged] }),
+        actions,
+      ),
+    );
+  }
+  assert.throws(() =>
+    validateAssistantReply(
+      JSON.stringify({ ...reply, answer: "x".repeat(1801) }),
+      actions,
+    ),
+  );
+});

@@ -2,6 +2,7 @@ import { GoogleGenAI } from "@google/genai";
 import type { Recommendation } from "@/features/recommendations/engine";
 import { evidenceCatalog } from "@/features/recommendations/evidence";
 import { validateAssistantReply } from "@/features/assistant/validate";
+import { geminiResponseSchema } from "@/features/assistant/response-format";
 import { withModelFallback } from "@/features/assistant/model-fallback";
 import type { ForecastContext } from "@/features/assistant/forecast-context";
 import type { Language } from "@/features/i18n/messages";
@@ -50,21 +51,7 @@ export async function explainPlan(
         response_format: {
           type: "text",
           mime_type: "application/json",
-          schema: {
-            type: "object",
-            properties: {
-              answer: { type: "string" },
-              referencedActionIds: { type: "array", items: { type: "string" } },
-              sourceIds: { type: "array", items: { type: "string" } },
-              uncertainty: { type: "string" },
-            },
-            required: [
-              "answer",
-              "referencedActionIds",
-              "sourceIds",
-              "uncertainty",
-            ],
-          },
+          schema: geminiResponseSchema,
         },
       },
       { timeout_ms: 12000, retries: { strategy: "none" } },

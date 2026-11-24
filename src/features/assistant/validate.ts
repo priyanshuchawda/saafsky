@@ -1,22 +1,22 @@
 import { z } from "zod";
 import type { Recommendation } from "@/features/recommendations/engine";
 
-const outputSchema = z.object({
+export const assistantOutputSchema = z.object({
   answer: z.string().min(1).max(1800),
   referencedActionIds: z.array(z.string().min(1).max(80)).max(8),
   sourceIds: z.array(z.string().min(1).max(80)).max(8),
   uncertainty: z.string().max(400),
 });
-export const assistantResponseSchema = outputSchema.extend({
+export const assistantResponseSchema = assistantOutputSchema.extend({
   mode: z.enum(["ai", "fallback"]),
 });
-export type AssistantExplanation = z.infer<typeof outputSchema>;
+export type AssistantExplanation = z.infer<typeof assistantOutputSchema>;
 export type AssistantResponse = z.infer<typeof assistantResponseSchema>;
 export function validateAssistantReply(
   raw: string,
   actions: Recommendation[],
 ): AssistantExplanation {
-  const parsed = outputSchema.parse(JSON.parse(raw));
+  const parsed = assistantOutputSchema.parse(JSON.parse(raw));
   const actionsById = new Map(actions.map((action) => [action.id, action]));
   if (parsed.referencedActionIds.some((id) => !actionsById.has(id)))
     throw new Error("Unknown action reference");
