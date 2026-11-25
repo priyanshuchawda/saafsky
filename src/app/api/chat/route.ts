@@ -13,6 +13,7 @@ import { decideLimits } from "@/server/rate-limit-result";
 import { readBoundedJson, RequestBodyTooLarge } from "@/lib/request-body";
 import { hasAllowedJsonOrigin } from "@/lib/request-origin";
 import { chatInputSchema } from "@/lib/schemas";
+import { reportServiceFailure } from "@/server/diagnostics";
 
 function privateJson(body: unknown, status = 200): NextResponse {
   return NextResponse.json(body, {
@@ -77,6 +78,7 @@ export async function POST(request: Request) {
   };
   return privateJson(
     await createAssistantReply(profile, {
+      onFailure: reportServiceFailure,
       language,
       getAqi,
       aiConfigured: Boolean(

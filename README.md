@@ -128,8 +128,8 @@ This verifies an AI-mode response using the key and Upstash credentials in `.env
 
 Latest local verification on **November 25, 2026**:
 
-- **97 unit tests passed.** The coverage run measured 99.79% lines, 96.86% branches, and 99.04% functions across modules loaded by the unit suite; configured minimums are 90%, 85%, and 90% respectively.
-- **50 production-browser tests passed**, covering both languages, in-flight language changes, focused assistant announcements, seven routes, keyboard-operated mobile navigation, household comparison, key journeys, and layouts from 320px through 1440px.
+- **98 unit tests passed.** The coverage run measured 99.79% lines, 96.93% branches, and 99.04% functions across modules loaded by the unit suite; configured minimums are 90%, 85%, and 90% respectively.
+- **51 production-browser tests passed**, covering both languages, in-flight search and assistant-error language changes, focused assistant announcements, seven routes, keyboard-operated mobile navigation, household comparison, key journeys, and layouts from 320px through 1440px.
 - **2 public API protection tests passed**, verifying public request validation and required protection behavior.
 - **Production smoke on November 18** at [saafsky.vercel.app](https://saafsky.vercel.app): page, air API, city lookup, and Gemini chat in AI mode returned successfully for that deployment.
 - **Client JavaScript: 260.7 KiB gzip** across 16 emitted assets, within the enforced 300 KiB project budget.

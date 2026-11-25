@@ -2,7 +2,7 @@ import { ZodError } from "zod";
 import { UpstreamHttpError } from "../lib/upstream-error.ts";
 export { UpstreamHttpError } from "../lib/upstream-error.ts";
 
-type Service = "air" | "locations" | "rate_limit";
+type Service = "air" | "locations" | "rate_limit" | "gemini";
 type FailureCode =
   "timeout" | "quota" | "upstream_http" | "upstream_contract" | "unexpected";
 type Diagnostic = {
@@ -16,6 +16,14 @@ export function classifyFailure(error: unknown): FailureCode {
   if (error instanceof UpstreamHttpError)
     return error.status === 429 ? "quota" : "upstream_http";
   if (error instanceof ZodError) return "upstream_contract";
+  if (error instanceof Error && "status" in error) {
+    const status = error.status;
+    if (typeof status === "number") {
+      if (status === 429) return "quota";
+      if (status === 408 || status === 504) return "timeout";
+      if (status >= 400 && status < 600) return "upstream_http";
+    }
+  }
   return "unexpected";
 }
 

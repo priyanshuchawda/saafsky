@@ -17,6 +17,10 @@ type AssistantDependencies = {
     actions: Recommendation[],
   ) => Promise<AssistantExplanation>;
   language?: Language;
+  onFailure?: (
+    service: "air" | "rate_limit" | "gemini",
+    error: unknown,
+  ) => void;
 };
 
 /** Keep a useful general plan available even when a provider or quota fails. */
@@ -27,8 +31,9 @@ export async function createAssistantReply(
   let aqi: number | null = null;
   try {
     aqi = await dependencies.getAqi();
-  } catch {
+  } catch (error) {
     // The recommendation engine treats unknown conditions conservatively.
+    dependencies.onFailure?.("air", error);
   }
   if (!isValidAqi(aqi)) aqi = null;
   const actions = generateRecommendations(aqi, profile);
@@ -46,10 +51,18 @@ export async function createAssistantReply(
     mode: "fallback" as const,
   };
   if (aqi === null || !dependencies.aiConfigured) return fallback;
+  let budgetAvailable: boolean;
   try {
-    if (!(await dependencies.checkAiBudget())) return fallback;
+    budgetAvailable = await dependencies.checkAiBudget();
+  } catch (error) {
+    dependencies.onFailure?.("rate_limit", error);
+    return fallback;
+  }
+  if (!budgetAvailable) return fallback;
+  try {
     return { ...(await dependencies.explain(aqi, actions)), mode: "ai" };
-  } catch {
+  } catch (error) {
+    dependencies.onFailure?.("gemini", error);
     return fallback;
   }
 }

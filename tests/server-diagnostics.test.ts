@@ -18,6 +18,18 @@ test("service failures are categorized without exposing provider or user data", 
   );
   assert.equal(classifyFailure(new UpstreamHttpError()), "upstream_http");
   assert.equal(classifyFailure(new UpstreamHttpError(429)), "quota");
+  assert.equal(
+    classifyFailure(
+      Object.assign(new Error("private provider error"), { status: 429 }),
+    ),
+    "quota",
+  );
+  assert.equal(
+    classifyFailure(
+      Object.assign(new Error("private provider error"), { status: 503 }),
+    ),
+    "upstream_http",
+  );
   assert.equal(classifyFailure(invalid.error), "upstream_contract");
   assert.equal(
     classifyFailure(new Error("secret question and key")),

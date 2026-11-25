@@ -10,6 +10,7 @@ SaafSky separates presentation, provider access, and decision logic into clear l
 | Provider boundaries | Air, geocoding, Redis, and Gemini access stay in server adapters; provider responses are parsed before use. | `src/server/`, `src/features/air-quality/provider.ts`, provider contract tests. |
 | AI behavior | Deterministic actions define the plan; Gemini explains supplied actions, action/evidence IDs are checked, and the browser renders only approved catalog links. | `src/server/chat.ts`, `src/features/assistant/validate.ts`, assistant and model-fallback tests. |
 | Resilience | The planner and recommendations work without Gemini; public deployments fail closed on malformed shared-protection configuration. | Endpoint, fallback, protection configuration, and production-browser tests. |
+| Diagnostics | Assistant fallback paths distinguish air, rate-limit, and Gemini failures through redacted service diagnostics without changing user responses. | `src/features/assistant/orchestrate.ts`, `src/server/diagnostics.ts`, orchestration tests. |
 | Accessible state | Search stores structured status so changing language updates in-flight result announcements; the assistant announces only request state and its latest reply. | `src/components/location-search.tsx`, `src/app/assistant/page.tsx`, browser regression tests. |
 | Resource use | Air forecasts and location searches use separate cache lifetimes; API requests have timeouts and shared budgets. | `src/server/air-provider.ts`, `src/server/locations-endpoint.ts`, `src/server/rate-limit.ts`. |
 
@@ -27,8 +28,8 @@ The script runs ESLint, strict typechecking, unit tests with coverage thresholds
 
 Verified locally against the production build on **November 25, 2026**:
 
-- **97 unit tests passed.** The coverage command enforces minimums of 90% lines, 85% branches, and 90% functions. The run measured 99.79% lines, 96.86% branches, and 99.04% functions across the modules loaded by the unit suite.
-- **50 production-browser tests passed**, including English and Hindi journeys, language changes during pending searches, focused assistant announcements, household comparison, all-page navigation, 320px through 1440px responsive layouts, touch-target sizing, axe checks, mobile keyboard navigation, and primary user journeys.
+- **98 unit tests passed.** The coverage command enforces minimums of 90% lines, 85% branches, and 90% functions. The run measured 99.79% lines, 96.93% branches, and 99.04% functions across the modules loaded by the unit suite.
+- **51 production-browser tests passed**, including English and Hindi journeys, language changes during pending searches and rate-limit errors, focused assistant announcements, household comparison, all-page navigation, 320px through 1440px responsive layouts, touch-target sizing, axe checks, mobile keyboard navigation, and primary user journeys.
 - **2 public API protection tests passed**, checking fail-closed public behavior and request validation before provider access.
 - **Client JavaScript measured 260.7 KiB gzip across 16 emitted chunks**, below the enforced 300 KiB project-wide budget. This counts all emitted client chunks and is not a per-route first-load estimate.
 - **Production dependency audit** on November 25 reported zero known vulnerabilities with `npm audit --omit=dev --audit-level=high` against the current lockfile. This checks known advisories and is not a complete security assessment.

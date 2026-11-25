@@ -61,3 +61,29 @@ test("rate limits show separate retry messages for air, search and assistant", a
       .getByText("Request limit reached. Please try again in 1 minute."),
   ).toBeVisible();
 });
+
+test("assistant rate-limit status follows a language change after failure", async ({
+  page,
+}) => {
+  await page.route("**/api/air?**", (route) =>
+    route.fulfill({ status: 503, json: { error: "Unavailable" } }),
+  );
+  await page.route("**/api/chat", (route) =>
+    route.fulfill({
+      status: 429,
+      headers: { "Retry-After": "15" },
+      json: { error: "limited" },
+    }),
+  );
+  await page.goto("/assistant", { waitUntil: "networkidle" });
+  await page.getByLabel("YOUR QUESTION ABOUT DELHI").fill("What should I do?");
+  await page.getByRole("button", { name: "Ask SaafSky" }).click();
+  const announcement = page.locator("#assistant-announcement");
+  await expect(announcement).toHaveText(
+    "Request limit reached. Please try again in 15 seconds.",
+  );
+  await page.locator("#site-language").selectOption("hi");
+  await expect(announcement).toHaveText(
+    "अनुरोध की सीमा पूरी हो गई है। कृपया 15 सेकंड बाद फिर कोशिश करें।",
+  );
+});

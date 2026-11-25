@@ -59,6 +59,51 @@ test("budget failures and model failures retain personalized fallback guidance",
   }
 });
 
+test("assistant fallbacks report only the failing service boundary", async () => {
+  const failures: string[] = [];
+  const onFailure = (service: string) => failures.push(service);
+
+  await createAssistantReply(profile, {
+    getAqi: async () => {
+      throw new Error("private provider response");
+    },
+    aiConfigured: true,
+    checkAiBudget: async () => true,
+    explain: async () => {
+      throw new Error("must not be called");
+    },
+    onFailure,
+  });
+  assert.deepEqual(failures, ["air"]);
+
+  failures.length = 0;
+  await createAssistantReply(profile, {
+    getAqi: async () => 180,
+    aiConfigured: true,
+    checkAiBudget: async () => {
+      throw new Error("private Redis response");
+    },
+    explain: async () => {
+      throw new Error("must not be called");
+    },
+    onFailure,
+  });
+  assert.deepEqual(failures, ["rate_limit"]);
+
+  failures.length = 0;
+  await createAssistantReply(profile, {
+    getAqi: async () => 180,
+    aiConfigured: true,
+    checkAiBudget: async () => true,
+    explain: async () => {
+      throw new Error("private model response");
+    },
+    onFailure,
+  });
+  assert.deepEqual(failures, ["gemini"]);
+  assert.doesNotMatch(failures.join(" "), /private/);
+});
+
 test("AI explanations receive rule-selected actions and appear only within budget", async () => {
   const reply = await createAssistantReply(profile, {
     getAqi: async () => 180,
