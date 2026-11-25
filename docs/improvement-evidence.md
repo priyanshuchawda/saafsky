@@ -36,6 +36,12 @@ section; existing routes and public response shapes remain in place.
 | Missing forecast text             | Missing hourly values retain the visible dash and expose localized text to assistive technology; a production-browser regression test verifies the alternative.                                                                                                                                                 | Manual screen-reader verification remains outstanding.                                                                                                                                                                                   |
 | Narration dependency              | ElevenLabs moved from production to development dependencies. The existing narration script remains available for a separate video workflow.                                                                                                                                                                    | Production-only installs intentionally do not include this development tool.                                                                                                                                                             |
 
+The latest source changes centralize server request and provider budgets,
+validate Gemini model configuration, and inject the Gemini interaction client
+so output validation, malformed responses, and model fallback can be tested
+without network access. The assistant also passes AQI and forecast data through
+an explicit typed context instead of a mutable closure.
+
 ## Security and accessibility backlog
 
 - The enforced CSP is partial. A stricter script policy requires a separate
@@ -60,11 +66,11 @@ is implied by these checks.
 
 ## Local verification on 2026-11-26
 
-Formatting, lint, TypeScript, 101 unit tests, the production build, the bundle
+Formatting, lint, TypeScript, 109 unit tests, the production build, the bundle
 budget, 51 production-browser tests, and two public-mode API protection tests
-passed with `./scripts/verify.ps1 -Browser`. Provider credentials were set to
-empty values for this verification run. Unit coverage of modules loaded by the
-suite was 99.80% lines, 96.93% branches and 99.04% functions; other production
+passed with `./scripts/verify.ps1 -Browser`. This suite run did not include a
+live-provider smoke test. Unit coverage of modules loaded by the
+suite was 98.75% lines, 95.95% branches and 98.23% functions; other production
 modules are not represented by those percentages. The client JavaScript total
 was 260.7 KiB gzip across 16 assets, compared with 252.9 KiB at baseline. The
 additional product functionality contributes to the increase; the configured
@@ -77,7 +83,7 @@ production dependency advisories on this date.
 | Code quality      | Domain-owned recommendation IDs, exhaustive Hindi recommendation mapping, shared response types, common AQI validity, a passing import-boundary regression, and passing static checks. | Continue time-handling and adapter-boundary review.                    |
 | Security          | Validated public protection configuration, request protection tests, typed/validated IDs, a partial CSP and dependency audit.                                                          | Stricter script policy, real concurrency and live deployment review.   |
 | Efficiency        | Production build and compressed bundle budget.                                                                                                                                         | Per-route performance and network profiling.                           |
-| Testing           | 101 unit tests, 51 production-browser tests, accessibility journeys, and two public-mode protection tests passed locally.                                                              | Add remaining provider and real-infrastructure failure cases.          |
+| Testing           | 109 unit tests, 51 production-browser tests, accessibility journeys, and two public-mode protection tests passed locally.                                                              | Add remaining provider and real-infrastructure failure cases.          |
 | Accessibility     | Focused assistant announcements, language-aware pending city search, keyboard journeys, control-border checks and bilingual axe scans.                                                 | Manual screen-reader, zoom, focus, and broader contrast review.        |
 | Problem alignment | All seven route entry points and existing browser journeys remain covered.                                                                                                             | Live providers and AI credentials were not exercised in the final run. |
 

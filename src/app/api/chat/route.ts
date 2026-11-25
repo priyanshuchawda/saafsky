@@ -5,7 +5,6 @@ import { loadAir } from "@/server/air-provider";
 import { isFresh } from "@/lib/freshness";
 import { createAssistantReply } from "@/features/assistant/orchestrate";
 import { buildForecastContext } from "@/features/assistant/forecast-context";
-import type { ForecastContext } from "@/features/assistant/forecast-context";
 import { explainPlan } from "@/server/chat";
 import { checkPublicRequest } from "@/server/rate-limit";
 import { rateLimitResponse } from "@/server/rate-limit-result";
@@ -15,6 +14,7 @@ import { hasAllowedJsonOrigin } from "@/lib/request-origin";
 import { chatInputSchema } from "@/lib/schemas";
 import { reportServiceFailure } from "@/server/diagnostics";
 import { SERVER_BUDGETS } from "@/config/server-budgets";
+import { geminiRuntimeConfig } from "@/config/server-runtime-config";
 
 function privateJson(body: unknown, status = 200): NextResponse {
   return NextResponse.json(body, {
@@ -48,18 +48,22 @@ export async function POST(request: Request) {
   }
   const { question, latitude, longitude, profile, history, language } =
     parsed.data;
-  let forecast: ForecastContext | null = null;
-  const getAqi = async (): Promise<number | null> => {
+  const geminiConfig = geminiRuntimeConfig(process.env);
+  const getAirContext = async () => {
     const { data, retrievedAt } = await loadAir(
       Math.round(latitude * 1000) / 1000,
       Math.round(longitude * 1000) / 1000,
     );
     const now = Date.now();
-    if (isFresh(retrievedAt, data.current.time, data.utc_offset_seconds, now)) {
-      forecast = buildForecastContext(data, now);
-      return data.current.us_aqi;
+    if (
+      !isFresh(retrievedAt, data.current.time, data.utc_offset_seconds, now)
+    ) {
+      return { aqi: null, forecast: null };
     }
-    return null;
+    return {
+      aqi: data.current.us_aqi,
+      forecast: buildForecastContext(data, now),
+    };
   };
   const checkAiBudget = async (): Promise<boolean> => {
     const redis = Redis.fromEnv();
@@ -83,21 +87,22 @@ export async function POST(request: Request) {
     await createAssistantReply(profile, {
       onFailure: reportServiceFailure,
       language,
-      getAqi,
-      aiConfigured: Boolean(
-        process.env.GEMINI_API_KEY &&
-        process.env.UPSTASH_REDIS_REST_URL &&
-        process.env.UPSTASH_REDIS_REST_TOKEN,
-      ),
+      getAirContext,
+      aiConfigured:
+        geminiConfig.kind === "ready" &&
+        Boolean(
+          process.env.UPSTASH_REDIS_REST_URL &&
+          process.env.UPSTASH_REDIS_REST_TOKEN,
+        ),
       checkAiBudget,
-      explain: (aqi, actions) =>
+      explain: (context, actions) =>
         explainPlan(
           question,
-          aqi,
+          context.aqi,
           actions,
           history,
           checkAiBudget,
-          forecast,
+          context.forecast,
           language,
         ),
     }),

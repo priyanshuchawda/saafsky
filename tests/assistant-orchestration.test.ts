@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { createAssistantReply } from "../src/features/assistant/orchestrate.ts";
 import type { HouseholdProfile } from "../src/features/recommendations/engine.ts";
 import { withModelFallback } from "../src/features/assistant/model-fallback.ts";
+import type { ForecastContext } from "../src/features/assistant/forecast-context.ts";
 
 const profile: HouseholdProfile = {
   sensitive: true,
@@ -12,10 +13,12 @@ const profile: HouseholdProfile = {
   cookingSmoke: false,
 };
 
+const airContext = (aqi: number | null) => ({ aqi, forecast: null });
+
 test("missing air data gives conservative guidance without spending AI quota", async () => {
   let budgetChecks = 0;
   const reply = await createAssistantReply(profile, {
-    getAqi: async () => {
+    getAirContext: async () => {
       throw new Error("provider down");
     },
     aiConfigured: true,
@@ -46,7 +49,7 @@ test("budget failures and model failures retain personalized fallback guidance",
     async () => true,
   ]) {
     const reply = await createAssistantReply(profile, {
-      getAqi: async () => 180,
+      getAirContext: async () => airContext(180),
       aiConfigured: true,
       checkAiBudget,
       explain: async () => {
@@ -64,7 +67,7 @@ test("assistant fallbacks report only the failing service boundary", async () =>
   const onFailure = (service: string) => failures.push(service);
 
   await createAssistantReply(profile, {
-    getAqi: async () => {
+    getAirContext: async () => {
       throw new Error("private provider response");
     },
     aiConfigured: true,
@@ -78,7 +81,7 @@ test("assistant fallbacks report only the failing service boundary", async () =>
 
   failures.length = 0;
   await createAssistantReply(profile, {
-    getAqi: async () => 180,
+    getAirContext: async () => airContext(180),
     aiConfigured: true,
     checkAiBudget: async () => {
       throw new Error("private Redis response");
@@ -92,7 +95,7 @@ test("assistant fallbacks report only the failing service boundary", async () =>
 
   failures.length = 0;
   await createAssistantReply(profile, {
-    getAqi: async () => 180,
+    getAirContext: async () => airContext(180),
     aiConfigured: true,
     checkAiBudget: async () => true,
     explain: async () => {
@@ -106,11 +109,11 @@ test("assistant fallbacks report only the failing service boundary", async () =>
 
 test("AI explanations receive rule-selected actions and appear only within budget", async () => {
   const reply = await createAssistantReply(profile, {
-    getAqi: async () => 180,
+    getAirContext: async () => airContext(180),
     aiConfigured: true,
     checkAiBudget: async () => true,
-    explain: async (aqi, actions) => {
-      assert.equal(aqi, 180);
+    explain: async (context, actions) => {
+      assert.equal(context.aqi, 180);
       assert.ok(
         actions.some((action) => action.id === "reduce-outdoor-exertion"),
       );
@@ -127,6 +130,32 @@ test("AI explanations receive rule-selected actions and appear only within budge
   assert.deepEqual(reply.sourceIds, ["airnow-aqi"]);
 });
 
+test("AI explanation receives the forecast together with its validated AQI context", async () => {
+  const forecast = {
+    timezone: "Asia/Kolkata",
+    hours: [{ time: "2026-11-26T18:00", aqi: 130 }],
+  };
+  let receivedForecast: ForecastContext | null = null;
+  const reply = await createAssistantReply(profile, {
+    getAirContext: async () => ({ aqi: 120, forecast }),
+    aiConfigured: true,
+    checkAiBudget: async () => true,
+    explain: async (context) => {
+      assert.equal(context.aqi, 120);
+      receivedForecast = context.forecast;
+      return {
+        answer: "Compare the available forecast hours.",
+        referencedActionIds: [],
+        sourceIds: [],
+        uncertainty: "Estimates can change.",
+      };
+    },
+  });
+
+  assert.equal(reply.mode, "ai");
+  assert.deepEqual(receivedForecast, forecast);
+});
+
 test("concurrent assistant attempts respect a shared simulated AI budget", async () => {
   let remaining = 4;
   let modelCalls = 0;
@@ -138,7 +167,7 @@ test("concurrent assistant attempts respect a shared simulated AI budget", async
   const responses = await Promise.all(
     Array.from({ length: 10 }, () =>
       createAssistantReply(profile, {
-        getAqi: async () => 180,
+        getAirContext: async () => airContext(180),
         aiConfigured: true,
         checkAiBudget: reserve,
         explain: async () =>
@@ -175,7 +204,7 @@ test("an alternate model requires its own simulated budget reservation", async (
     return true;
   };
   const response = await createAssistantReply(profile, {
-    getAqi: async () => 180,
+    getAirContext: async () => airContext(180),
     aiConfigured: true,
     checkAiBudget: reserve,
     explain: async () =>

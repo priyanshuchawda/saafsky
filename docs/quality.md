@@ -30,7 +30,7 @@ The script runs ESLint, strict typechecking, unit tests with coverage thresholds
 
 Verified locally against the production build on **November 26, 2026**:
 
-- **101 unit tests passed.** The coverage command enforces minimums of 90% lines, 85% branches, and 90% functions. The run measured 99.80% lines, 96.93% branches, and 99.04% functions across the modules loaded by the unit suite.
+- **109 unit tests passed.** The coverage command enforces minimums of 90% lines, 85% branches, and 90% functions. The run measured 98.75% lines, 95.95% branches, and 98.23% functions across the modules loaded by the unit suite.
 - **51 production-browser tests passed**, including English and Hindi journeys, language changes during pending searches and rate-limit errors, focused assistant announcements, household comparison, all-page navigation, 320px through 1440px responsive layouts, touch-target sizing, axe checks, mobile keyboard navigation, and primary user journeys.
 - **2 public API protection tests passed**, checking fail-closed public behavior and request validation before provider access.
 - **Client JavaScript measured 260.7 KiB gzip across 16 emitted chunks**, below the enforced 300 KiB project-wide budget. This counts all emitted client chunks and is not a per-route first-load estimate.

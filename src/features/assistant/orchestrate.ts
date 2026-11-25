@@ -7,13 +7,19 @@ import { translate, type Language } from "../i18n/messages.ts";
 import { localizeRecommendation } from "../i18n/recommendations.ts";
 import type { AssistantExplanation, AssistantResponse } from "./validate.ts";
 import { isValidAqi } from "../../lib/aqi-validity.ts";
+import type { ForecastContext } from "./forecast-context.ts";
+
+export type AssistantAirContext = {
+  aqi: number | null;
+  forecast: ForecastContext | null;
+};
 
 type AssistantDependencies = {
-  getAqi: () => Promise<number | null>;
+  getAirContext: () => Promise<AssistantAirContext>;
   aiConfigured: boolean;
   checkAiBudget: () => Promise<boolean>;
   explain: (
-    aqi: number,
+    context: AssistantAirContext,
     actions: Recommendation[],
   ) => Promise<AssistantExplanation>;
   language?: Language;
@@ -28,14 +34,15 @@ export async function createAssistantReply(
   profile: HouseholdProfile,
   dependencies: AssistantDependencies,
 ): Promise<AssistantResponse> {
-  let aqi: number | null = null;
+  let context: AssistantAirContext = { aqi: null, forecast: null };
   try {
-    aqi = await dependencies.getAqi();
+    context = await dependencies.getAirContext();
   } catch (error) {
     // The recommendation engine treats unknown conditions conservatively.
     dependencies.onFailure?.("air", error);
   }
-  if (!isValidAqi(aqi)) aqi = null;
+  if (!isValidAqi(context.aqi)) context = { aqi: null, forecast: null };
+  const aqi = context.aqi;
   const actions = generateRecommendations(aqi, profile);
   const language = dependencies.language ?? "en";
   const fallback = {
@@ -60,7 +67,7 @@ export async function createAssistantReply(
   }
   if (!budgetAvailable) return fallback;
   try {
-    return { ...(await dependencies.explain(aqi, actions)), mode: "ai" };
+    return { ...(await dependencies.explain(context, actions)), mode: "ai" };
   } catch (error) {
     dependencies.onFailure?.("gemini", error);
     return fallback;
