@@ -14,6 +14,7 @@ import { readBoundedJson, RequestBodyTooLarge } from "@/lib/request-body";
 import { hasAllowedJsonOrigin } from "@/lib/request-origin";
 import { chatInputSchema } from "@/lib/schemas";
 import { reportServiceFailure } from "@/server/diagnostics";
+import { SERVER_BUDGETS } from "@/config/server-budgets";
 
 function privateJson(body: unknown, status = 200): NextResponse {
   return NextResponse.json(body, {
@@ -30,7 +31,9 @@ export async function POST(request: Request) {
     );
   let parsed;
   try {
-    parsed = chatInputSchema.safeParse(await readBoundedJson(request, 12_288));
+    parsed = chatInputSchema.safeParse(
+      await readBoundedJson(request, SERVER_BUDGETS.chatBodyBytes),
+    );
   } catch (error) {
     if (error instanceof RequestBodyTooLarge)
       return privateJson({ error: "Request too large" }, 413);
@@ -62,12 +65,12 @@ export async function POST(request: Request) {
     const redis = Redis.fromEnv();
     const daily = new Ratelimit({
       redis,
-      limiter: Ratelimit.fixedWindow(20, "1 d"),
+      limiter: Ratelimit.fixedWindow(SERVER_BUDGETS.ai.day, "1 d"),
       prefix: "saafsky:chat:day",
     });
     const minute = new Ratelimit({
       redis,
-      limiter: Ratelimit.fixedWindow(3, "1 m"),
+      limiter: Ratelimit.fixedWindow(SERVER_BUDGETS.ai.minute, "1 m"),
       prefix: "saafsky:chat:minute",
     });
     const [day, short] = await Promise.all([

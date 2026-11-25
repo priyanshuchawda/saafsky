@@ -8,6 +8,7 @@ This page maps those practices to the code and checks that enforce them.
 
 | Layer                | Responsibility                                                                                   | Examples                        |
 | -------------------- | ------------------------------------------------------------------------------------------------ | ------------------------------- |
+| Configuration        | Pure, validated-independent request, AI, cache, and timeout budgets                              | `src/config/server-budgets.ts`  |
 | App Router           | Page composition and HTTP request coordination                                                   | `src/app/`, `src/app/api/`      |
 | Components and hooks | Accessible UI and browser state                                                                  | `src/components/`, `src/hooks/` |
 | Features             | AQI policy, recommendations, planning, indoor guidance, assistant contracts, and emissions logic | `src/features/`                 |
@@ -15,16 +16,20 @@ This page maps those practices to the code and checks that enforce them.
 | Shared primitives    | Runtime schemas, AQI policy, time handling, and request boundaries                               | `src/lib/`                      |
 
 The import-boundary regression test at `tests/architecture.test.ts` checks that
-lower-level modules do not depend on pages or UI, and that client-facing layers
-do not import server code. It permits one existing compatibility edge:
+lower-level modules do not depend on pages or UI, client-marked App Router
+modules do not import server code or server SDKs, and the internal source graph
+has no dependency cycles. It permits one existing compatibility edge:
 `src/lib/air.ts` calls the recommendation engine for its retained `advice()`
 helper. The exception is documented and can be removed when that compatibility
 API is migrated; it is not required to remain.
 
 ## Enforced checks
 
-- Strict TypeScript, unchecked-index protection, explicit optional-field
-  handling, and checked switch behavior are enabled in `tsconfig.json`.
+- Strict TypeScript, unused-code checks, explicit return paths, unchecked-index
+  protection, explicit optional-field handling, and checked switch behavior are
+  enabled in `tsconfig.json`.
+- ESLint rejects explicit `any` types, and the TypeScript architecture test
+  guards internal layer dependencies and client/server boundaries.
 - ESLint and Prettier run before the release verification finishes.
 - Runtime schemas validate external air data, API inputs, and assistant output.
 - Stable recommendation IDs connect the rules engine to an exhaustive Hindi

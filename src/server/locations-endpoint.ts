@@ -3,6 +3,7 @@ import { rateLimitResponse } from "./rate-limit-result.ts";
 import type { LimitDecision } from "./rate-limit-result.ts";
 import { reportServiceFailure } from "./diagnostics.ts";
 import { UpstreamHttpError } from "../lib/upstream-error.ts";
+import { SERVER_BUDGETS } from "../config/server-budgets.ts";
 
 type LocationsEndpointDependencies = {
   checkPublicRequest: (
@@ -37,8 +38,8 @@ export async function handleLocationsRequest(
     }).toString();
     const fetcher = dependencies.fetcher ?? fetch;
     const response = await fetcher(url, {
-      next: { revalidate: 86400 },
-      signal: AbortSignal.timeout(8000),
+      next: { revalidate: SERVER_BUDGETS.cache.locationsRevalidateSeconds },
+      signal: AbortSignal.timeout(SERVER_BUDGETS.timeouts.geocodingMs),
     });
     if (!response.ok) throw new UpstreamHttpError(response.status);
 

@@ -5,6 +5,7 @@ import { applyRateLimitStages } from "@/server/rate-limit-stages";
 import type { LimitDecision, LimitResult } from "@/server/rate-limit-result";
 import { reportServiceFailure } from "@/server/diagnostics";
 import { protectionConfig } from "@/server/protection-config";
+import { SERVER_BUDGETS } from "@/config/server-budgets";
 
 type Decision = LimitDecision;
 type Scope = "air" | "locations" | "chat";
@@ -26,29 +27,33 @@ export async function checkPublicRequest(
   if (config.onVercel && !client)
     return { allowed: false, reason: "unavailable" };
   try {
+    const requestBudget = SERVER_BUDGETS.requests[scope];
     const redis = Redis.fromEnv();
     const minute = new Ratelimit({
       redis,
-      limiter: Ratelimit.fixedWindow(scope === "chat" ? 5 : 30, "1 m"),
+      limiter: Ratelimit.fixedWindow(requestBudget.minute, "1 m"),
       prefix: `saafsky:${scope}:requests`,
     });
     const daily = new Ratelimit({
       redis,
-      limiter: Ratelimit.fixedWindow(scope === "chat" ? 50 : 1000, "1 d"),
+      limiter: Ratelimit.fixedWindow(requestBudget.day, "1 d"),
       prefix: `saafsky:${scope}:daily`,
     });
     const visitorChecks: (() => Promise<LimitResult>)[] = [];
     if (client) {
       const perClient = new Ratelimit({
         redis,
-        limiter: Ratelimit.fixedWindow(scope === "chat" ? 3 : 15, "1 m"),
+        limiter: Ratelimit.fixedWindow(requestBudget.visitorMinute, "1 m"),
         prefix: `saafsky:${scope}:visitor`,
       });
       visitorChecks.push(() => perClient.limit(client));
       if (scope === "chat") {
         const perDay = new Ratelimit({
           redis,
-          limiter: Ratelimit.fixedWindow(5, "1 d"),
+          limiter: Ratelimit.fixedWindow(
+            SERVER_BUDGETS.requests.chat.visitorDay,
+            "1 d",
+          ),
           prefix: "saafsky:chat:visitor-day",
         });
         visitorChecks.push(() => perDay.limit(client));

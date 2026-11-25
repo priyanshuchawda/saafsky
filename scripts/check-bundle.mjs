@@ -22,7 +22,9 @@ let files;
 try {
   files = (await listFiles(chunkRoot)).filter((file) => file.endsWith(".js"));
 } catch {
-  throw new Error("Production client assets are missing. Run npm run build first.");
+  throw new Error(
+    "Production client assets are missing. Run npm run build first.",
+  );
 }
 
 if (files.length === 0) {
@@ -53,5 +55,7 @@ console.log(
 );
 
 if (compressedBytes > budgetBytes) {
-  throw new Error("Production client JavaScript exceeds its compressed-size budget.");
+  throw new Error(
+    "Production client JavaScript exceeds its compressed-size budget.",
+  );
 }

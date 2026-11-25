@@ -24,6 +24,15 @@ function isWithin(directory: string, path: string): boolean {
   );
 }
 
+function sourceModule(sourcePath: string): ts.SourceFile {
+  return ts.createSourceFile(
+    sourcePath,
+    readFileSync(sourcePath, "utf8"),
+    ts.ScriptTarget.Latest,
+    true,
+  );
+}
+
 function resolveImport(sourcePath: string, specifier: string): string | null {
   if (specifier.startsWith("@/"))
     return resolve(sourceRoot, specifier.slice(2));
@@ -32,12 +41,7 @@ function resolveImport(sourcePath: string, specifier: string): string | null {
 }
 
 function importedModules(sourcePath: string): string[] {
-  const source = ts.createSourceFile(
-    sourcePath,
-    readFileSync(sourcePath, "utf8"),
-    ts.ScriptTarget.Latest,
-    true,
-  );
+  const source = sourceModule(sourcePath);
   const imports: string[] = [];
   function visit(node: ts.Node): void {
     const [firstArgument] = ts.isCallExpression(node) ? node.arguments : [];
@@ -63,6 +67,72 @@ function importedModules(sourcePath: string): string[] {
   return imports;
 }
 
+function isClientModule(sourcePath: string): boolean {
+  const [firstStatement] = sourceModule(sourcePath).statements;
+  return Boolean(
+    firstStatement &&
+    ts.isExpressionStatement(firstStatement) &&
+    ts.isStringLiteral(firstStatement.expression) &&
+    firstStatement.expression.text === "use client",
+  );
+}
+
+function resolveSourceFile(
+  sourcePath: string,
+  specifier: string,
+  knownFiles: Set<string>,
+): string | null {
+  const unresolved = resolveImport(sourcePath, specifier);
+  if (!unresolved) return null;
+  const candidates = [
+    unresolved,
+    `${unresolved}.ts`,
+    `${unresolved}.tsx`,
+    `${unresolved}.mts`,
+    resolve(unresolved, "index.ts"),
+    resolve(unresolved, "index.tsx"),
+  ];
+  return candidates.find((candidate) => knownFiles.has(candidate)) ?? null;
+}
+
+function findImportCycles(files: string[]): string[][] {
+  const knownFiles = new Set(files);
+  const graph = new Map(
+    files.map((file) => [
+      file,
+      importedModules(file)
+        .map((specifier) => resolveSourceFile(file, specifier, knownFiles))
+        .filter((dependency): dependency is string => dependency !== null),
+    ]),
+  );
+  const visited = new Set<string>();
+  const stack: string[] = [];
+  const activeIndex = new Map<string, number>();
+  const cycles = new Map<string, string[]>();
+
+  function visit(file: string): void {
+    visited.add(file);
+    activeIndex.set(file, stack.length);
+    stack.push(file);
+    for (const dependency of graph.get(file) ?? []) {
+      const cycleStart = activeIndex.get(dependency);
+      if (cycleStart !== undefined) {
+        const cycle = [...stack.slice(cycleStart), dependency];
+        cycles.set(cycle.slice(0, -1).sort().join("|"), cycle);
+      } else if (!visited.has(dependency)) {
+        visit(dependency);
+      }
+    }
+    stack.pop();
+    activeIndex.delete(file);
+  }
+
+  for (const file of files) {
+    if (!visited.has(file)) visit(file);
+  }
+  return [...cycles.values()];
+}
+
 test("source imports preserve SaafSky's application and domain boundaries", () => {
   // Preserve this existing public helper until its callers migrate to the feature API.
   const compatibilityEdges = new Set([
@@ -85,30 +155,61 @@ test("source imports preserve SaafSky's application and domain boundaries", () =
     },
     { owner: "src/components", targets: ["src/app", "src/server"] },
     { owner: "src/hooks", targets: ["src/app", "src/server"] },
+    {
+      owner: "src/server",
+      targets: ["src/app", "src/components", "src/hooks"],
+    },
+    {
+      owner: "src/config",
+      targets: [
+        "src/app",
+        "src/components",
+        "src/features",
+        "src/hooks",
+        "src/lib",
+        "src/server",
+        "src/types",
+      ],
+    },
   ];
   const violations: string[] = [];
+  const clientViolations: string[] = [];
+  const files = sourceFiles(sourceRoot);
+  const serverRoot = resolve(sourceRoot, "server");
+  const clientOnlyPackages = ["@google/genai", "@upstash/redis"];
 
-  for (const sourcePath of sourceFiles(sourceRoot)) {
+  for (const sourcePath of files) {
     const sourceRelative = relative(repositoryRoot, sourcePath)
       .split(sep)
       .join("/");
     const rule = forbiddenTargets.find(({ owner }) =>
       sourceRelative.startsWith(`${owner}/`),
     );
-    if (!rule) continue;
-
     for (const specifier of importedModules(sourcePath)) {
       const target = resolveImport(sourcePath, specifier);
-      if (!target || !isWithin(sourceRoot, target)) continue;
-      const targetRelative = relative(repositoryRoot, target)
-        .split(sep)
-        .join("/");
-      if (
-        rule.targets.some((forbidden) =>
-          targetRelative.startsWith(`${forbidden}/`),
-        )
-      ) {
-        violations.push(`${sourceRelative} -> ${specifier}`);
+      if (rule && target && isWithin(sourceRoot, target)) {
+        const targetRelative = relative(repositoryRoot, target)
+          .split(sep)
+          .join("/");
+        if (
+          rule.targets.some((forbidden) =>
+            targetRelative.startsWith(`${forbidden}/`),
+          )
+        ) {
+          violations.push(`${sourceRelative} -> ${specifier}`);
+        }
+      }
+
+      if (sourceRelative.startsWith("src/app/") && isClientModule(sourcePath)) {
+        const importsServerCode = target && isWithin(serverRoot, target);
+        const importsServerSdk = clientOnlyPackages.some(
+          (packageName) =>
+            specifier === packageName ||
+            specifier.startsWith(`${packageName}/`),
+        );
+        if (importsServerCode || importsServerSdk) {
+          clientViolations.push(`${sourceRelative} -> ${specifier}`);
+        }
       }
     }
   }
@@ -118,4 +219,15 @@ test("source imports preserve SaafSky's application and domain boundaries", () =
     [],
     "Move shared logic downward or inject server dependencies at route boundaries.",
   );
+  assert.deepEqual(
+    clientViolations,
+    [],
+    "Client-marked App Router modules must not import server code or server SDKs.",
+  );
+  const cycles = findImportCycles(files).map((cycle) =>
+    cycle
+      .map((file) => relative(repositoryRoot, file).split(sep).join("/"))
+      .join(" -> "),
+  );
+  assert.deepEqual(cycles, [], "Keep the internal source graph acyclic.");
 });

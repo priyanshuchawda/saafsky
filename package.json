@@ -15,8 +15,8 @@
     "test:e2e": "playwright test",
     "test:e2e:production": "playwright test --config playwright.production.config.ts",
     "test:protection": "playwright test --config playwright.protection.config.ts",
-    "format:check": "prettier --check \"src/**/*.{ts,tsx,css}\" \"tests/**/*.ts\" README.md CODE_QUALITY.md PROBLEM_ALIGNMENT.md docs/quality.md docs/improvement-evidence.md",
-    "format": "prettier --write \"src/**/*.{ts,tsx,css}\" \"tests/**/*.ts\""
+    "format:check": "prettier --check \"src/**/*.{ts,tsx,css}\" \"tests/**/*.ts\" \"scripts/**/*.mjs\" README.md CODE_QUALITY.md PROBLEM_ALIGNMENT.md docs/quality.md docs/improvement-evidence.md docs/accessibility.md docs/api.md eslint.config.mjs next.config.ts tsconfig.json playwright.config.ts playwright.production.config.ts playwright.protection.config.ts",
+    "format": "prettier --write \"src/**/*.{ts,tsx,css}\" \"tests/**/*.ts\" \"scripts/**/*.mjs\" README.md CODE_QUALITY.md PROBLEM_ALIGNMENT.md docs/quality.md docs/improvement-evidence.md docs/accessibility.md docs/api.md eslint.config.mjs next.config.ts tsconfig.json playwright.config.ts playwright.production.config.ts playwright.protection.config.ts"
   },
   "dependencies": {
     "@google/genai": "^3.4.0",

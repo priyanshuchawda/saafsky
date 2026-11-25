@@ -6,6 +6,7 @@ import { geminiResponseSchema } from "@/features/assistant/response-format";
 import { withModelFallback } from "@/features/assistant/model-fallback";
 import type { ForecastContext } from "@/features/assistant/forecast-context";
 import type { Language } from "@/features/i18n/messages";
+import { SERVER_BUDGETS } from "@/config/server-budgets";
 
 export async function explainPlan(
   question: string,
@@ -47,14 +48,19 @@ export async function explainPlan(
             })),
           })),
         }),
-        generation_config: { max_output_tokens: 500 },
+        generation_config: {
+          max_output_tokens: SERVER_BUDGETS.ai.maxOutputTokens,
+        },
         response_format: {
           type: "text",
           mime_type: "application/json",
           schema: geminiResponseSchema,
         },
       },
-      { timeout_ms: 12000, retries: { strategy: "none" } },
+      {
+        timeout_ms: SERVER_BUDGETS.timeouts.geminiMs,
+        retries: { strategy: "none" },
+      },
     );
     return validateAssistantReply(interaction.output_text ?? "", actions);
   };

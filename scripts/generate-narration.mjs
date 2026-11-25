@@ -6,7 +6,9 @@ import { pipeline } from "node:stream/promises";
 
 const [, , textPath, outputPath] = process.argv;
 if (!textPath || !outputPath) {
-  throw new Error("Usage: node --env-file=.env.local scripts/generate-narration.mjs <text-file> <output.mp3>");
+  throw new Error(
+    "Usage: node --env-file=.env.local scripts/generate-narration.mjs <text-file> <output.mp3>",
+  );
 }
 
 const text = (await readFile(textPath, "utf8")).trim();
