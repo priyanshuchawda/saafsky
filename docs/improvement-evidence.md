@@ -44,9 +44,10 @@ an explicit typed context instead of a mutable closure.
 
 ## Security and accessibility backlog
 
-- The enforced CSP is partial. A stricter script policy requires a separate
-  compatibility and performance review: Next.js nonce-based policies require
-  dynamic rendering, and the current policy does not restrict script sources.
+- The enforced CSP retains the compatible baseline; a broader policy is now
+  sent as `Content-Security-Policy-Report-Only` and checked by the production
+  browser security test. Enforcement still needs review against observed
+  browser violations. Next.js nonce policies require dynamic rendering.
 - Test the complete keyboard and screen-reader experience with real assistive
   technology, including Hindi, focus movement, and dynamic announcements.
 - Existing AI responses validate the JSON shape and source IDs, but natural

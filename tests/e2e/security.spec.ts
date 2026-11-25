@@ -11,6 +11,10 @@ test("responses send security headers and reject cross-origin chat", async ({
   expect(policy).toContain("form-action 'self'");
   expect(policy).toContain("object-src 'none'");
   expect(policy).toContain("frame-ancestors 'none'");
+  const reportOnly = page.headers()["content-security-policy-report-only"];
+  expect(reportOnly).toContain("default-src 'self'");
+  expect(reportOnly).toContain("script-src 'self'");
+  expect(reportOnly).toContain("connect-src 'self'");
   const blocked = await request.post("/api/chat", {
     headers: {
       origin: "https://other.example",
