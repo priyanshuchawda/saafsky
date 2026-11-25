@@ -9,8 +9,21 @@ export type HouseholdProfile = {
   commute: "none" | "walk" | "bike" | "public" | "car";
   cookingSmoke: boolean;
 };
+
+/** Stable identifiers shared by recommendation producers and localization. */
+export const RECOMMENDATION_IDS = [
+  "air-unavailable",
+  "indoor-smoke",
+  "reduce-outdoor-exertion",
+  "sensitive-caution",
+  "monitor-conditions",
+  "essential-trips",
+  "commute-exposure",
+] as const;
+export type RecommendationId = (typeof RECOMMENDATION_IDS)[number];
+
 export type Recommendation = {
-  id: string;
+  id: RecommendationId;
   title: string;
   description: string;
   priority: "high" | "medium" | "low";

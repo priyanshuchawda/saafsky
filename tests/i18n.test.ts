@@ -6,7 +6,10 @@ import {
   translateText,
   type MessageKey,
 } from "../src/features/i18n/messages.ts";
-import { generateRecommendations } from "../src/features/recommendations/engine.ts";
+import {
+  generateRecommendations,
+  RECOMMENDATION_IDS,
+} from "../src/features/recommendations/engine.ts";
 import { reasonDescriptions } from "../src/features/recommendations/evidence.ts";
 import { translateReason } from "../src/features/i18n/reasons.ts";
 import { localizeRecommendation } from "../src/features/i18n/recommendations.ts";
@@ -68,7 +71,26 @@ test("recommendation translations follow action identity, including exercise var
       }
     }
   }
-  assert.equal(seen.size, 7);
+  assert.deepEqual([...seen].sort(), [...RECOMMENDATION_IDS].sort());
+});
+
+test("unknown Hindi recommendation IDs are not silently shown in English", () => {
+  const [action] = generateRecommendations(null, {
+    sensitive: false,
+    children: false,
+    outdoorExercise: false,
+    commute: "none",
+    cookingSmoke: false,
+  });
+  assert.ok(action);
+  assert.throws(
+    () =>
+      Reflect.apply(localizeRecommendation, undefined, [
+        "hi",
+        { ...action, id: "unknown" },
+      ]),
+    /Unknown recommendation ID/,
+  );
 });
 
 test("reason translations use stable IDs in both languages", () => {

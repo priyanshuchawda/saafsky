@@ -16,7 +16,9 @@ type Reply = Pick<
 >;
 type Turn = { question: string; reply: Reply; language: Language };
 type RequestStatus =
-  { kind: "idle" } | { kind: "pending" } | { kind: "error"; message: string };
+  | { kind: "idle" }
+  | { kind: "pending" }
+  | { kind: "error"; rateLimit: RateLimitError | null };
 export function useAssistant(
   city: City,
   profile: HouseholdProfile,
@@ -31,7 +33,9 @@ export function useAssistant(
     requestStatus.kind === "pending"
       ? translate(language, "preparingAnswer")
       : requestStatus.kind === "error"
-        ? requestStatus.message
+        ? requestStatus.rateLimit
+          ? localizeRateLimit(language, requestStatus.rateLimit)
+          : translate(language, "assistantUnavailable")
         : "";
   const activeRequest = useRef<AbortController | null>(null);
   useEffect(() => () => activeRequest.current?.abort(), []);
@@ -90,10 +94,7 @@ export function useAssistant(
       if (!controller.signal.aborted)
         setRequestStatus({
           kind: "error",
-          message:
-            error instanceof RateLimitError
-              ? localizeRateLimit(language, error)
-              : translate(language, "assistantUnavailable"),
+          rateLimit: error instanceof RateLimitError ? error : null,
         });
     } finally {
       if (activeRequest.current === controller) activeRequest.current = null;

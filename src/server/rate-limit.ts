@@ -4,6 +4,7 @@ import { trustedClientKey } from "@/server/client-key";
 import { applyRateLimitStages } from "@/server/rate-limit-stages";
 import type { LimitDecision, LimitResult } from "@/server/rate-limit-result";
 import { reportServiceFailure } from "@/server/diagnostics";
+import { protectionConfig } from "@/server/protection-config";
 
 type Decision = LimitDecision;
 type Scope = "air" | "locations" | "chat";
@@ -13,18 +14,17 @@ export async function checkPublicRequest(
   scope: Scope,
   request: Request,
 ): Promise<Decision> {
-  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
-  if (!process.env.UPSTASH_REDIS_REST_URL || !token)
-    return !process.env.VERCEL && process.env.SAAFSKY_PUBLIC !== "true"
-      ? { allowed: true }
-      : { allowed: false, reason: "unavailable" };
-  const onVercel = Boolean(process.env.VERCEL);
+  const config = protectionConfig(process.env);
+  if (config.kind === "local") return { allowed: true };
+  if (config.kind === "unavailable")
+    return { allowed: false, reason: "unavailable" };
   const client = trustedClientKey(
     request.headers,
-    onVercel,
-    process.env.RATE_LIMIT_HASH_SECRET ?? "",
+    config.onVercel,
+    config.hashSecret,
   );
-  if (onVercel && !client) return { allowed: false, reason: "unavailable" };
+  if (config.onVercel && !client)
+    return { allowed: false, reason: "unavailable" };
   try {
     const redis = Redis.fromEnv();
     const minute = new Ratelimit({

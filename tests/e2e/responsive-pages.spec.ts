@@ -208,6 +208,8 @@ test("Hindi language persists across routes and fits mobile and desktop layouts"
   await page.goto("/assistant", { waitUntil: "domcontentloaded" });
   await page.getByLabel(/आपका सवाल/).fill("आज बाहर जाना ठीक है?");
   await page.getByRole("button", { name: "साफ़स्काई से पूछें" }).click();
-  await expect(page.getByText("बाहर की गतिविधि कम करें।")).toBeVisible();
+  await expect(
+    page.locator("section.plan").getByText("बाहर की गतिविधि कम करें।"),
+  ).toBeVisible();
   expect(receivedLanguage).toBe("hi");
 });

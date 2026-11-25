@@ -56,6 +56,8 @@ test("rate limits show separate retry messages for air, search and assistant", a
   await page.getByLabel("YOUR QUESTION ABOUT DELHI").fill("What should I do?");
   await page.getByRole("button", { name: "Ask SaafSky" }).click();
   await expect(
-    page.getByText("Request limit reached. Please try again in 1 minute."),
+    page
+      .locator("#assistant-announcement")
+      .getByText("Request limit reached. Please try again in 1 minute."),
   ).toBeVisible();
 });

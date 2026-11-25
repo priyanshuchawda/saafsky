@@ -9,7 +9,7 @@ import type { Recommendation } from "../src/features/recommendations/engine.ts";
 test("assistant output accepts only action-linked evidence references", () => {
   const actions: Recommendation[] = [
     {
-      id: "check",
+      id: "monitor-conditions",
       title: "Check conditions",
       description: "Review the forecast.",
       priority: "low" as const,
@@ -20,7 +20,7 @@ test("assistant output accepts only action-linked evidence references", () => {
   ];
   const good = JSON.stringify({
     answer: "Consider the plan.",
-    referencedActionIds: ["check"],
+    referencedActionIds: ["monitor-conditions"],
     sourceIds: ["airnow-aqi"],
     uncertainty: "Forecasts can change.",
   });
@@ -78,7 +78,7 @@ test("browser assistant responses require a known mode and structured output", (
 test("assistant rejects forged references and oversized generated text", () => {
   const actions: Recommendation[] = [
     {
-      id: "check",
+      id: "monitor-conditions",
       title: "Check",
       description: "Review conditions.",
       priority: "low",
@@ -89,7 +89,7 @@ test("assistant rejects forged references and oversized generated text", () => {
   ];
   const reply = {
     answer: "Check conditions.",
-    referencedActionIds: ["check"],
+    referencedActionIds: ["monitor-conditions"],
     sourceIds: ["airnow-aqi"],
     uncertainty: "",
   };

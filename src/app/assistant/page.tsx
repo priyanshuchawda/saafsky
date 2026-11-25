@@ -75,8 +75,17 @@ export default function Assistant() {
           {translate(language, "askSaafSky")}
         </button>
       </form>
+      <p
+        id="assistant-announcement"
+        className="sr-only"
+        role="status"
+        aria-live="polite"
+        lang={status ? language : (turns.at(-1)?.language ?? language)}
+      >
+        {status || turns.at(-1)?.reply.answer || ""}
+      </p>
       {(status || turns.length > 0) && (
-        <section className="plan scenario-result" aria-live="polite">
+        <section className="plan scenario-result">
           {status && <p>{status}</p>}
           {turns.map((turn, index) => (
             <div key={`${index}-${turn.question}`} lang={turn.language}>

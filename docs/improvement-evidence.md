@@ -24,7 +24,11 @@ local and preserve existing routes and public response shapes.
 | Mobile navigation | The menu closes when a navigation link is selected. The keyboard test reproduced the previously open menu and now verifies closure. | Real assistive-technology testing remains unverified. |
 | Normal-state accessibility | Browser axe checks exercise all seven routes in English and Hindi with mocked current forecast data in addition to existing error-state scans. The expanded test found a Hindi home-link name mismatch; the accessible name now includes the visible brand text. | Automated checks cannot establish WCAG conformance. |
 | Assistant navigation translation | The dashboard link uses the existing language dictionary; a browser test verifies English and Hindi labels. | Other legacy sentence-based translations still require migration. |
-| Assistant pending focus | The pending submit control retains focus and exposes its unavailable state; an active-request guard prevents repeated submissions, including after a language switch. Browser tests cover the focus and request behavior. | Real assistive-technology verification and a broader review of live-region announcements remain outstanding. |
+| Assistant pending focus | The pending submit control retains focus and exposes its unavailable state; an active-request guard prevents repeated submissions, including after a language switch. Browser tests cover the focus and request behavior. | Real assistive-technology verification remains outstanding. |
+| Typed recommendation identity | `RecommendationId` is defined with the domain catalog, and the Hindi catalog uses `satisfies Record<RecommendationId, ...>` so every known action must have translated content. Unit tests cover catalog completeness and reject unknown IDs. | Newly added recommendation IDs require a matching Hindi entry, by design. |
+| Language-safe city search | Location search stores a typed status/result instead of translated text; visible status copy is rendered from the currently selected language. Production-browser tests change language while a search is pending and cover results and rate limits. | Manual assistive-technology testing remains outstanding. |
+| Focused assistant announcements | The conversation transcript is no longer a live region. A persistent status region announces request state and the latest answer; browser tests cover pending, success, and clearing the conversation. | Manual NVDA/VoiceOver verification remains outstanding. |
+| Public protection configuration | A pure configuration validator makes incomplete or malformed public Redis settings fail closed while retaining local development and local HTTP emulator support. Unit and public-mode HTTP tests cover configuration and pre-provider rejection. | Real Upstash concurrency and deployment configuration still need controlled infrastructure verification. |
 | Missing forecast text | Missing hourly values retain the visible dash and expose localized text to assistive technology; a production-browser regression test verifies the alternative. | Manual screen-reader verification remains outstanding. |
 | Narration dependency | ElevenLabs moved from production to development dependencies. The existing narration script remains available for a separate video workflow. | Production-only installs intentionally do not include this development tool. |
 
@@ -52,24 +56,25 @@ is implied by these checks.
 
 ## Local verification on 2026-11-25
 
-Formatting, lint, TypeScript, 93 unit tests, the production build, the bundle
-budget, 47 production-browser tests, and two public-mode API protection tests
-passed with `./scripts/verify.ps1 -Browser`. An earlier run encountered a
-local port 3100 conflict and was verified on port 3198. Provider credentials were set to
+Formatting, lint, TypeScript, 97 unit tests, the production build, the bundle
+budget, 50 production-browser tests, and two public-mode API protection tests
+passed with `./scripts/verify.ps1 -Browser`. Provider credentials were set to
 empty values for this verification run. Unit coverage of modules loaded by the
-suite was 99.79% lines, 96.69% branches and 99.04% functions; other production
+suite was 99.79% lines, 96.86% branches and 99.04% functions; other production
 modules are not represented by those percentages. The client JavaScript total
-was 260.2 KiB gzip across 16 assets, compared with 252.9 KiB at baseline. The
-additional keyed Hindi copy contributes to the increase; the configured limit is
-300 KiB. npm's dependency audit reported zero known vulnerabilities.
+was 260.7 KiB gzip across 16 assets, compared with 252.9 KiB at baseline. The
+additional product functionality contributes to the increase; the configured
+limit is 300 KiB. This run does not verify live provider or Redis behavior.
+`npm audit --omit=dev --audit-level=high` also completed with zero reported
+production dependency advisories on this date.
 
 | Criterion | Verified evidence | Further work |
 | --- | --- | --- |
-| Code quality | Typed references, shared response types, common AQI validity and passing static checks. | Complete the staged translation and time-handling review. |
-| Security | Request protection tests, typed/validated IDs, a partial CSP and dependency audit. | Stricter script policy, concurrency and live deployment review. |
+| Code quality | Domain-owned recommendation IDs, exhaustive Hindi recommendation mapping, shared response types, common AQI validity, and passing static checks. | Continue time-handling and adapter-boundary review. |
+| Security | Validated public protection configuration, request protection tests, typed/validated IDs, a partial CSP and dependency audit. | Stricter script policy, real concurrency and live deployment review. |
 | Efficiency | Production build and compressed bundle budget. | Per-route performance and network profiling. |
-| Testing | Unit, browser, accessibility and public-mode suites passed locally. | Add remaining failure, cancellation and provider contract cases. |
-| Accessibility | Keyboard menu test, control-border checks and bilingual success-state axe scans. | Manual screen-reader, zoom, focus, and broader contrast review. |
+| Testing | 97 unit tests, 50 production-browser tests, accessibility journeys, and two public-mode protection tests passed locally. | Add remaining provider and real-infrastructure failure cases. |
+| Accessibility | Focused assistant announcements, language-aware pending city search, keyboard journeys, control-border checks and bilingual axe scans. | Manual screen-reader, zoom, focus, and broader contrast review. |
 | Problem alignment | All seven route entry points and existing browser journeys remain covered. | Live providers and AI credentials were not exercised in the final run. |
 
 The suite's browser journeys cover preferences, scenario comparison, planner,

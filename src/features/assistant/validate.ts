@@ -17,7 +17,9 @@ export function validateAssistantReply(
   actions: Recommendation[],
 ): AssistantExplanation {
   const parsed = assistantOutputSchema.parse(JSON.parse(raw));
-  const actionsById = new Map(actions.map((action) => [action.id, action]));
+  const actionsById = new Map<string, Recommendation>(
+    actions.map((action) => [action.id, action]),
+  );
   if (parsed.referencedActionIds.some((id) => !actionsById.has(id)))
     throw new Error("Unknown action reference");
   const allowedSources = new Set<string>(

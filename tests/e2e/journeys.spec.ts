@@ -406,7 +406,9 @@ test("assistant shows deterministic fallback without calling Gemini", async ({
     .fill("How should I plan a trip?");
   await page.getByRole("button", { name: "Ask SaafSky" }).click();
   await expect(page.getByText("RULE-BASED FALLBACK")).toBeVisible();
-  await expect(page.getByText("Check local conditions.")).toBeVisible();
+  await expect(
+    page.locator("section.plan").getByText("Check local conditions."),
+  ).toBeVisible();
   await page.getByText("Sources for this answer").first().click();
   await expect(
     page.getByRole("link", { name: "AirNow: US AQI basics" }),
@@ -640,7 +642,11 @@ test("assistant keeps an active request pending when language changes", async ({
     await page.locator("#site-language").selectOption("hi");
     const hindiSubmit = page.getByRole("button", { name: "साफ़स्काई से पूछें" });
     await expect(hindiSubmit).toBeDisabled();
-    await expect(page.getByText("आपका उत्तर तैयार हो रहा है…")).toBeVisible();
+    await expect(
+      page
+        .locator("#assistant-announcement")
+        .getByText("आपका उत्तर तैयार हो रहा है…"),
+    ).toBeVisible();
     release();
     await expect(hindiSubmit).toBeEnabled();
   } finally {

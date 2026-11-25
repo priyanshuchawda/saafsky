@@ -2,6 +2,59 @@ import { expect, test } from "@playwright/test";
 
 test.use({ hasTouch: true });
 
+for (const kind of ["results", "limited"] as const) {
+  test(`city search ${kind} follows a language change during the request`, async ({
+    page,
+  }) => {
+    let release = () => {};
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    await page.route("**/api/air?**", (route) =>
+      route.fulfill({ status: 503, json: { error: "Unavailable" } }),
+    );
+    await page.route("**/api/locations?**", async (route) => {
+      await gate;
+      if (kind === "limited") {
+        await route.fulfill({
+          status: 429,
+          headers: { "Retry-After": "15" },
+          json: { error: "limited" },
+        });
+      } else {
+        await route.fulfill({
+          json: {
+            results: [
+              {
+                name: "Pune",
+                country: "India",
+                latitude: 18.52,
+                longitude: 73.85,
+              },
+            ],
+          },
+        });
+      }
+    });
+    try {
+      await page.goto("/", { waitUntil: "networkidle" });
+      await page.getByLabel("YOUR LOCATION").fill("Pune");
+      await page.getByRole("button", { name: "Search", exact: true }).click();
+      await page.locator("#site-language").selectOption("hi");
+      await expect(
+        page.getByRole("status").filter({ hasText: "शहर खोजे जा रहे हैं" }),
+      ).toBeVisible();
+      release();
+      const expected = kind === "results" ? "1 शहर मिला।" : "कृपया 15 सेकंड बाद";
+      await expect(
+        page.getByRole("status").filter({ hasText: expected }),
+      ).toBeVisible();
+    } finally {
+      release();
+    }
+  });
+}
+
 test("mobile city search supports keyboard selection and announces the result", async ({
   page,
 }) => {

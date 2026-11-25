@@ -1,4 +1,7 @@
-import type { Recommendation } from "../recommendations/engine.ts";
+import type {
+  Recommendation,
+  RecommendationId,
+} from "../recommendations/engine.ts";
 import type { Language } from "./messages.ts";
 
 const hindiActions = {
@@ -37,20 +40,18 @@ const hindiActions = {
     description:
       "भारी यातायात के पास बिताया समय घटाने वाले व्यावहारिक विकल्प देखें; कम उत्सर्जन वाला साधन भी प्रदूषण का संपर्क बढ़ा सकता है।",
   },
-} as const;
-
-type ActionId = keyof typeof hindiActions;
-function isActionId(id: string): id is ActionId {
-  return Object.hasOwn(hindiActions, id);
-}
+} satisfies Record<RecommendationId, { title: string; description: string }>;
 
 /** Keep the English API contract while choosing Hindi copy by a stable action ID. */
 export function localizeRecommendation(
   language: Language,
   action: Recommendation,
 ): { title: string; description: string } {
-  if (language === "en" || !isActionId(action.id)) {
+  if (language === "en") {
     return { title: action.title, description: action.description };
+  }
+  if (!Object.hasOwn(hindiActions, action.id)) {
+    throw new Error("Unknown recommendation ID");
   }
   const translated = hindiActions[action.id];
   if (
