@@ -2,17 +2,18 @@
 
 SaafSky separates presentation, provider access, and decision logic into clear layers. This keeps important behavior deterministic, independently testable, and useful alongside optional AI explanations.
 
-| Area | Quality practice | Evidence in the repository |
-| --- | --- | --- |
-| Formatting | Prettier checks source and test files consistently in the release script. | `npm run format:check`, `scripts/verify.ps1`. |
-| Type safety | Strict TypeScript, unchecked-index protection, runtime schemas at API boundaries, and a domain-owned recommendation ID union that makes the Hindi catalog exhaustive. | `tsconfig.json`, `src/lib/schemas.ts`, `src/features/recommendations/engine.ts`, `src/features/i18n/recommendations.ts`. |
-| Domain logic | AQI guidance, planning windows, indoor actions, and emissions arithmetic are pure functions. | `src/features/` and the corresponding unit tests. |
-| Provider boundaries | Air, geocoding, Redis, and Gemini access stay in server adapters; provider responses are parsed before use. | `src/server/`, `src/features/air-quality/provider.ts`, provider contract tests. |
-| AI behavior | Deterministic actions define the plan; Gemini explains supplied actions, action/evidence IDs are checked, and the browser renders only approved catalog links. | `src/server/chat.ts`, `src/features/assistant/validate.ts`, assistant and model-fallback tests. |
-| Resilience | The planner and recommendations work without Gemini; public deployments fail closed on malformed shared-protection configuration. | Endpoint, fallback, protection configuration, and production-browser tests. |
-| Diagnostics | Assistant fallback paths distinguish air, rate-limit, and Gemini failures through redacted service diagnostics without changing user responses. | `src/features/assistant/orchestrate.ts`, `src/server/diagnostics.ts`, orchestration tests. |
-| Accessible state | Search stores structured status so changing language updates in-flight result announcements; the assistant announces only request state and its latest reply. | `src/components/location-search.tsx`, `src/app/assistant/page.tsx`, browser regression tests. |
-| Resource use | Air forecasts and location searches use separate cache lifetimes; API requests have timeouts and shared budgets. | `src/server/air-provider.ts`, `src/server/locations-endpoint.ts`, `src/server/rate-limit.ts`. |
+| Area                    | Quality practice                                                                                                                                                      | Evidence in the repository                                                                                               |
+| ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| Formatting              | Prettier checks source and test files consistently in the release script.                                                                                             | `npm run format:check`, `scripts/verify.ps1`.                                                                            |
+| Type safety             | Strict TypeScript, unchecked-index protection, runtime schemas at API boundaries, and a domain-owned recommendation ID union that makes the Hindi catalog exhaustive. | `tsconfig.json`, `src/lib/schemas.ts`, `src/features/recommendations/engine.ts`, `src/features/i18n/recommendations.ts`. |
+| Domain logic            | AQI guidance, planning windows, indoor actions, and emissions arithmetic are pure functions.                                                                          | `src/features/` and the corresponding unit tests.                                                                        |
+| Provider boundaries     | Air, geocoding, Redis, and Gemini access stay in server adapters; provider responses are parsed before use.                                                           | `src/server/`, `src/features/air-quality/provider.ts`, provider contract tests.                                          |
+| AI behavior             | Deterministic actions define the plan; Gemini explains supplied actions, action/evidence IDs are checked, and the browser renders only approved catalog links.        | `src/server/chat.ts`, `src/features/assistant/validate.ts`, assistant and model-fallback tests.                          |
+| Resilience              | The planner and recommendations work without Gemini; public deployments fail closed on malformed shared-protection configuration.                                     | Endpoint, fallback, protection configuration, and production-browser tests.                                              |
+| Diagnostics             | Assistant fallback paths distinguish air, rate-limit, and Gemini failures through redacted service diagnostics without changing user responses.                       | `src/features/assistant/orchestrate.ts`, `src/server/diagnostics.ts`, orchestration tests.                               |
+| Architecture boundaries | A TypeScript AST regression check guards imports between domain, UI, and server layers while documenting the retained compatibility bridge.                           | `tests/architecture.test.ts`, `src/lib/air.ts`.                                                                          |
+| Accessible state        | Search stores structured status so changing language updates in-flight result announcements; the assistant announces only request state and its latest reply.         | `src/components/location-search.tsx`, `src/app/assistant/page.tsx`, browser regression tests.                            |
+| Resource use            | Air forecasts and location searches use separate cache lifetimes; API requests have timeouts and shared budgets.                                                      | `src/server/air-provider.ts`, `src/server/locations-endpoint.ts`, `src/server/rate-limit.ts`.                            |
 
 ## Reproducible release checks
 
@@ -26,12 +27,13 @@ The script runs ESLint, strict typechecking, unit tests with coverage thresholds
 
 ## Current measured evidence
 
-Verified locally against the production build on **November 25, 2026**:
+Verified locally against the production build on **November 26, 2026**:
 
-- **98 unit tests passed.** The coverage command enforces minimums of 90% lines, 85% branches, and 90% functions. The run measured 99.79% lines, 96.93% branches, and 99.04% functions across the modules loaded by the unit suite.
+- **99 unit tests passed.** The coverage command enforces minimums of 90% lines, 85% branches, and 90% functions. The run measured 99.79% lines, 96.93% branches, and 99.04% functions across the modules loaded by the unit suite.
 - **51 production-browser tests passed**, including English and Hindi journeys, language changes during pending searches and rate-limit errors, focused assistant announcements, household comparison, all-page navigation, 320px through 1440px responsive layouts, touch-target sizing, axe checks, mobile keyboard navigation, and primary user journeys.
 - **2 public API protection tests passed**, checking fail-closed public behavior and request validation before provider access.
 - **Client JavaScript measured 260.7 KiB gzip across 16 emitted chunks**, below the enforced 300 KiB project-wide budget. This counts all emitted client chunks and is not a per-route first-load estimate.
+- **Architecture-boundary regression passed**, checking TypeScript imports across application layers and documenting the retained compatibility bridge.
 - **Production dependency audit** on November 25 reported zero known vulnerabilities with `npm audit --omit=dev --audit-level=high` against the current lockfile. This checks known advisories and is not a complete security assessment.
 - **Production smoke passed** on November 18 at [saafsky.vercel.app](https://saafsky.vercel.app): the site, air endpoint, city lookup, and Gemini chat in AI mode all returned successfully.
 - **Local live smoke passed** on November 18 for Open-Meteo air data, Open-Meteo city lookup, and the SaafSky chat route in AI mode. The reusable [live smoke script](../scripts/smoke-live.ps1) prints no secrets or generated answer text.

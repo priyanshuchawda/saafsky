@@ -16,12 +16,12 @@ Air quality affects everyday choices: when to go outside, how to travel, and wha
 
 Choose a city and household preferences once. The dashboard, planner, indoor advisor, and assistant share the same location and forecast context, so recommendations remain consistent as users explore their options.
 
-| For the user | What SaafSky brings together |
-| --- | --- |
-| **A clearer view of the day** | City air quality, pollutants, hourly trends, and source times in one dashboard. |
-| **Guidance that fits** | Actions shaped by household sensitivity, children, routines, commuting, and indoor cooking context. |
-| **A practical plan** | Forecast-aware outing comparisons, indoor-air actions, and commute emissions estimates. |
-| **An answer in your language** | A contextual assistant in English and Hindi, connected to the same action plan. |
+| For the user                   | What SaafSky brings together                                                                        |
+| ------------------------------ | --------------------------------------------------------------------------------------------------- |
+| **A clearer view of the day**  | City air quality, pollutants, hourly trends, and source times in one dashboard.                     |
+| **Guidance that fits**         | Actions shaped by household sensitivity, children, routines, commuting, and indoor cooking context. |
+| **A practical plan**           | Forecast-aware outing comparisons, indoor-air actions, and commute emissions estimates.             |
+| **An answer in your language** | A contextual assistant in English and Hindi, connected to the same action plan.                     |
 
 ## A day with SaafSky
 
@@ -47,16 +47,16 @@ The recommendation engine also supplies the rule-based plan when the AI service 
 
 ## What you can do
 
-| Feature | Experience |
-| --- | --- |
-| **Live air dashboard** | Explore current modeled US AQI, PM2.5, PM10, an hourly forecast comparison, source attribution, and update times for a selected city. Move directly from the forecast to the outing planner. |
-| **Personal air plan** | See prioritized, household-aware actions with clear reasons and evidence links. Preferences include sensitive household members, children, outdoor exercise, commuting, and cooking smoke. |
-| **Outing planner** | Compare complete forecast windows with your available time, activity duration, household context, and fixed commitments. Fill an editable window from the next consecutive forecast hours with one action. |
-| **Indoor-air guide** | Find practical actions for cooking smoke, filtration, dust, and outdoor-air conditions; estimate a smoke CADR for your room and compare a purifier's reported rating. |
-| **Commute impact** | Compare estimated transport emissions across bus, rail, walking, cycling, and custom options using transparent factors and travel assumptions. Review current modeled city air alongside the comparison. |
-| **Ask SaafSky** | Get a concise English or Hindi explanation of your current plan from Gemini, grounded in selected actions and approved sources. A rule-based plan is ready whenever AI is not selected or available. |
-| **Scenario explorer** | Adjust illustrative air-quality and household inputs and compare two household plans side by side, with reasons and sources. The explorer makes no external service calls. |
-| **Preferences and language** | Save your city, set household context, switch between English and Hindi, and clear saved preferences. |
+| Feature                      | Experience                                                                                                                                                                                                 |
+| ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Live air dashboard**       | Explore current modeled US AQI, PM2.5, PM10, an hourly forecast comparison, source attribution, and update times for a selected city. Move directly from the forecast to the outing planner.               |
+| **Personal air plan**        | See prioritized, household-aware actions with clear reasons and evidence links. Preferences include sensitive household members, children, outdoor exercise, commuting, and cooking smoke.                 |
+| **Outing planner**           | Compare complete forecast windows with your available time, activity duration, household context, and fixed commitments. Fill an editable window from the next consecutive forecast hours with one action. |
+| **Indoor-air guide**         | Find practical actions for cooking smoke, filtration, dust, and outdoor-air conditions; estimate a smoke CADR for your room and compare a purifier's reported rating.                                      |
+| **Commute impact**           | Compare estimated transport emissions across bus, rail, walking, cycling, and custom options using transparent factors and travel assumptions. Review current modeled city air alongside the comparison.   |
+| **Ask SaafSky**              | Get a concise English or Hindi explanation of your current plan from Gemini, grounded in selected actions and approved sources. A rule-based plan is ready whenever AI is not selected or available.       |
+| **Scenario explorer**        | Adjust illustrative air-quality and household inputs and compare two household plans side by side, with reasons and sources. The explorer makes no external service calls.                                 |
+| **Preferences and language** | Save your city, set household context, switch between English and Hindi, and clear saved preferences.                                                                                                      |
 
 ## Product strengths
 
@@ -70,13 +70,13 @@ The recommendation engine also supplies the rule-based plan when the AI service 
 
 ## Engineering evidence
 
-| Area | How SaafSky addresses it | Explore |
-| --- | --- | --- |
-| **Code quality** | Strict TypeScript, modular provider adapters, validated boundaries, and deterministic domain functions. | [Architecture](docs/architecture.md) · [Quality](docs/quality.md) |
-| **Security** | Server-side credentials, bounded requests, shared rate limits, origin checks, and validated AI references. | [Security and privacy](docs/security-privacy.md) · [API](docs/api.md) |
-| **Efficiency** | Cached air and city lookups, bounded provider requests, and an enforced client JavaScript budget. | [Data sources](docs/data-sources.md) · [Testing](docs/testing.md) |
-| **Testing** | Unit, production-browser, accessibility, public API protection, and live-provider checks. | [Testing](docs/testing.md) · [Measured results](docs/quality.md) |
-| **Accessibility** | Semantic controls, keyboard navigation, visible focus, bilingual content, and responsive touch targets. | [Accessibility](docs/accessibility.md) |
+| Area                  | How SaafSky addresses it                                                                                     | Explore                                                                          |
+| --------------------- | ------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------- |
+| **Code quality**      | Strict TypeScript, modular provider adapters, validated boundaries, and deterministic domain functions.      | [Architecture](docs/architecture.md) · [Quality](docs/quality.md)                |
+| **Security**          | Server-side credentials, bounded requests, shared rate limits, origin checks, and validated AI references.   | [Security and privacy](docs/security-privacy.md) · [API](docs/api.md)            |
+| **Efficiency**        | Cached air and city lookups, bounded provider requests, and an enforced client JavaScript budget.            | [Data sources](docs/data-sources.md) · [Testing](docs/testing.md)                |
+| **Testing**           | Unit, production-browser, accessibility, public API protection, and live-provider checks.                    | [Testing](docs/testing.md) · [Measured results](docs/quality.md)                 |
+| **Accessibility**     | Semantic controls, keyboard navigation, visible focus, bilingual content, and responsive touch targets.      | [Accessibility](docs/accessibility.md)                                           |
 | **Problem alignment** | Household-aware air guidance connects forecasts, routines, indoor actions, and sustainable travel decisions. | [Decision policy](docs/decision-policy.md) · [Methodology](docs/data-sources.md) |
 
 ## Air data and methodology
@@ -126,9 +126,9 @@ For a separate live-provider check after a production build, run:
 
 This verifies an AI-mode response using the key and Upstash credentials in `.env.local`. The script prints concise results without secret values or generated answer text.
 
-Latest local verification on **November 25, 2026**:
+Latest local verification on **November 26, 2026**:
 
-- **98 unit tests passed.** The coverage run measured 99.79% lines, 96.93% branches, and 99.04% functions across modules loaded by the unit suite; configured minimums are 90%, 85%, and 90% respectively.
+- **99 unit tests passed.** The coverage run measured 99.79% lines, 96.93% branches, and 99.04% functions across modules loaded by the unit suite; configured minimums are 90%, 85%, and 90% respectively.
 - **51 production-browser tests passed**, covering both languages, in-flight search and assistant-error language changes, focused assistant announcements, seven routes, keyboard-operated mobile navigation, household comparison, key journeys, and layouts from 320px through 1440px.
 - **2 public API protection tests passed**, verifying public request validation and required protection behavior.
 - **Production smoke on November 18** at [saafsky.vercel.app](https://saafsky.vercel.app): page, air API, city lookup, and Gemini chat in AI mode returned successfully for that deployment.
@@ -145,6 +145,8 @@ The interface supports keyboard navigation, visible focus, semantic controls, so
 ## Technical documentation
 
 - [Architecture and data flow](docs/architecture.md)
+- [Code quality practices](CODE_QUALITY.md)
+- [Challenge requirement traceability](PROBLEM_ALIGNMENT.md)
 - [API reference](docs/api.md)
 - [Quality engineering and measured evidence](docs/quality.md)
 - [Data sources and impact methodology](docs/data-sources.md)

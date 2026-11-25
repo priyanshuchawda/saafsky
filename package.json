@@ -15,7 +15,7 @@
     "test:e2e": "playwright test",
     "test:e2e:production": "playwright test --config playwright.production.config.ts",
     "test:protection": "playwright test --config playwright.protection.config.ts",
-    "format:check": "prettier --check \"src/**/*.{ts,tsx,css}\" \"tests/**/*.ts\"",
+    "format:check": "prettier --check \"src/**/*.{ts,tsx,css}\" \"tests/**/*.ts\" README.md CODE_QUALITY.md PROBLEM_ALIGNMENT.md docs/quality.md docs/improvement-evidence.md",
     "format": "prettier --write \"src/**/*.{ts,tsx,css}\" \"tests/**/*.ts\""
   },
   "dependencies": {
