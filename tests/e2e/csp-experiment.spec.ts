@@ -8,7 +8,9 @@ test("candidate CSP observes violations without disrupting navigation", async ({
     const state = window as Window & { cspViolations?: string[] };
     state.cspViolations = [];
     document.addEventListener("securitypolicyviolation", (event) => {
-      state.cspViolations?.push(event.effectiveDirective);
+      if (event.disposition === "report") {
+        state.cspViolations?.push(event.effectiveDirective);
+      }
     });
   });
   await page.route("**/*", async (route) => {

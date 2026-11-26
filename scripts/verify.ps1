@@ -15,6 +15,7 @@ $checks = @(
 
 if ($Browser) {
   $checks += @{ Name = "Production browser tests"; Args = @("run", "test:e2e:production") }
+  $checks += @{ Name = "Cross-browser production smoke tests"; Args = @("run", "test:e2e:compat") }
   $checks += @{ Name = "Public API protection tests"; Args = @("run", "test:protection") }
 }
 

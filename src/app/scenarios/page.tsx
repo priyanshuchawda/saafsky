@@ -175,10 +175,14 @@ export default function Scenarios() {
           </div>
         )}
       </div>
+      <p className="sr-only" role="status" aria-atomic="true">
+        {translate(language, "scenarioUpdated")
+          .replace("{aqi}", String(aqi))
+          .replace("{category}", translateAqiCategory(language, aqi))}
+      </p>
       <section
         id="scenario-results"
         className={`dashboard scenario-result${showComparison ? " scenario-comparing" : ""}`}
-        aria-live="polite"
       >
         <article className="aq">
           <p className="eyebrow">{translate(language, "illustrativeAir")}</p>

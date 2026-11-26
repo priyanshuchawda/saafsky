@@ -108,7 +108,7 @@ export default function IndoorAdvisor() {
                   .replace("{aqi}", String(Math.round(aqi)))
           : translate(language, "usingSelectedOutdoorContext")}
       </p>
-      <section className="plan scenario-result" aria-live="polite">
+      <section className="plan scenario-result">
         <p className="eyebrow">{translate(language, "indoorActions")}</p>
         <h2>
           {translate(language, "cleanerRoom")}{" "}

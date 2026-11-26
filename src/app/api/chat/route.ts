@@ -1,14 +1,11 @@
 import { NextResponse } from "next/server";
-import { Redis } from "@upstash/redis";
-import { Ratelimit } from "@upstash/ratelimit";
 import { loadAir } from "@/server/air-provider";
 import { isFresh } from "@/lib/freshness";
 import { createAssistantReply } from "@/features/assistant/orchestrate";
 import { buildForecastContext } from "@/features/assistant/forecast-context";
 import { explainPlan } from "@/server/chat";
-import { checkPublicRequest } from "@/server/rate-limit";
+import { checkAiAttempt, checkPublicRequest } from "@/server/rate-limit";
 import { rateLimitResponse } from "@/server/rate-limit-result";
-import { decideLimits } from "@/server/rate-limit-result";
 import { readBoundedJson, RequestBodyTooLarge } from "@/lib/request-body";
 import { hasAllowedJsonOrigin } from "@/lib/request-origin";
 import { chatInputSchema } from "@/lib/schemas";
@@ -65,24 +62,6 @@ export async function POST(request: Request) {
       forecast: buildForecastContext(data, now),
     };
   };
-  const checkAiBudget = async (): Promise<boolean> => {
-    const redis = Redis.fromEnv();
-    const daily = new Ratelimit({
-      redis,
-      limiter: Ratelimit.fixedWindow(SERVER_BUDGETS.ai.day, "1 d"),
-      prefix: "saafsky:chat:day",
-    });
-    const minute = new Ratelimit({
-      redis,
-      limiter: Ratelimit.fixedWindow(SERVER_BUDGETS.ai.minute, "1 m"),
-      prefix: "saafsky:chat:minute",
-    });
-    const [day, short] = await Promise.all([
-      daily.limit("global"),
-      minute.limit("global"),
-    ]);
-    return decideLimits([day, short], Date.now()).allowed;
-  };
   return privateJson(
     await createAssistantReply(profile, {
       onFailure: reportServiceFailure,
@@ -94,14 +73,14 @@ export async function POST(request: Request) {
           process.env.UPSTASH_REDIS_REST_URL &&
           process.env.UPSTASH_REDIS_REST_TOKEN,
         ),
-      checkAiBudget,
+      checkAiBudget: checkAiAttempt,
       explain: (context, actions) =>
         explainPlan({
           question,
           aqi: context.aqi,
           actions,
           history,
-          reserveAttempt: checkAiBudget,
+          reserveAttempt: checkAiAttempt,
           forecast: context.forecast,
           language,
         }),

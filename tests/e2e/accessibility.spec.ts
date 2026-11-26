@@ -211,6 +211,50 @@ test("pages fit a narrow mobile viewport", async ({ page }) => {
   }
 });
 
+test("all pages reflow with WCAG text-spacing overrides", async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 800 });
+  await page.route("**/api/air?**", (route) =>
+    route.fulfill({ status: 503, json: { error: "Unavailable" } }),
+  );
+  for (const route of [
+    "/",
+    "/planner",
+    "/scenarios",
+    "/indoor",
+    "/impact",
+    "/assistant",
+    "/settings",
+  ]) {
+    await page.goto(route, { waitUntil: "domcontentloaded" });
+    await page.addStyleTag({
+      content: `
+        * { line-height: 1.5 !important; }
+        p { letter-spacing: 0.12em !important; word-spacing: 0.16em !important; margin-bottom: 2em !important; }
+      `,
+    });
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth),
+      route,
+    ).toBeLessThanOrEqual(320);
+  }
+});
+
+test("keyboard focus remains visible in forced-colors mode", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.emulateMedia({ forcedColors: "active" });
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+  for (let index = 0; index < 5; index++) await page.keyboard.press("Tab");
+  await expect(page.getByRole("link", { name: "Daily planner" })).toBeFocused();
+  const outlineWidth = await page
+    .getByRole("link", { name: "Daily planner" })
+    .evaluate((element) =>
+      Number.parseFloat(getComputedStyle(element).outlineWidth),
+    );
+  expect(outlineWidth).toBeGreaterThanOrEqual(2);
+});
+
 test("assistant response remains accessible after a conversation", async ({
   page,
 }) => {

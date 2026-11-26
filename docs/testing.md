@@ -19,13 +19,16 @@ The coverage report quantifies all production TypeScript modules. Browser and pr
 Run the browser suites with:
 
 ```sh
-npx playwright install chromium
+npx playwright install chromium firefox webkit
 npm run test:e2e
 npm run test:e2e:production
+npm run test:e2e:compat
 npm run test:protection
 ```
 
 The default browser suite uses a development server. The production suite runs the built application and checks user journeys, English and Hindi content, responsive layouts at 320px, 390px, 768px, 1024px, and 1440px, assistant fallback, accessibility, and recovery states. The protection suite starts a separate production server with public mode enabled and credentials blank, then verifies that API protection is applied before provider access.
+
+The compatibility suite runs core route rendering, client navigation, scenario selection, impact calculations, and language switching in Chromium, Firefox, and WebKit against the production build.
 
 On Windows, `scripts/verify.ps1` provides a concise local release check:
 

@@ -5,7 +5,11 @@ import type { ServerEnvironment } from "../config/server-runtime-config.ts";
 import { trustedClientKey } from "./client-key.ts";
 import { reportServiceFailure } from "./diagnostics.ts";
 import { protectionConfig } from "./protection-config.ts";
-import type { LimitDecision, LimitResult } from "./rate-limit-result.ts";
+import {
+  decideLimits,
+  type LimitDecision,
+  type LimitResult,
+} from "./rate-limit-result.ts";
 import { applyRateLimitStages } from "./rate-limit-stages.ts";
 
 type Scope = "air" | "locations" | "chat";
@@ -30,6 +34,43 @@ export type RateLimitAdapterDependencies = {
   onFailure: (service: "rate_limit", error: unknown) => void;
   now?: () => number;
 };
+
+export type AiAttemptBudgetDependencies = Pick<
+  RateLimitAdapterDependencies,
+  "createRedis" | "createLimiter" | "now"
+>;
+
+/** Reuse the distributed AI budget limiters across requests in this runtime. */
+export function createAiAttemptChecker(
+  dependencies: AiAttemptBudgetDependencies,
+): () => Promise<boolean> {
+  let limiters: { minute: Limiter; daily: Limiter } | undefined;
+  return async () => {
+    if (!limiters) {
+      const redis = dependencies.createRedis();
+      limiters = {
+        minute: dependencies.createLimiter({
+          redis,
+          limit: SERVER_BUDGETS.ai.minute,
+          window: "1 m",
+          prefix: "saafsky:chat:minute",
+        }),
+        daily: dependencies.createLimiter({
+          redis,
+          limit: SERVER_BUDGETS.ai.day,
+          window: "1 d",
+          prefix: "saafsky:chat:day",
+        }),
+      };
+    }
+    const [minute, daily] = await Promise.all([
+      limiters.minute.limit("global"),
+      limiters.daily.limit("global"),
+    ]);
+    return decideLimits([minute, daily], dependencies.now?.() ?? Date.now())
+      .allowed;
+  };
+}
 
 /** Build the shared limiter with replaceable infrastructure for deterministic tests. */
 export function createPublicRequestChecker(
@@ -145,5 +186,12 @@ const checkWithUpstash = createPublicRequestChecker({
   onFailure: reportServiceFailure,
 });
 
+const checkAiAttemptWithUpstash = createAiAttemptChecker({
+  createRedis: redisClient,
+  createLimiter: upstashLimiter,
+});
+
 /** Shared Redis-backed request limits; public configuration fails closed. */
 export const checkPublicRequest = checkWithUpstash;
+/** Shared global reservation for each primary or fallback Gemini request. */
+export const checkAiAttempt = checkAiAttemptWithUpstash;

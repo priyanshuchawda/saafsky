@@ -30,16 +30,17 @@ The script runs ESLint, strict typechecking, unit tests with coverage thresholds
 
 Verified locally against the production build on **November 26, 2026**:
 
-- **125 unit tests passed.** Coverage includes every production `src/**/*.ts` file; the run measured 80.09% lines, 94.45% branches, and 94.44% functions against configured floors of 75%, 90%, and 90%.
-- **55 production-browser tests passed**, including English and Hindi journeys, language changes during pending searches and rate-limit errors, focused assistant announcements, air retry recovery, household comparison, all-page navigation, 320px through 1440px responsive layouts, touch-target sizing, axe checks, mobile keyboard navigation, and primary user journeys.
+- **128 unit tests passed.** Coverage includes every production `src/**/*.ts` file; the run measured 80.95% lines, 94.28% branches, and 93.96% functions against configured floors of 75%, 90%, and 90%.
+- **60 production-browser tests passed**, including English and Hindi journeys, language changes during pending searches and rate-limit errors, focused assistant announcements, air retry recovery, household comparison, all-page navigation, responsive layouts, WCAG text-spacing overrides, forced-colors focus, touch-target sizing, axe checks, mobile keyboard navigation, and primary user journeys.
+- **3 cross-browser production smoke tests passed** in Chromium, Firefox, and WebKit, covering the seven routes, core navigation, scenario selection, transport calculation, and Hindi selection.
 - **2 public API protection tests passed**, checking fail-closed public behavior and request validation before provider access.
-- **Client JavaScript measured 264.5 KiB gzip across 16 emitted chunks**, below the enforced 300 KiB project-wide budget. This counts all emitted client chunks and is not a per-route first-load estimate.
+- **Client JavaScript measured 264.2 KiB gzip across 16 emitted chunks**, below the enforced 300 KiB project-wide budget. This counts all emitted client chunks and is not a per-route first-load estimate.
 - **Architecture-boundary regression passed**, checking TypeScript imports across application layers and documenting the retained compatibility bridge.
-- **Production dependency audit** on November 25 reported zero known vulnerabilities with `npm audit --omit=dev --audit-level=high` against the current lockfile. This checks known advisories and is not a complete security assessment.
+- **Production dependency audit** on November 25 reported zero known vulnerabilities with `npm audit --omit=dev --audit-level=high` against the lockfile. This checks known advisories and is not a complete security assessment.
 - **Production smoke passed** on November 18 at [saafsky.vercel.app](https://saafsky.vercel.app): the site, air endpoint, city lookup, and Gemini chat in AI mode all returned successfully.
-- **Local live smoke passed** on November 18 for Open-Meteo air data, Open-Meteo city lookup, and the SaafSky chat route in AI mode. The reusable [live smoke script](../scripts/smoke-live.ps1) prints no secrets or generated answer text.
+- **Local live smoke passed** on November 26 for Open-Meteo air data, Open-Meteo city lookup, and the SaafSky chat route in AI mode. The run also exercised configured Redis-backed request and AI-attempt budgets. The reusable [live smoke script](../scripts/smoke-live.ps1) prints no secrets or generated answer text.
 
-Coverage reports quantify modules imported by the unit suite. Browser, API-protection, bundle, and live-provider checks add complementary evidence for rendered behavior, request boundaries, resource size, and external integration.
+Coverage reports quantify modules imported by the unit suite. Browser, API-protection, bundle, cross-engine, and live-provider checks add complementary evidence for rendered behavior, request boundaries, resource size, and external integration. Manual screen-reader and zoom review remains a separate human verification step.
 
 ## Change discipline
 

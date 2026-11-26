@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
+  createAiAttemptChecker,
   createPublicRequestChecker,
   type RateLimitAdapterDependencies,
 } from "../src/server/rate-limit.ts";
@@ -33,6 +34,50 @@ function dependencies(
 }
 
 const request = new Request("https://saafsky.example/api/air");
+
+test("AI attempt budgets reuse their Redis client and minute/day limiters", async () => {
+  let redisCalls = 0;
+  let limiterCalls = 0;
+  let limitCalls = 0;
+  const check = createAiAttemptChecker({
+    createRedis: () => {
+      redisCalls++;
+      return {};
+    },
+    createLimiter: ({ prefix }) => {
+      limiterCalls++;
+      return {
+        limit: async () => {
+          limitCalls++;
+          return {
+            success: true,
+            reset: Date.now() + (prefix.endsWith(":day") ? 86_400_000 : 60_000),
+          };
+        },
+      };
+    },
+  });
+
+  assert.equal(await check(), true);
+  assert.equal(await check(), true);
+  assert.equal(redisCalls, 1);
+  assert.equal(limiterCalls, 2);
+  assert.equal(limitCalls, 4);
+});
+
+test("AI attempt budget denies exhausted or malformed distributed counters", async () => {
+  const check = createAiAttemptChecker({
+    createRedis: () => ({}),
+    createLimiter: ({ prefix }) => ({
+      limit: async () => ({
+        success: !prefix.endsWith(":minute"),
+        reset: Number.NaN,
+      }),
+    }),
+  });
+
+  assert.equal(await check(), false);
+});
 
 test("local development bypasses Redis and public mode applies visitor and global budgets", async () => {
   let redisCalls = 0;

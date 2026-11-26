@@ -61,3 +61,17 @@ test("planner keeps its forecast updates in a focused status region", async ({
     page.locator("section.plan.scenario-result").last().getByRole("status"),
   ).toContainText(/unavailable/i);
 });
+
+test("dynamic result cards do not announce their complete content", async ({
+  page,
+}) => {
+  for (const path of ["/indoor", "/impact", "/scenarios"]) {
+    await page.goto(path, { waitUntil: "domcontentloaded" });
+    await expect(page.locator("main section[aria-live]")).toHaveCount(0);
+  }
+  await page.goto("/scenarios", { waitUntil: "domcontentloaded" });
+  const scenarioStatus = page.getByRole("status");
+  await expect(scenarioStatus).toContainText("Scenario updated");
+  await page.getByLabel("SAMPLE US AQI").selectOption("250");
+  await expect(scenarioStatus).toContainText("US AQI 250");
+});

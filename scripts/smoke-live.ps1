@@ -99,6 +99,25 @@ try {
     throw "Chat endpoint returned an invalid response."
   }
   if ($RequireGemini -and $reply.mode -ne "ai") {
+    $diagnostics = @(
+      foreach ($log in @($stdoutLog, $stderrLog)) {
+        if (-not (Test-Path -LiteralPath $log)) { continue }
+        foreach ($line in Get-Content -LiteralPath $log) {
+          if ($line -notmatch '\{"event":"service_failure".*\}') { continue }
+          try {
+            $entry = $line | ConvertFrom-Json
+            if ($entry.service -in @("gemini", "rate_limit")) {
+              "Provider diagnostic: service=$($entry.service), category=$($entry.code)."
+            }
+          } catch { }
+        }
+      }
+    )
+    if ($diagnostics.Count -gt 0) {
+      $diagnostics | Select-Object -Unique | ForEach-Object { Write-Output $_ }
+    } else {
+      Write-Output "Provider diagnostic: no upstream failure was logged; check model availability and shared AI quota."
+    }
     throw "Chat returned deterministic fallback; check provider credentials, quota, and rate limits."
   }
   if ($RequireGemini -and (-not $reply.referencedActionIds.Count -or -not $reply.sourceIds.Count)) {

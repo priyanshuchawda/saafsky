@@ -1,10 +1,7 @@
-export type Mode =
-  "bus" | "rail" | "tram" | "underground" | "walk" | "cycle" | "custom";
+export type Mode = "bus" | "metro" | "walk" | "cycle" | "custom";
 const modes = [
   "bus",
-  "rail",
-  "tram",
-  "underground",
+  "metro",
   "walk",
   "cycle",
   "custom",
@@ -14,23 +11,19 @@ export function parseTransportMode(value: string): Mode | null {
   return modes.find((mode) => mode === value) ?? null;
 }
 
-export const UK_BUS_KG_PER_PASSENGER_KM = 0.10385;
-export const UK_PETROL_CAR_KG_PER_VEHICLE_KM = 0.16272;
-export const UK_RAIL_KG_PER_PASSENGER_KM = 0.03546;
-export const UK_TRAM_KG_PER_PASSENGER_KM = 0.0286;
-export const UK_UNDERGROUND_KG_PER_PASSENGER_KM = 0.0278;
+export const INDIA_DIESEL_BUS_KG_PER_PASSENGER_KM = 0.028;
+export const INDIA_METRO_KG_PER_PASSENGER_KM = 0.024;
+export const INDIA_PETROL_CAR_KG_PER_VEHICLE_KM = 0.243;
 const MODE_FACTORS: Record<Exclude<Mode, "custom">, number> = {
-  bus: UK_BUS_KG_PER_PASSENGER_KM,
-  rail: UK_RAIL_KG_PER_PASSENGER_KM,
-  tram: UK_TRAM_KG_PER_PASSENGER_KM,
-  underground: UK_UNDERGROUND_KG_PER_PASSENGER_KM,
+  bus: INDIA_DIESEL_BUS_KG_PER_PASSENGER_KM,
+  metro: INDIA_METRO_KG_PER_PASSENGER_KM,
   walk: 0,
   cycle: 0,
 };
 
 export function petrolCarPassengerFactor(occupants: number): number | null {
   return Number.isInteger(occupants) && occupants >= 1 && occupants <= 8
-    ? UK_PETROL_CAR_KG_PER_VEHICLE_KM / occupants
+    ? INDIA_PETROL_CAR_KG_PER_VEHICLE_KM / occupants
     : null;
 }
 

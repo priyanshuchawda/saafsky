@@ -13,6 +13,25 @@ export const assistantResponseSchema = assistantOutputSchema.extend({
 export type AssistantExplanation = z.infer<typeof assistantOutputSchema>;
 export type AssistantResponse = z.infer<typeof assistantResponseSchema>;
 
+export type AssistantReplyValidationCode =
+  | "invalid_json"
+  | "duplicate_action_reference"
+  | "duplicate_evidence_reference"
+  | "unknown_action_reference"
+  | "missing_evidence_reference"
+  | "unknown_evidence_reference"
+  | "unsupported_numeric_claim";
+
+export class AssistantReplyValidationError extends Error {
+  readonly code: AssistantReplyValidationCode;
+
+  constructor(code: AssistantReplyValidationCode) {
+    super("Assistant response failed trusted contract validation");
+    this.name = "AssistantReplyValidationError";
+    this.code = code;
+  }
+}
+
 function normalizeNumerals(value: string): string {
   return value.replace(/[०-९]/g, (digit) =>
     String(digit.charCodeAt(0) - "०".charCodeAt(0)),
@@ -36,28 +55,34 @@ export function validateAssistantReply(
   actions: Recommendation[],
   trustedFacts: readonly (number | string)[] = [],
 ): AssistantExplanation {
-  const parsed = assistantOutputSchema.parse(JSON.parse(raw));
+  let decoded: unknown;
+  try {
+    decoded = JSON.parse(raw);
+  } catch {
+    throw new AssistantReplyValidationError("invalid_json");
+  }
+  const parsed = assistantOutputSchema.parse(decoded);
   if (
     new Set(parsed.referencedActionIds).size !==
     parsed.referencedActionIds.length
   )
-    throw new Error("Duplicate action reference");
+    throw new AssistantReplyValidationError("duplicate_action_reference");
   if (new Set(parsed.sourceIds).size !== parsed.sourceIds.length)
-    throw new Error("Duplicate evidence reference");
+    throw new AssistantReplyValidationError("duplicate_evidence_reference");
   const actionsById = new Map<string, Recommendation>(
     actions.map((action) => [action.id, action]),
   );
   if (parsed.referencedActionIds.some((id) => !actionsById.has(id)))
-    throw new Error("Unknown action reference");
+    throw new AssistantReplyValidationError("unknown_action_reference");
   const allowedSources = new Set<string>(
     parsed.referencedActionIds.flatMap(
       (id) => actionsById.get(id)?.evidenceIds ?? [],
     ),
   );
   if (allowedSources.size > 0 && parsed.sourceIds.length === 0)
-    throw new Error("Missing evidence reference");
+    throw new AssistantReplyValidationError("missing_evidence_reference");
   if (parsed.sourceIds.some((id) => !allowedSources.has(id)))
-    throw new Error("Unknown evidence reference");
+    throw new AssistantReplyValidationError("unknown_evidence_reference");
 
   const approvedNumbers = numericTokens([
     ...trustedFacts,
@@ -69,7 +94,8 @@ export function validateAssistantReply(
   const unsupportedNumber = [...generatedText.matchAll(/\b\d+(?:[.,]\d+)?\b/g)]
     .map(([token]) => token.replace(",", "."))
     .find((token) => !approvedNumbers.has(token));
-  if (unsupportedNumber) throw new Error("Unsupported numerical claim");
+  if (unsupportedNumber)
+    throw new AssistantReplyValidationError("unsupported_numeric_claim");
 
   return parsed;
 }

@@ -565,6 +565,20 @@ a:focus-visible {
   outline: 3px solid #4b875d;
   outline-offset: 3px;
 }
+@media (forced-colors: active) {
+  button:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  a:focus-visible,
+  .action-reason summary:focus-visible {
+    outline-color: Highlight;
+  }
+  .skip-link {
+    border: 1px solid CanvasText;
+    background: Canvas;
+    color: CanvasText;
+  }
+}
 @media (min-width: 801px) and (max-width: 1100px) {
   .toolbar.impact-form {
     grid-template-columns: repeat(3, minmax(0, 1fr));

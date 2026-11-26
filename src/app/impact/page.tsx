@@ -1,14 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useImpactCalculator } from "@/hooks/use-impact-calculator";
-import {
-  parseTransportMode,
-  UK_BUS_KG_PER_PASSENGER_KM,
-  UK_PETROL_CAR_KG_PER_VEHICLE_KM,
-  UK_RAIL_KG_PER_PASSENGER_KM,
-  UK_TRAM_KG_PER_PASSENGER_KM,
-  UK_UNDERGROUND_KG_PER_PASSENGER_KM,
-} from "@/features/sustainability/calculate";
+import { parseTransportMode } from "@/features/sustainability/calculate";
 import { useLanguage } from "@/hooks/use-preferences";
 import { translate } from "@/features/i18n/messages";
 import { CommuteAirContext } from "@/components/commute-air-context";
@@ -54,7 +47,7 @@ export default function Impact() {
               )
             }
           >
-            <option value="car">{translate(language, "ukPetrolCar")}</option>
+            <option value="car">{translate(language, "indiaPetrolCar")}</option>
             <option value="custom">{translate(language, "ownFactor")}</option>
           </select>
         </div>
@@ -126,14 +119,8 @@ export default function Impact() {
               setMode(parseTransportMode(e.target.value) ?? mode)
             }
           >
-            <option value="bus">{translate(language, "ukLocalBus")}</option>
-            <option value="rail">
-              {translate(language, "ukNationalRail")}
-            </option>
-            <option value="tram">{translate(language, "ukTram")}</option>
-            <option value="underground">
-              {translate(language, "ukUnderground")}
-            </option>
+            <option value="bus">{translate(language, "indiaCityBus")}</option>
+            <option value="metro">{translate(language, "indiaMetro")}</option>
             <option value="walk">{translate(language, "walking")}</option>
             <option value="cycle">{translate(language, "cycling")}</option>
             <option value="custom">
@@ -158,7 +145,7 @@ export default function Impact() {
           </div>
         )}
       </div>
-      <section className="plan scenario-result" aria-live="polite">
+      <section className="plan scenario-result">
         <p className="eyebrow">{translate(language, "monthlyEstimate")}</p>
         {result ? (
           <>
@@ -178,28 +165,11 @@ export default function Impact() {
         ) : (
           <p>{translate(language, "enterValidFactor")}</p>
         )}
-        <p className="fine">
-          {translate(language, "impactMethod")
-            .replace("{car}", String(UK_PETROL_CAR_KG_PER_VEHICLE_KM))
-            .replace("{bus}", String(UK_BUS_KG_PER_PASSENGER_KM))}
-        </p>
-        <p className="fine">
-          {translate(language, "ukRailFactors")
-            .replace("{rail}", String(UK_RAIL_KG_PER_PASSENGER_KM))
-            .replace("{tram}", String(UK_TRAM_KG_PER_PASSENGER_KM))
-            .replace(
-              "{underground}",
-              String(UK_UNDERGROUND_KG_PER_PASSENGER_KM),
-            )}
-        </p>
+        <p className="fine">{translate(language, "impactMethod")}</p>
         <p className="fine">
           {translate(language, "impactExposure")}{" "}
-          <a href="https://assets.publishing.service.gov.uk/media/6846b0870392ed9b784c0187/2025-GHG-CF-methodology-paper.pdf">
-            UK government 2025 methodology, table 25
-          </a>
-          {" and "}
-          <a href="https://www.gov.uk/government/publications/greenhouse-gas-reporting-conversion-factors-2025">
-            2025 conversion factors
+          <a href="https://www.oecd.org/content/dam/oecd/en/publications/reports/2023/08/life-cycle-assessment-of-passenger-transport_9e2ebe5e/2d11e416-en.pdf">
+            International Transport Forum India life-cycle assessment (2023)
           </a>
           .
         </p>

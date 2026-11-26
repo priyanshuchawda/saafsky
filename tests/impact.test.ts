@@ -6,31 +6,24 @@ import {
 } from "../src/features/sustainability/calculate.ts";
 
 test("impact uses distance, days and per-passenger factors", () => {
-  assert.deepEqual(monthlyImpact(10, 20, 0.2, "bus"), {
-    baseline: 40,
-    alternative: 20.77,
-    difference: 19.23,
-  });
+  const result = monthlyImpact(10, 20, 0.2, "bus");
+  assert.ok(result);
+  assert.equal(result.baseline, 40);
+  assert.ok(Math.abs(result.alternative - 5.6) < 1e-9);
+  assert.ok(Math.abs(result.difference - 34.4) < 1e-9);
   assert.equal(monthlyImpact(0, 20, 0.2, "walk")?.difference, 0);
   assert.ok(monthlyImpact(10, 20, 0.01, "bus")!.difference < 0);
   assert.equal(monthlyImpact(10, 32, 0.2, "bus"), null);
 });
 
-test("UK rail presets use documented passenger-kilometre factors", () => {
+test("India metro preset uses the documented passenger-kilometre factor", () => {
   assert.ok(
-    Math.abs(monthlyImpact(10, 20, 0.2, "rail")!.alternative - 7.092) < 1e-9,
-  );
-  assert.ok(
-    Math.abs(monthlyImpact(10, 20, 0.2, "tram")!.alternative - 5.72) < 1e-9,
-  );
-  assert.ok(
-    Math.abs(monthlyImpact(10, 20, 0.2, "underground")!.alternative - 5.56) <
-      1e-9,
+    Math.abs(monthlyImpact(10, 20, 0.2, "metro")!.alternative - 4.8) < 1e-9,
   );
 });
 
 test("car attribution accounts for occupancy and rejects invalid values", () => {
-  assert.equal(petrolCarPassengerFactor(2), 0.16272 / 2);
+  assert.equal(petrolCarPassengerFactor(2), 0.243 / 2);
   assert.equal(petrolCarPassengerFactor(0), null);
   assert.equal(petrolCarPassengerFactor(1.5), null);
 });

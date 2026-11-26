@@ -53,7 +53,7 @@ The recommendation engine also supplies the rule-based plan when the AI service 
 | **Personal air plan**        | See prioritized, household-aware actions with clear reasons and evidence links. Preferences include sensitive household members, children, outdoor exercise, commuting, and cooking smoke.                 |
 | **Outing planner**           | Compare complete forecast windows with your available time, activity duration, household context, and fixed commitments. Fill an editable window from the next consecutive forecast hours with one action. |
 | **Indoor-air guide**         | Find practical actions for cooking smoke, filtration, dust, and outdoor-air conditions; estimate a smoke CADR for your room and compare a purifier's reported rating.                                      |
-| **Commute impact**           | Compare estimated transport emissions across bus, rail, walking, cycling, and custom options using transparent factors and travel assumptions. Review current modeled city air alongside the comparison.   |
+| **Commute impact**           | Compare estimated transport emissions across Indian urban bus and metro reference scenarios, walking, cycling, and custom factors. Review current modeled city air alongside the comparison.               |
 | **Ask SaafSky**              | Get a concise English or Hindi explanation of your current plan from Gemini, grounded in selected actions and approved sources. A rule-based plan is ready whenever AI is not selected or available.       |
 | **Scenario explorer**        | Adjust illustrative air-quality and household inputs and compare two household plans side by side, with reasons and sources. The explorer makes no external service calls.                                 |
 | **Preferences and language** | Save your city, set household context, switch between English and Hindi, and clear saved preferences.                                                                                                      |
@@ -128,11 +128,12 @@ This verifies an AI-mode response using the key and Upstash credentials in `.env
 
 Latest local verification on **November 26, 2026**:
 
-- **125 unit tests passed.** Coverage includes all production `src/**/*.ts` files, with 80.09% line, 94.45% branch, and 94.44% function coverage; configured minimums are 75%, 90%, and 90% respectively.
-- **55 production-browser tests passed**, covering both languages, in-flight search and assistant-error language changes, focused assistant announcements, air retry recovery, seven routes, keyboard-operated mobile navigation, household comparison, key journeys, and layouts from 320px through 1440px.
+- **128 unit tests passed.** Coverage includes all production `src/**/*.ts` files, with 80.95% line, 94.28% branch, and 93.96% function coverage; configured minimums are 75%, 90%, and 90% respectively.
+- **60 production-browser tests passed**, covering both languages, in-flight search and assistant-error language changes, focused assistant announcements, air retry recovery, seven routes, keyboard-operated mobile navigation, household comparison, text-spacing overrides, forced-colors focus, key journeys, and responsive layouts.
+- **3 cross-browser production smoke tests passed** in Chromium, Firefox, and WebKit.
 - **2 public API protection tests passed**, verifying public request validation and required protection behavior.
-- **Production smoke on November 18** at [saafsky.vercel.app](https://saafsky.vercel.app): page, air API, city lookup, and Gemini chat in AI mode returned successfully for that deployment.
-- **Client JavaScript: 264.5 KiB gzip** across 16 emitted assets, within the enforced 300 KiB project budget.
+- **Live provider smoke on November 26:** Open-Meteo air and city lookup, plus local Gemini chat in AI mode, passed with configured Redis-backed request and AI budgets.
+- **Client JavaScript: 264.2 KiB gzip** across 16 emitted assets, within the enforced 300 KiB project budget.
 
 Coverage includes all production TypeScript modules; React TSX rendering and browser-only behavior are verified separately with Playwright. API protection and bundle checks add evidence for request boundaries and resource size. Use `npm run check:bundle` to inspect the current production bundle.
 

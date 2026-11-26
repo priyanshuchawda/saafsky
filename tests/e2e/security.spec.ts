@@ -6,15 +6,17 @@ test("responses send security headers and reject cross-origin chat", async ({
   const page = await request.get("/");
   expect(page.headers()["x-content-type-options"]).toBe("nosniff");
   expect(page.headers()["x-frame-options"]).toBe("DENY");
+  expect(page.headers()["cross-origin-opener-policy"]).toBe("same-origin");
+  expect(page.headers()["strict-transport-security"]).toBe("max-age=31536000");
   const policy = page.headers()["content-security-policy"];
+  expect(policy).toContain("default-src 'self'");
+  expect(policy).toContain("script-src 'self' 'unsafe-inline'");
+  expect(policy).toContain("style-src 'self' 'unsafe-inline'");
   expect(policy).toContain("base-uri 'self'");
   expect(policy).toContain("form-action 'self'");
   expect(policy).toContain("object-src 'none'");
   expect(policy).toContain("frame-ancestors 'none'");
-  const reportOnly = page.headers()["content-security-policy-report-only"];
-  expect(reportOnly).toContain("default-src 'self'");
-  expect(reportOnly).toContain("script-src 'self'");
-  expect(reportOnly).toContain("connect-src 'self'");
+  expect(policy).toContain("connect-src 'self'");
   const blocked = await request.post("/api/chat", {
     headers: {
       origin: "https://other.example",
@@ -24,6 +26,27 @@ test("responses send security headers and reject cross-origin chat", async ({
   });
   expect(blocked.status()).toBe(403);
   expect(blocked.headers()["cache-control"]).toContain("no-store");
+});
+
+test("compatible script policy permits hydration and client navigation", async ({
+  page,
+}) => {
+  const policyErrors: string[] = [];
+  page.on("console", (message) => {
+    if (
+      /violates the following content security policy|refused to execute/i.test(
+        message.text(),
+      )
+    ) {
+      policyErrors.push(message.text());
+    }
+  });
+
+  await page.goto("/");
+  await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+  await page.getByRole("link", { name: "Daily planner" }).click();
+  await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+  expect(policyErrors).toEqual([]);
 });
 
 test("API rejects invalid coordinates and oversized chat bodies", async ({

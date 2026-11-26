@@ -7,6 +7,8 @@ import {
   UpstreamHttpError,
 } from "../src/server/diagnostics.ts";
 import { handleAirRequest } from "../src/server/air-endpoint.ts";
+import { AssistantReplyValidationError } from "../src/features/assistant/validate.ts";
+import { GeminiConfigurationError } from "../src/server/chat.ts";
 
 test("service failures are categorized without exposing provider or user data", () => {
   const invalid = z.string().safeParse(1);
@@ -31,6 +33,14 @@ test("service failures are categorized without exposing provider or user data", 
     "upstream_http",
   );
   assert.equal(classifyFailure(invalid.error), "upstream_contract");
+  assert.equal(
+    classifyFailure(new GeminiConfigurationError("GEMINI_UNCONFIGURED")),
+    "configuration",
+  );
+  assert.equal(
+    classifyFailure(new AssistantReplyValidationError("invalid_json")),
+    "invalid_json",
+  );
   assert.equal(
     classifyFailure(new Error("secret question and key")),
     "unexpected",

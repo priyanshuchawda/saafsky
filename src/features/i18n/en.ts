@@ -152,15 +152,17 @@ export const englishMessages = {
   whatChanges: "What changes",
   today: "today?",
   scenarioEvidence: "US AQI categories:",
+  scenarioUpdated:
+    "Scenario updated: US AQI {aqi}, {category}. Recommendations are refreshed.",
   indoorEvidence: "Indoor air actions:",
   backLiveDashboard: "← Back to live dashboard",
   impactEyebrow: "COMMUTE IMPACT",
   impactTitle: "Compare your",
   choices: "choices.",
   impactLead:
-    "Estimate attributed travel emissions using a UK proxy or your own sourced factor. Results depend on the factors and occupancy you choose.",
+    "Compare monthly travel emissions with India-relevant reference factors or a factor you provide. Results depend on distance, travel days, occupancy, and the selected assumptions.",
   currentTravel: "CURRENT TRAVEL",
-  ukPetrolCar: "UK average petrol car",
+  indiaPetrolCar: "Private petrol car · India reference",
   ownFactor: "Use my own factor",
   peopleInCar: "PEOPLE IN CAR",
   dailyDistance: "DAILY ROUND-TRIP DISTANCE (KM)",
@@ -168,12 +170,8 @@ export const englishMessages = {
   baselineFactor: "BASELINE FACTOR (KG CO₂E / PASSENGER-KM)",
   sourcedFactorPlaceholder: "Enter a sourced factor",
   alternative: "ALTERNATIVE",
-  ukLocalBus: "Average UK local bus",
-  ukNationalRail: "UK national rail",
-  ukTram: "UK light rail and tram",
-  ukUnderground: "London Underground",
-  ukRailFactors:
-    "UK 2025 passenger-km factors: national rail {rail}, light rail and tram {tram}, and London Underground {underground} kg CO₂e. These are UK proxies and exclude upstream fuel and electricity supply emissions.",
+  indiaCityBus: "Urban diesel bus · India reference",
+  indiaMetro: "Metro rail · India reference",
   walking: "Walking",
   cycling: "Cycling",
   customFactor: "Custom factor",
@@ -186,7 +184,7 @@ export const englishMessages = {
   enterValidFactor:
     "Enter a valid baseline factor and inputs to see a comparison.",
   impactMethod:
-    "The average petrol car factor is {car} kg CO₂e per vehicle-km, divided by the number of occupants. The bus factor is {bus} kg CO₂e per passenger-km, using 2025 UK average occupancy. It is a UK proxy, not an India-specific estimate. Walking and cycling are assigned zero direct vehicle emissions; food, vehicle manufacture and infrastructure are excluded. A baseline vehicle-km factor must be divided by occupants before entering it here. An emissions difference does not predict local AQI or health impact.",
+    "Reference factors: petrol car 0.243 kg CO₂e per vehicle-km (divided by occupants), urban 12 m non-AC diesel bus 0.028 kg CO₂e per passenger-km, and metro 0.024 kg CO₂e per passenger-km (BEV Intended Policy Scenario). Source: International Transport Forum, 2023 India life-cycle assessment. Walking and cycling use zero direct vehicle-operation emissions. Actual results vary by vehicle, occupancy, route, and energy mix; this comparison does not predict local AQI or health outcomes.",
   impactExposure:
     "Walking or cycling near traffic can increase pollution exposure during poor air quality. Consider current conditions and practical alternatives. Source:",
   commuteAirEyebrow: "AIR QUALITY AND YOUR COMMUTE",

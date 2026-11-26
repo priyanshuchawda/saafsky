@@ -437,18 +437,18 @@ test("impact calculator displays a sourced-factor comparison", async ({
   await page.goto("/impact", { waitUntil: "networkidle" });
   await expect(
     page.getByLabel("CURRENT TRAVEL").locator('option[value="car"]'),
-  ).toHaveText("UK average petrol car");
-  await expect(page.getByRole("heading", { name: /11\.77 kg/ })).toBeVisible();
-  await page.getByLabel("ALTERNATIVE").selectOption("underground");
-  await expect(page.getByRole("heading", { name: /26\.98 kg/ })).toBeVisible();
+  ).toHaveText("Private petrol car · India reference");
+  await expect(page.getByRole("heading", { name: /43\.00 kg/ })).toBeVisible();
+  await page.getByLabel("ALTERNATIVE").selectOption("metro");
+  await expect(page.getByRole("heading", { name: /43\.80 kg/ })).toBeVisible();
   await page.getByLabel("ALTERNATIVE").selectOption("bus");
   await page.getByLabel("PEOPLE IN CAR").fill("2");
   await expect(
-    page.getByRole("heading", { name: /4\.50 kg.*more/ }),
+    page.getByRole("heading", { name: /18\.70 kg.*less/ }),
   ).toBeVisible();
   await page.getByLabel("CURRENT TRAVEL").selectOption("custom");
   await page.getByLabel("BASELINE FACTOR (KG CO₂E / PASSENGER-KM)").fill("0.2");
-  await expect(page.getByRole("heading", { name: /19\.23 kg/ })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /34\.40 kg/ })).toBeVisible();
 });
 
 test("commute comparison uses current modeled air and handles a provider outage", async ({
@@ -488,7 +488,7 @@ test("commute comparison uses current modeled air and handles a provider outage"
   await expect(
     page.getByText(/Current city air data is unavailable or stale/),
   ).toBeVisible();
-  await expect(page.getByRole("heading", { name: /11\.77 kg/ })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /43\.00 kg/ })).toBeVisible();
 });
 
 test("planner personalizes the daily plan from a mocked fresh forecast", async ({

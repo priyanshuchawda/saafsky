@@ -1,6 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
+  AssistantReplyValidationError,
   assistantResponseSchema,
   validateAssistantReply,
 } from "../src/features/assistant/validate.ts";
@@ -41,7 +42,10 @@ test("assistant output accepts only action-linked evidence references", () => {
       actions,
     ),
   );
-  assert.throws(() => validateAssistantReply("not JSON", actions));
+  assert.throws(
+    () => validateAssistantReply("not JSON", actions),
+    AssistantReplyValidationError,
+  );
   assert.throws(() =>
     validateAssistantReply(
       JSON.stringify({
@@ -144,7 +148,7 @@ test("assistant rejects numerical claims absent from trusted context", () => {
         actions,
         [120, "18:00"],
       ),
-    /Unsupported numerical claim/,
+    AssistantReplyValidationError,
   );
   assert.throws(
     () =>
@@ -153,7 +157,7 @@ test("assistant rejects numerical claims absent from trusted context", () => {
         actions,
         [120],
       ),
-    /Unsupported numerical claim/,
+    AssistantReplyValidationError,
   );
 });
 

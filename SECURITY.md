@@ -11,14 +11,14 @@ untrusted. The main risks in scope are credential exposure, public API abuse,
 malformed external data, prompt injection, unsupported AI claims, and unsafe
 browser execution.
 
-| Risk                                  | Control                                                                                                                                                                       | Verification                                                                                |
-| ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
-| Secret exposure                       | Provider credentials remain server-side; tracked files are scanned for common token formats and committed environment files                                                   | `npm run check:secrets`                                                                     |
-| Request abuse                         | Bounded JSON bodies, validated coordinates and origins, shared visitor/global Redis budgets, and fail-closed public configuration                                             | `tests/request-body.test.ts`, `tests/rate-limit-adapter.test.ts`, `npm run test:protection` |
-| Provider data errors                  | Runtime Zod schemas, deadlines, explicit missing-data handling, and redacted failure categories                                                                               | `tests/air-provider.test.ts`, endpoint and schema tests                                     |
-| Prompt injection and forged citations | User/history are untrusted context; deterministic actions remain authoritative; output schema, action IDs, evidence IDs, duplicate references, and numeric tokens are checked | `tests/assistant.test.ts`, `tests/gemini-adapter.test.ts`                                   |
-| Browser injection and framing         | Same-origin policy baseline, report-only resource restrictions, `nosniff`, frame denial, and restrictive referrer/permissions headers                                         | `tests/e2e/security.spec.ts`, `tests/e2e/csp-experiment.spec.ts`                            |
-| Sensitive response caching            | Assistant API responses send `Cache-Control: no-store`                                                                                                                        | `tests/e2e/security.spec.ts`, API contract tests                                            |
+| Risk                                  | Control                                                                                                                                                                                   | Verification                                                                                |
+| ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| Secret exposure                       | Provider credentials remain server-side; tracked files are scanned for common token formats and committed environment files                                                               | `npm run check:secrets`                                                                     |
+| Request abuse                         | Bounded JSON bodies, validated coordinates and origins, shared visitor/global Redis budgets, and fail-closed public configuration                                                         | `tests/request-body.test.ts`, `tests/rate-limit-adapter.test.ts`, `npm run test:protection` |
+| Provider data errors                  | Runtime Zod schemas, deadlines, explicit missing-data handling, and redacted failure categories                                                                                           | `tests/air-provider.test.ts`, endpoint and schema tests                                     |
+| Prompt injection and forged citations | User/history are untrusted context; deterministic actions remain authoritative; output schema, action IDs, evidence IDs, duplicate references, and numeric tokens are checked             | `tests/assistant.test.ts`, `tests/gemini-adapter.test.ts`                                   |
+| Browser injection and framing         | Static-compatible CSP resource restrictions, `nosniff`, frame denial, and restrictive referrer/permissions headers; inline scripts and styles remain allowed for Next.js static rendering | `tests/e2e/security.spec.ts`, `tests/e2e/csp-experiment.spec.ts`                            |
+| Sensitive response caching            | Assistant API responses send `Cache-Control: no-store`                                                                                                                                    | `tests/e2e/security.spec.ts`, API contract tests                                            |
 
 ## Operational handling
 
@@ -28,8 +28,10 @@ provider, update the local and deployment settings, and run the protected API
 smoke checks again. Do not include prompts, household details, provider payloads,
 or credentials in diagnostic logs.
 
-The broader CSP is evaluated in report-only mode against all product routes
-before enforcement. A nonce policy requires a deliberate review of Next.js
+The enforced static-compatible CSP is checked against all product routes in
+production-browser tests. Inline script and style execution remain allowed to
+preserve static rendering and Cache Components; this policy is not a strict
+nonce-based XSS defense. A nonce policy requires a deliberate review of Next.js
 dynamic-rendering and cache behavior. Automated AI validation screens common
 unsupported numeric output and references; it does not provide a mathematical
 proof that free-form prose is factually correct.

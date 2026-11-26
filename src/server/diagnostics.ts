@@ -1,10 +1,23 @@
 import { ZodError } from "zod";
 import { UpstreamHttpError } from "../lib/upstream-error.ts";
+import { AssistantReplyValidationError } from "../features/assistant/validate.ts";
 export { UpstreamHttpError } from "../lib/upstream-error.ts";
 
 type Service = "air" | "locations" | "rate_limit" | "gemini";
 type FailureCode =
-  "timeout" | "quota" | "upstream_http" | "upstream_contract" | "unexpected";
+  | "timeout"
+  | "quota"
+  | "configuration"
+  | "invalid_json"
+  | "duplicate_action_reference"
+  | "duplicate_evidence_reference"
+  | "unknown_action_reference"
+  | "missing_evidence_reference"
+  | "unknown_evidence_reference"
+  | "unsupported_numeric_claim"
+  | "upstream_http"
+  | "upstream_contract"
+  | "unexpected";
 type Diagnostic = {
   event: "service_failure";
   service: Service;
@@ -13,6 +26,9 @@ type Diagnostic = {
 
 export function classifyFailure(error: unknown): FailureCode {
   if (error instanceof Error && error.name === "TimeoutError") return "timeout";
+  if (error instanceof Error && error.name === "GeminiConfigurationError")
+    return "configuration";
+  if (error instanceof AssistantReplyValidationError) return error.code;
   if (error instanceof UpstreamHttpError)
     return error.status === 429 ? "quota" : "upstream_http";
   if (error instanceof ZodError) return "upstream_contract";
