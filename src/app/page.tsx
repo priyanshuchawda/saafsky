@@ -17,7 +17,9 @@ export default function Home() {
   const [language] = useLanguage();
   const [city, setCity, cityReady] = useCity();
   const [profile, setProfile] = useHousehold();
-  const state = useAirQuality(cityReady ? city : null);
+  const { state, retry, retryDisabled } = useAirQuality(
+    cityReady ? city : null,
+  );
   const air = state.kind === "success" ? state.data : null;
   const updated = state.kind === "success" ? state.retrievedAt : "";
   const fresh = state.kind === "success" && state.fresh;
@@ -107,6 +109,16 @@ export default function Home() {
         <p role="status" className="notice">
           {status}
         </p>
+      )}
+      {state.kind === "error" && (
+        <button
+          type="button"
+          className="action-button"
+          disabled={retryDisabled}
+          onClick={retry}
+        >
+          {translate(language, retryDisabled ? "retryWait" : "retryAir")}
+        </button>
       )}
 
       <AirQualitySummary

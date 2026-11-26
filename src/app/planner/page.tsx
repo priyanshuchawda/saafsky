@@ -29,7 +29,7 @@ export default function Planner() {
   const [busyStart, setBusyStart] = useState("");
   const [busyEnd, setBusyEnd] = useState("");
   const [profile, setProfile] = useHousehold();
-  const state = useAirQuality(cityReady ? city : null);
+  const { state } = useAirQuality(cityReady ? city : null);
   const air = state.kind === "success" && state.fresh ? state.data : null;
   const localNow =
     state.kind === "success"

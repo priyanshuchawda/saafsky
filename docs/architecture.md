@@ -25,6 +25,7 @@ The shared application shell gives every route consistent desktop and mobile nav
 - `src/features/recommendations`, `planner`, `indoor`, and `sustainability` hold decision and calculation logic independently of presentation.
 - `src/app/api` validates requests and coordinates providers; `src/server/chat.ts` owns the server-side Gemini adapter. Its injected text-client contract is tested independently, with model, request-size, and timeout limits read from validated server configuration.
 - The chat planner passes one typed air context containing the validated AQI and bounded forecast into explanation logic; this keeps forecast state explicit across the API, decision engine, and Gemini request.
+- `src/lib/request-cache.ts` bounds successful client snapshots, deduplicates overlapping city requests, expires entries, and evicts least-recently-used values. `useAirQuality` adds request deadlines and user-controlled retry while honoring `Retry-After`.
 - `src/components` and `src/hooks` render the experience and manage browser preferences.
 
 The dashboard, recommendation engine, planner, indoor guide, and scenario explorer are useful independently of Gemini. When current air data is not available, SaafSky presents its data state clearly and keeps general indoor guidance accessible. Air forecasts use a 30-minute cache; city results use a 24-hour cache. Production request budgets are shared through Upstash, with per-visitor protection on Vercel.

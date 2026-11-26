@@ -18,7 +18,7 @@ export default function IndoorAdvisor() {
   const [language] = useLanguage();
   const [city, , cityReady] = useCity();
   const [profile, setProfile] = useHousehold();
-  const airState = useAirQuality(cityReady ? city : null);
+  const { state: airState } = useAirQuality(cityReady ? city : null);
   const [purifier, setPurifier] = useState(false);
   const [outdoorMode, setOutdoorMode] = useState<"auto" | OutdoorCondition>(
     "auto",

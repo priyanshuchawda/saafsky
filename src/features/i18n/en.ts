@@ -249,6 +249,8 @@ export const englishMessages = {
   airUnavailable:
     "Your air update is taking a little longer. Please try again shortly.",
   airFetchFailed: "Air data is unavailable. Please try again later.",
+  retryAir: "Retry air-quality update",
+  retryWait: "Please wait before retrying",
   staleAir:
     "The model data or retrieval time is stale or unavailable. Check a local official source for current conditions.",
   todayIn: "Today in",

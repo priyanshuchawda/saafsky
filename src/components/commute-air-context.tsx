@@ -7,11 +7,16 @@ import { translate, type Language } from "@/features/i18n/messages";
 import { useAirQuality } from "@/hooks/use-air-quality";
 import { useCity, useHousehold } from "@/hooks/use-preferences";
 import { translateAqiCategory } from "@/features/i18n/aqi";
+import { localizeAirError } from "@/features/i18n/errors";
 
 export function CommuteAirContext({ language }: { language: Language }) {
   const [city, , cityReady] = useCity();
   const [household] = useHousehold();
-  const air = useAirQuality(cityReady ? city : null);
+  const {
+    state: air,
+    retry,
+    retryDisabled,
+  } = useAirQuality(cityReady ? city : null);
   const aqi =
     air.kind === "success" && air.fresh ? air.data.current.us_aqi : null;
   const context = commuteAirContext(
@@ -35,6 +40,19 @@ export function CommuteAirContext({ language }: { language: Language }) {
       <div role="status">
         {air.kind === "loading" ? (
           <p>{translate(language, "commuteAirLoading")}</p>
+        ) : air.kind === "error" ? (
+          <>
+            <p>{translate(language, messageKey.unknown)}</p>
+            <p>{localizeAirError(language, air.rateLimit)}</p>
+            <button
+              type="button"
+              className="action-button"
+              disabled={retryDisabled}
+              onClick={retry}
+            >
+              {translate(language, retryDisabled ? "retryWait" : "retryAir")}
+            </button>
+          </>
         ) : (
           <>
             {aqi !== null && context !== "unknown" && (
