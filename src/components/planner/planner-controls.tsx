@@ -1,7 +1,10 @@
 "use client";
 
 import { LocationSearch } from "@/components/location-search";
-import { parseCommuteMode } from "@/features/preferences/commute";
+import {
+  CommuteSelect,
+  HouseholdSensitivitySelect,
+} from "@/components/household-controls";
 import { translate, type Language } from "@/features/i18n/messages";
 import type { HouseholdProfile } from "@/features/recommendations/engine";
 import type { City } from "@/types/air";
@@ -58,52 +61,20 @@ export function PlannerControls({
     <>
       <div className="toolbar impact-form">
         <LocationSearch onSelect={onCitySelect} />
-        <div className="profile">
-          <label htmlFor="plan-profile">
-            {translate(language, "household")}
-          </label>
-          <select
-            id="plan-profile"
-            value={profile.sensitive ? "sensitive" : "general"}
-            onChange={(event) =>
-              onProfileChange({
-                ...profile,
-                sensitive: event.target.value === "sensitive",
-              })
-            }
-          >
-            <option value="general">
-              {translate(language, "generalGuidance")}
-            </option>
-            <option value="sensitive">
-              {translate(language, "sensitiveHousehold")}
-            </option>
-          </select>
-        </div>
-        <div className="profile">
-          <label htmlFor="plan-commute">
-            {translate(language, "commuteLabel")}
-          </label>
-          <select
-            id="plan-commute"
-            value={profile.commute}
-            onChange={(event) =>
-              onProfileChange({
-                ...profile,
-                commute:
-                  parseCommuteMode(event.target.value) ?? profile.commute,
-              })
-            }
-          >
-            <option value="none">{translate(language, "noneSelected")}</option>
-            <option value="walk">{translate(language, "walk")}</option>
-            <option value="bike">{translate(language, "bicycle")}</option>
-            <option value="public">
-              {translate(language, "publicTransport")}
-            </option>
-            <option value="car">{translate(language, "car")}</option>
-          </select>
-        </div>
+        <HouseholdSensitivitySelect
+          id="plan-profile"
+          label={translate(language, "household")}
+          language={language}
+          sensitive={profile.sensitive}
+          onChange={(sensitive) => onProfileChange({ ...profile, sensitive })}
+        />
+        <CommuteSelect
+          id="plan-commute"
+          label={translate(language, "commuteLabel")}
+          language={language}
+          value={profile.commute}
+          onChange={(commute) => onProfileChange({ ...profile, commute })}
+        />
         <div className="profile">
           <label htmlFor="window-start">
             {translate(language, "earliestTime")}

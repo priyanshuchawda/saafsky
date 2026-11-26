@@ -69,7 +69,7 @@ test("dynamic result cards do not announce their complete content", async ({
     await page.goto(path, { waitUntil: "domcontentloaded" });
     await expect(page.locator("main section[aria-live]")).toHaveCount(0);
   }
-  await page.goto("/scenarios", { waitUntil: "domcontentloaded" });
+  await page.goto("/scenarios", { waitUntil: "networkidle" });
   const scenarioStatus = page.getByRole("status");
   await expect(scenarioStatus).toContainText("Scenario updated");
   await page.getByLabel("SAMPLE US AQI").selectOption("250");

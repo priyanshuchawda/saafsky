@@ -54,7 +54,9 @@ export default function Assistant() {
       </div>
       <form
         className="plan scenario-result"
-        onSubmit={submit}
+        onSubmit={(event) => {
+          void submit(event);
+        }}
         aria-label={translate(language, "assistant")}
       >
         <label htmlFor="question">

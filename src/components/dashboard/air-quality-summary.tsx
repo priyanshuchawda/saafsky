@@ -1,7 +1,6 @@
-import { ActionReason } from "@/components/action-reason";
+import { RecommendationList } from "@/components/recommendation-list";
 import type { Recommendation } from "@/features/recommendations/engine";
 import { translateAqiCategory } from "@/features/i18n/aqi";
-import { localizeRecommendation } from "@/features/i18n/recommendations";
 import type { Air } from "@/types/air";
 import { translate, type Language } from "@/features/i18n/messages";
 
@@ -60,18 +59,7 @@ export function AirQualitySummary({
           <em>{translate(language, "meaningfulCare")}</em>
         </h3>
         <p className="muted">{translate(language, "basedOnCurrent")}</p>
-        <ol>
-          {recommendations.map((item, index) => (
-            <li key={item.id}>
-              <span>0{index + 1}</span>
-              <div>
-                <strong>{localizeRecommendation(language, item).title}</strong>
-                <p>{localizeRecommendation(language, item).description}</p>
-                <ActionReason action={item} language={language} />
-              </div>
-            </li>
-          ))}
-        </ol>
+        <RecommendationList actions={recommendations} language={language} />
         <p className="fine">{translate(language, "generalInformation")}</p>
       </article>
     </section>

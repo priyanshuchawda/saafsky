@@ -27,13 +27,25 @@ export function petrolCarPassengerFactor(occupants: number): number | null {
     : null;
 }
 
-export function monthlyImpact(
-  distanceKm: number,
-  days: number,
-  baselineFactor: number,
-  mode: Mode,
+export type MonthlyImpactInput = {
+  distanceKm: number;
+  days: number;
+  baselineFactor: number;
+  mode: Mode;
+  customFactor?: number;
+};
+
+export function monthlyImpact({
+  distanceKm,
+  days,
+  baselineFactor,
+  mode,
   customFactor = 0,
-): { baseline: number; alternative: number; difference: number } | null {
+}: MonthlyImpactInput): {
+  baseline: number;
+  alternative: number;
+  difference: number;
+} | null {
   if (
     parseTransportMode(mode) === null ||
     ![distanceKm, days, baselineFactor, customFactor].every(Number.isFinite) ||

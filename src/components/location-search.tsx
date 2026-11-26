@@ -83,7 +83,12 @@ export function LocationSearch({
       break;
   }
   return (
-    <form onSubmit={search} aria-label={translate(language, "citySearchLabel")}>
+    <form
+      onSubmit={(event) => {
+        void search(event);
+      }}
+      aria-label={translate(language, "citySearchLabel")}
+    >
       <label htmlFor="city">{translate(language, "location")}</label>
       <div className="search">
         <input

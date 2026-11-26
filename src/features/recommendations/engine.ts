@@ -47,32 +47,29 @@ function indoorSmokeAdvice(profile: HouseholdProfile): Recommendation {
   };
 }
 
-export function generateRecommendations(
-  aqi: number | null,
+function unavailableAirAction(): Recommendation {
+  return {
+    id: "air-unavailable",
+    title: "Check current conditions",
+    description:
+      "Air quality is unavailable. Check a local official source before planning outdoor activity.",
+    priority: "high",
+    category: "health",
+    reasonCodes: ["missing_air_data"],
+    evidenceIds: ["airnow-aqi"],
+  };
+}
+
+function primaryHealthAction(
+  aqi: number,
   profile: HouseholdProfile,
-): Recommendation[] {
-  const actions: Recommendation[] = [];
-  if (!isValidAqi(aqi)) {
-    return [
-      {
-        id: "air-unavailable",
-        title: "Check current conditions",
-        description:
-          "Air quality is unavailable. Check a local official source before planning outdoor activity.",
-        priority: "high",
-        category: "health",
-        reasonCodes: ["missing_air_data"],
-        evidenceIds: ["airnow-aqi"],
-      },
-      indoorSmokeAdvice(profile),
-    ];
-  }
-  const vulnerable = profile.sensitive || profile.children;
+  vulnerable: boolean,
+): Recommendation {
   if (
     aqi > US_AQI_UPPER_BOUND.sensitiveGroups ||
     (aqi > US_AQI_UPPER_BOUND.moderate && vulnerable)
   ) {
-    actions.push({
+    return {
       id: "reduce-outdoor-exertion",
       title: "Reduce outdoor exertion",
       description: profile.outdoorExercise
@@ -86,9 +83,10 @@ export function generateRecommendations(
         ...(profile.outdoorExercise ? (["outdoor_exercise"] as const) : []),
       ],
       evidenceIds: ["airnow-aqi"],
-    });
-  } else if (aqi > US_AQI_UPPER_BOUND.moderate) {
-    actions.push({
+    };
+  }
+  if (aqi > US_AQI_UPPER_BOUND.moderate) {
+    return {
       id: "sensitive-caution",
       title: "Consider sensitive people",
       description:
@@ -97,19 +95,25 @@ export function generateRecommendations(
       category: "health",
       reasonCodes: ["sensitive_group_aqi"],
       evidenceIds: ["airnow-aqi"],
-    });
-  } else {
-    actions.push({
-      id: "monitor-conditions",
-      title: "Check conditions",
-      description:
-        "Consider the forecast and your own symptoms when planning outdoor activity.",
-      priority: "low",
-      category: "health",
-      reasonCodes: ["available_air_data"],
-      evidenceIds: ["airnow-aqi"],
-    });
+    };
   }
+  return {
+    id: "monitor-conditions",
+    title: "Check conditions",
+    description:
+      "Consider the forecast and your own symptoms when planning outdoor activity.",
+    priority: "low",
+    category: "health",
+    reasonCodes: ["available_air_data"],
+    evidenceIds: ["airnow-aqi"],
+  };
+}
+
+function addContextActions(
+  actions: Recommendation[],
+  aqi: number,
+  profile: HouseholdProfile,
+): void {
   if (aqi > US_AQI_UPPER_BOUND.unhealthy)
     actions.unshift({
       id: "essential-trips",
@@ -136,5 +140,18 @@ export function generateRecommendations(
       evidenceIds: ["airnow-aqi", "epa-near-road"],
     });
   actions.push(indoorSmokeAdvice(profile));
+}
+
+export function generateRecommendations(
+  aqi: number | null,
+  profile: HouseholdProfile,
+): Recommendation[] {
+  const actions: Recommendation[] = [];
+  if (!isValidAqi(aqi)) {
+    return [unavailableAirAction(), indoorSmokeAdvice(profile)];
+  }
+  const vulnerable = profile.sensitive || profile.children;
+  actions.push(primaryHealthAction(aqi, profile, vulnerable));
+  addContextActions(actions, aqi, profile);
   return actions;
 }

@@ -26,11 +26,11 @@ test("all routes and core interactive controls work in this browser engine", asy
   await page.getByRole("link", { name: "Daily planner" }).click();
   await expect(page).toHaveURL(/\/planner\/?$/);
 
-  await page.goto("/scenarios", { waitUntil: "domcontentloaded" });
+  await page.goto("/scenarios", { waitUntil: "networkidle" });
   await page.getByLabel("SAMPLE US AQI").selectOption("250");
   await expect(page.getByRole("status")).toContainText("US AQI 250");
 
-  await page.goto("/impact", { waitUntil: "domcontentloaded" });
+  await page.goto("/impact", { waitUntil: "networkidle" });
   await page.getByLabel("ALTERNATIVE").selectOption("metro");
   await expect(page.getByRole("heading", { name: /43\.80 kg/ })).toBeVisible();
   await page.locator("#site-language").selectOption("hi");

@@ -30,13 +30,13 @@ export function useImpactCalculator() {
     (mode !== "custom" || custom.trim() !== "");
   const result =
     complete && baselineFactor !== null
-      ? monthlyImpact(
-          Number(distance),
-          Number(days),
+      ? monthlyImpact({
+          distanceKm: Number(distance),
+          days: Number(days),
           baselineFactor,
           mode,
-          mode === "custom" ? Number(custom) : 0,
-        )
+          customFactor: mode === "custom" ? Number(custom) : 0,
+        })
       : null;
   return {
     distance,

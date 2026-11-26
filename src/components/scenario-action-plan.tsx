@@ -1,7 +1,6 @@
-import { ActionReason } from "@/components/action-reason";
+import { RecommendationList } from "@/components/recommendation-list";
 import { translate, type Language } from "@/features/i18n/messages";
 import type { Recommendation } from "@/features/recommendations/engine";
-import { localizeRecommendation } from "@/features/i18n/recommendations";
 
 export function ScenarioActionPlan({
   actions,
@@ -37,18 +36,7 @@ export function ScenarioActionPlan({
           </>
         )}
       </h2>
-      <ol>
-        {actions.map((item, index) => (
-          <li key={item.id}>
-            <span>0{index + 1}</span>
-            <div>
-              <strong>{localizeRecommendation(language, item).title}</strong>
-              <p>{localizeRecommendation(language, item).description}</p>
-              <ActionReason action={item} language={language} />
-            </div>
-          </li>
-        ))}
-      </ol>
+      <RecommendationList actions={actions} language={language} />
       <p className="fine">{translate(language, "generalInformation")}</p>
     </article>
   );

@@ -12,14 +12,23 @@ const eslintConfig = defineConfig([
   },
   {
     files: ["src/**/*.{ts,tsx}"],
+    languageOptions: {
+      parserOptions: {
+        projectService: true,
+        tsconfigRootDir: import.meta.dirname,
+      },
+    },
     rules: {
       "max-depth": ["error", 4],
       "max-lines": [
         "error",
         { max: 350, skipBlankLines: true, skipComments: true },
       ],
-      "max-params": ["error", 5],
+      "max-params": ["error", 4],
       "@typescript-eslint/no-non-null-assertion": "error",
+      "@typescript-eslint/await-thenable": "error",
+      "@typescript-eslint/no-floating-promises": "error",
+      "@typescript-eslint/no-misused-promises": "error",
     },
   },
   {
@@ -30,10 +39,10 @@ const eslintConfig = defineConfig([
       "src/config/**/*.ts",
     ],
     rules: {
-      complexity: ["error", 26],
+      complexity: ["error", 16],
       "max-lines-per-function": [
         "error",
-        { max: 100, skipBlankLines: true, skipComments: true },
+        { max: 75, skipBlankLines: true, skipComments: true },
       ],
     },
   },
@@ -44,10 +53,10 @@ const eslintConfig = defineConfig([
       "src/hooks/**/*.ts",
     ],
     rules: {
-      complexity: ["error", 45],
+      complexity: ["error", 32],
       "max-lines-per-function": [
         "error",
-        { max: 220, skipBlankLines: true, skipComments: true },
+        { max: 180, skipBlankLines: true, skipComments: true },
       ],
     },
   },

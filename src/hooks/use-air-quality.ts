@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import type { Dispatch, SetStateAction } from "react";
 import { isFresh } from "@/lib/freshness";
 import { airResponseSchema } from "@/lib/schemas";
 import {
@@ -39,6 +40,27 @@ type AirQualityResource = {
   retry(): void;
   retryDisabled: boolean;
 };
+type AirQualityResult = { key: string; state: AirQualityState };
+
+function applyRetryCooldown(
+  key: string,
+  setResult: Dispatch<SetStateAction<AirQualityResult>>,
+): boolean {
+  const retryAt = airRetryCooldowns.get(key);
+  if (retryAt === null) return false;
+  const seconds = Math.max(1, Math.ceil((retryAt - Date.now()) / 1000));
+  const message = retryMessage(String(seconds));
+  setResult({
+    key,
+    state: {
+      kind: "error",
+      message,
+      rateLimit: new RateLimitError(message, seconds),
+      retryAt,
+    },
+  });
+  return true;
+}
 
 async function fetchAirResponse(
   key: string,
@@ -80,12 +102,10 @@ export function useAirQuality(city: City | null): AirQualityResource {
       ? `${latitude},${longitude}`
       : "pending";
   const [retryAttempt, setRetryAttempt] = useState(0);
-  const [result, setResult] = useState<{ key: string; state: AirQualityState }>(
-    {
-      key,
-      state: { kind: "loading" },
-    },
-  );
+  const [result, setResult] = useState<AirQualityResult>({
+    key,
+    state: { kind: "loading" },
+  });
   const state: AirQualityState =
     result.key === key ? result.state : { kind: "loading" };
 
@@ -104,26 +124,7 @@ export function useAirQuality(city: City | null): AirQualityResource {
         currentLongitude === undefined
       )
         return;
-      const sharedRetryAt = airRetryCooldowns.get(key);
-      if (sharedRetryAt !== null) {
-        const retryAfterSeconds = Math.max(
-          1,
-          Math.ceil((sharedRetryAt - Date.now()) / 1000),
-        );
-        setResult({
-          key,
-          state: {
-            kind: "error",
-            message: retryMessage(String(retryAfterSeconds)),
-            rateLimit: new RateLimitError(
-              retryMessage(String(retryAfterSeconds)),
-              retryAfterSeconds,
-            ),
-            retryAt: sharedRetryAt,
-          },
-        });
-        return;
-      }
+      if (applyRetryCooldown(key, setResult)) return;
       if (force) airResponseCache.invalidate(key);
       lastAttempt = Date.now();
       requestPending = true;

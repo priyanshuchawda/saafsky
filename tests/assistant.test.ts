@@ -146,7 +146,6 @@ test("assistant rejects numerical claims absent from trusted context", () => {
       validateAssistantReply(
         JSON.stringify({ ...reply, answer: "The AQI is 42 today." }),
         actions,
-        [120, "18:00"],
       ),
     AssistantReplyValidationError,
   );
@@ -155,13 +154,12 @@ test("assistant rejects numerical claims absent from trusted context", () => {
       validateAssistantReply(
         JSON.stringify({ ...reply, answer: "आज AQI ४२ है।" }),
         actions,
-        [120],
       ),
     AssistantReplyValidationError,
   );
 });
 
-test("assistant accepts numerical claims that match trusted AQI and forecast data", () => {
+test("assistant rejects numbers even when they match trusted values", () => {
   const actions: Recommendation[] = [
     {
       id: "monitor-conditions",
@@ -174,18 +172,18 @@ test("assistant accepts numerical claims that match trusted AQI and forecast dat
     },
   ];
 
-  assert.equal(
-    validateAssistantReply(
-      JSON.stringify({
-        answer: "The current AQI is 120; the lower forecast is at 18:00.",
-        referencedActionIds: ["monitor-conditions"],
-        sourceIds: ["airnow-aqi"],
-        uncertainty: "Estimates can change.",
-      }),
-      actions,
-      [120, "18:00"],
-    ).answer,
-    "The current AQI is 120; the lower forecast is at 18:00.",
+  assert.throws(
+    () =>
+      validateAssistantReply(
+        JSON.stringify({
+          answer: "The current AQI is 120; the lower forecast is at 18:00.",
+          referencedActionIds: ["monitor-conditions"],
+          sourceIds: ["airnow-aqi"],
+          uncertainty: "Estimates can change.",
+        }),
+        actions,
+      ),
+    AssistantReplyValidationError,
   );
 });
 

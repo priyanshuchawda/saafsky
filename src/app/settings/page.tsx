@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { parseCommuteMode } from "@/features/preferences/commute";
+import { CommuteSelect } from "@/components/household-controls";
 import { useState } from "react";
 import {
   clearPreferences,
@@ -63,32 +63,13 @@ export default function Settings() {
               <option value="yes">{translate(language, "yes")}</option>
             </select>
           </div>
-          <div className="profile">
-            <label htmlFor="setting-commute">
-              {translate(language, "usualCommute")}
-            </label>
-            <select
-              id="setting-commute"
-              value={profile.commute}
-              onChange={(event) =>
-                setProfile({
-                  ...profile,
-                  commute:
-                    parseCommuteMode(event.target.value) ?? profile.commute,
-                })
-              }
-            >
-              <option value="none">
-                {translate(language, "noneSelected")}
-              </option>
-              <option value="walk">{translate(language, "walk")}</option>
-              <option value="bike">{translate(language, "bicycle")}</option>
-              <option value="public">
-                {translate(language, "publicTransport")}
-              </option>
-              <option value="car">{translate(language, "car")}</option>
-            </select>
-          </div>
+          <CommuteSelect
+            id="setting-commute"
+            label={translate(language, "usualCommute")}
+            language={language}
+            value={profile.commute}
+            onChange={(commute) => setProfile({ ...profile, commute })}
+          />
           <div className="profile">
             <label htmlFor="setting-exercise">
               {translate(language, "outdoorExercise")}

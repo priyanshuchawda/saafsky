@@ -38,22 +38,9 @@ function normalizeNumerals(value: string): string {
   );
 }
 
-function numericTokens(values: readonly (number | string)[]): Set<string> {
-  const tokens = new Set<string>();
-  for (const value of values) {
-    for (const match of normalizeNumerals(String(value)).matchAll(
-      /\b\d+(?:[.,]\d+)?\b/g,
-    )) {
-      tokens.add(match[0].replace(",", "."));
-    }
-  }
-  return tokens;
-}
-
 export function validateAssistantReply(
   raw: string,
   actions: Recommendation[],
-  trustedFacts: readonly (number | string)[] = [],
 ): AssistantExplanation {
   let decoded: unknown;
   try {
@@ -84,17 +71,10 @@ export function validateAssistantReply(
   if (parsed.sourceIds.some((id) => !allowedSources.has(id)))
     throw new AssistantReplyValidationError("unknown_evidence_reference");
 
-  const approvedNumbers = numericTokens([
-    ...trustedFacts,
-    ...actions.flatMap((action) => [action.title, action.description]),
-  ]);
   const generatedText = normalizeNumerals(
     `${parsed.answer} ${parsed.uncertainty}`,
   );
-  const unsupportedNumber = [...generatedText.matchAll(/\b\d+(?:[.,]\d+)?\b/g)]
-    .map(([token]) => token.replace(",", "."))
-    .find((token) => !approvedNumbers.has(token));
-  if (unsupportedNumber)
+  if (/\b\d+(?:[.,:]\d+)*\b/.test(generatedText))
     throw new AssistantReplyValidationError("unsupported_numeric_claim");
 
   return parsed;

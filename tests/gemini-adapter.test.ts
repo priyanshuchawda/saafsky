@@ -134,7 +134,7 @@ test("Gemini adapter treats hostile questions and history as untrusted context",
   );
   assert.match(
     request?.systemInstruction ?? "",
-    /numeric claim must exactly match/,
+    /Do not include numeric digits, AQI values, clock times/,
   );
   assert.match(request?.systemInstruction ?? "", /Numeric output policy/);
   const prompt = JSON.parse(request?.input ?? "{}") as {

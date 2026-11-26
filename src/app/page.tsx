@@ -4,6 +4,7 @@ import Link from "next/link";
 import { AirQualitySummary } from "@/components/dashboard/air-quality-summary";
 import { ForecastSection } from "@/components/dashboard/forecast-section";
 import { LocationSearch } from "@/components/location-search";
+import { HouseholdSensitivitySelect } from "@/components/household-controls";
 import { generateRecommendations } from "@/features/recommendations/engine";
 import { useAirQuality } from "@/hooks/use-air-quality";
 import { useCity, useHousehold, useLanguage } from "@/hooks/use-preferences";
@@ -73,26 +74,13 @@ export default function Home() {
         aria-label={translate(language, "locationHousehold")}
       >
         <LocationSearch onSelect={setCity} />
-        <div className="profile">
-          <label htmlFor="profile">{translate(language, "household")}</label>
-          <select
-            id="profile"
-            value={profile.sensitive ? "sensitive" : "adult"}
-            onChange={(event) =>
-              setProfile({
-                ...profile,
-                sensitive: event.target.value === "sensitive",
-              })
-            }
-          >
-            <option value="adult">
-              {translate(language, "generalGuidance")}
-            </option>
-            <option value="sensitive">
-              {translate(language, "sensitiveHousehold")}
-            </option>
-          </select>
-        </div>
+        <HouseholdSensitivitySelect
+          id="profile"
+          label={translate(language, "household")}
+          language={language}
+          sensitive={profile.sensitive}
+          onChange={(sensitive) => setProfile({ ...profile, sensitive })}
+        />
       </section>
 
       <div className="heading">

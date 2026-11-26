@@ -28,13 +28,16 @@ API is migrated; it is not required to remain.
 - Strict TypeScript, unused-code checks, explicit return paths, unchecked-index
   protection, explicit optional-field handling, and checked switch behavior are
   enabled in `tsconfig.json`.
-- ESLint rejects explicit `any` types, and the TypeScript architecture test
-  guards internal layer dependencies and client/server boundaries.
-- Production modules are held to executable complexity limits: complexity 12,
-  maximum nesting depth 4, four parameters, 100 nonblank lines per function,
-  and 350 nonblank lines per source file. Non-null assertions are prohibited in
-  application source. These limits guide responsibility boundaries without
-  imposing artificial byte-size targets on translation catalogues.
+- ESLint uses TypeScript project services for application source and rejects
+  explicit `any`, floating promises, promise misuse, and awaiting non-thenables.
+  The TypeScript architecture test guards internal layer dependencies and
+  client/server boundaries.
+- Production source is held to executable limits: cyclomatic complexity 16 in
+  domain/server/config modules and 32 in UI modules; maximum nesting depth 4;
+  four parameters; 75 nonblank lines per domain/server function and 180 per UI
+  function; and 350 nonblank lines per source file. Non-null assertions are
+  prohibited in application source. These limits guide responsibility
+  boundaries without imposing artificial byte-size targets on translations.
 - ESLint and Prettier run before the release verification finishes.
 - Runtime schemas validate external air data, API inputs, and assistant output.
 - Stable recommendation IDs connect the rules engine to an exhaustive Hindi
@@ -44,6 +47,16 @@ API is migrated; it is not required to remain.
 - The Node coverage gate includes every `src/**/*.ts` file, including modules
   not imported by tests, and enforces 75% line, 90% branch, and 90% function
   coverage. TSX rendering is covered separately by production browser tests.
+- A duplication scan is reproducible with:
+
+  ```powershell
+  npx --yes jscpd@4.0.5 src --min-lines 8 --min-tokens 50 --reporters console
+  ```
+
+  The November 26 scan found zero clones across 7,783 source lines at these
+  thresholds. Shared recommendation rendering and household/commute controls
+  were extracted after a first scan found repeated TSX blocks. This scoped
+  result does not imply that no smaller repetitions exist.
 
 ## Reproduce locally
 

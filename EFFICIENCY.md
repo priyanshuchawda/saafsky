@@ -9,7 +9,7 @@ dashboard remains useful when the language model is unavailable.
 | Resource           | Control                                                                                                        | Implementation                                                                                   |
 | ------------------ | -------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
 | Air forecasts      | Server cache, client request deduplication, bounded LRU cache, request timeout                                 | `src/server/air-provider.ts`, `src/lib/request-cache.ts`, `src/hooks/use-air-quality.ts`         |
-| Location search    | Debounced input, cancellation, bounded query, provider cache                                                   | `src/components/location-search.tsx`, `src/server/locations-endpoint.ts`                         |
+| Location search    | Explicit form submission, cancellation of the previous in-flight search, bounded query, provider cache         | `src/components/location-search.tsx`, `src/server/locations-endpoint.ts`                         |
 | Gemini             | Shared per-minute and daily budgets, bounded history and output tokens, timeout, one reserved fallback attempt | `src/server/chat.ts`, `src/features/assistant/model-fallback.ts`, `src/config/server-budgets.ts` |
 | Public APIs        | Shared visitor and global request budgets with fail-closed production behavior                                 | `src/server/rate-limit.ts`, `src/server/rate-limit-stages.ts`                                    |
 | Browser JavaScript | Gzip budget across emitted client chunks                                                                       | `scripts/check-bundle.mjs`                                                                       |
@@ -40,6 +40,27 @@ npm run test:e2e:production
 
 ## Measurement record
 
-Values below are refreshed in `SELF_AUDIT.md` after running the local release
-verification. Live request latency and Core Web Vitals are reported only when
-measured in a browser session; they are not inferred from bundle size.
+The following baseline was measured on November 26, 2026, against the local
+production build using Lighthouse 13.6.0 in mobile mode. The readings are
+repeatable lab measurements; device, network, and runtime variation can change
+them. They are not field Core Web Vitals.
+
+| Route       | Performance |   LCP |   TBT |   CLS | Script transfer |
+| ----------- | ----------: | ----: | ----: | ----: | --------------: |
+| Dashboard   |          87 | 905ms | 520ms | 0.008 |       202,697 B |
+| Planner     |          85 | 761ms | 595ms | 0.000 |       213,414 B |
+| Indoor air  |          88 | 763ms | 484ms | 0.000 |       210,065 B |
+| Commute     |          86 | 759ms | 547ms | 0.000 |       209,752 B |
+| Assistant   |          91 | 758ms | 367ms | 0.000 |       208,356 B |
+| Preferences |          91 | 758ms | 373ms | 0.000 |       205,096 B |
+| Scenarios   |          93 | 870ms | 328ms | 0.000 |       208,892 B |
+
+Reproduce the route table after `npm run build` with:
+
+```powershell
+.\scripts\measure-lighthouse.ps1
+```
+
+The script starts the local production server, audits all seven routes, prints
+compact measurements, and stops the server. These lab results complement the
+project-wide gzip budget; script transfer on one route is a separate measure.

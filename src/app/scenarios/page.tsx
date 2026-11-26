@@ -1,9 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { parseCommuteMode } from "@/features/preferences/commute";
 import { useState } from "react";
 import { ScenarioActionPlan } from "@/components/scenario-action-plan";
+import {
+  CommuteSelect,
+  HouseholdSensitivitySelect,
+} from "@/components/household-controls";
 import type { Profile } from "@/lib/air";
 import { translateAqiCategory } from "@/features/i18n/aqi";
 import {
@@ -77,27 +80,16 @@ export default function Scenarios() {
             </option>
           </select>
         </div>
-        <div className="profile">
-          <label htmlFor="scenario-profile">
-            {translate(language, "household")}
-          </label>
-          <select
-            id="scenario-profile"
-            value={profile}
-            onChange={(event) =>
-              setProfile(
-                event.target.value === "sensitive" ? "sensitive" : "adult",
-              )
-            }
-          >
-            <option value="adult">
-              {translate(language, "generalGuidance")}
-            </option>
-            <option value="sensitive">
-              {translate(language, "sensitiveHousehold")}
-            </option>
-          </select>
-        </div>
+        <HouseholdSensitivitySelect
+          id="scenario-profile"
+          label={translate(language, "household")}
+          language={language}
+          sensitive={profile === "sensitive"}
+          generalValue="adult"
+          onChange={(sensitive) =>
+            setProfile(sensitive ? "sensitive" : "adult")
+          }
+        />
         <div className="profile">
           <label htmlFor="scenario-children">
             {translate(language, "householdChildren")}
@@ -111,26 +103,13 @@ export default function Scenarios() {
             <option value="yes">{translate(language, "yes")}</option>
           </select>
         </div>
-        <div className="profile">
-          <label htmlFor="scenario-commute">
-            {translate(language, "commuteLabel")}
-          </label>
-          <select
-            id="scenario-commute"
-            value={commute}
-            onChange={(event) =>
-              setCommute(parseCommuteMode(event.target.value) ?? commute)
-            }
-          >
-            <option value="none">{translate(language, "noneSelected")}</option>
-            <option value="walk">{translate(language, "walk")}</option>
-            <option value="bike">{translate(language, "bicycle")}</option>
-            <option value="public">
-              {translate(language, "publicTransport")}
-            </option>
-            <option value="car">{translate(language, "car")}</option>
-          </select>
-        </div>
+        <CommuteSelect
+          id="scenario-commute"
+          label={translate(language, "commuteLabel")}
+          language={language}
+          value={commute}
+          onChange={setCommute}
+        />
       </div>
       <div className="scenario-comparison-controls">
         <button

@@ -24,23 +24,31 @@ type Diagnostic = {
   code: FailureCode;
 };
 
+function providerStatusCode(error: unknown): number | null {
+  if (!(error instanceof Error) || !("status" in error)) return null;
+  return typeof error.status === "number" ? error.status : null;
+}
+
+function classifyHttpStatus(status: number): FailureCode {
+  if (status === 429) return "quota";
+  if (status === 408 || status === 504) return "timeout";
+  if (status >= 400 && status < 600) return "upstream_http";
+  return "unexpected";
+}
+
 export function classifyFailure(error: unknown): FailureCode {
+  if (error instanceof AssistantReplyValidationError) return error.code;
+  if (error instanceof ZodError) return "upstream_contract";
+  if (error instanceof UpstreamHttpError)
+    return error.status === null
+      ? "upstream_http"
+      : classifyHttpStatus(error.status);
   if (error instanceof Error && error.name === "TimeoutError") return "timeout";
   if (error instanceof Error && error.name === "GeminiConfigurationError")
     return "configuration";
-  if (error instanceof AssistantReplyValidationError) return error.code;
-  if (error instanceof UpstreamHttpError)
-    return error.status === 429 ? "quota" : "upstream_http";
-  if (error instanceof ZodError) return "upstream_contract";
-  if (error instanceof Error && "status" in error) {
-    const status = error.status;
-    if (typeof status === "number") {
-      if (status === 429) return "quota";
-      if (status === 408 || status === 504) return "timeout";
-      if (status >= 400 && status < 600) return "upstream_http";
-    }
-  }
-  return "unexpected";
+  const status = providerStatusCode(error);
+  if (typeof status !== "number") return "unexpected";
+  return classifyHttpStatus(status);
 }
 
 /** Never emit error messages, request inputs, provider payloads, or credentials. */
