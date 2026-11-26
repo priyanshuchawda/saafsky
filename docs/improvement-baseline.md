@@ -47,6 +47,12 @@ could reach a provider; no live-provider result was checked or claimed.
 6. **DEFERRED — accessibility:** Real screen-reader and full WCAG 2.2 review
    require further hands-on verification; automated axe checks are partial.
 
+This section records the state of the repository on November 23, 2026. On
+November 26, 2026, the project owner reported completing hands-on checks of
+keyboard operation, assistive-technology output, English and Hindi content,
+desktop and mobile layouts, and zoom/reflow. See the current
+[`docs/accessibility.md`](accessibility.md) for that release-review record.
+
 ## Traceability
 
 | Area              | Local evidence                                                                         |

@@ -41,7 +41,7 @@ Verified locally against the production build on **November 26, 2026**:
 - **Production smoke passed** on November 18 at [saafsky.vercel.app](https://saafsky.vercel.app): the site, air endpoint, city lookup, and Gemini chat in AI mode all returned successfully.
 - **Local live smoke passed** on November 26 for Open-Meteo air data, Open-Meteo city lookup, and the SaafSky chat route in AI mode. The run also exercised configured Redis-backed request and AI-attempt budgets. The reusable [live smoke script](../scripts/smoke-live.ps1) prints no secrets or generated answer text.
 
-Coverage reports quantify modules imported by the unit suite. Browser, API-protection, bundle, cross-engine, and live-provider checks add complementary evidence for rendered behavior, request boundaries, resource size, and external integration. Manual screen-reader and zoom review remains a separate human verification step.
+Coverage reports quantify modules imported by the unit suite. Browser, API-protection, bundle, cross-engine, and live-provider checks add complementary evidence for rendered behavior, request boundaries, resource size, and external integration. The project owner also reported successful hands-on review of keyboard operation, assistive-technology output, English/Hindi content, mobile/desktop layouts, and zoom/reflow on November 26, 2026; see [accessibility review](accessibility.md). The specific assistive technology and device versions were not recorded.
 
 ## Change discipline
 

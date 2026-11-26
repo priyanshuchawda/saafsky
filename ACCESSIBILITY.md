@@ -39,5 +39,13 @@ the document's language attribute follows the active language.
 
 The automated suite covers keyboard navigation, focus, live status updates,
 contrast pairs, chart alternatives, language switching, narrow-screen reflow,
-and key form recovery states. A human NVDA/VoiceOver session remains a separate
-release review because automated browser tooling cannot certify spoken output.
+and key form recovery states.
+
+## Manual release review
+
+On November 26, 2026, the project owner reported completing hands-on checks of
+the product flows, keyboard operation, assistive-technology output, English and
+Hindi content, desktop and mobile layouts, and zoom/reflow behavior; all were
+reported working as expected. These checks complement the repeatable automated
+suite. Assistive-technology names, device/browser versions, and a formal WCAG
+conformance assessment were not recorded.
