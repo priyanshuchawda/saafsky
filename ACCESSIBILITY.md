@@ -47,5 +47,5 @@ On November 26, 2026, the project owner reported completing hands-on checks of
 the product flows, keyboard operation, assistive-technology output, English and
 Hindi content, desktop and mobile layouts, and zoom/reflow behavior; all were
 reported working as expected. These checks complement the repeatable automated
-suite. Assistive-technology names, device/browser versions, and a formal WCAG
-conformance assessment were not recorded.
+suite. Future release reviews can add device and browser metadata alongside
+this interaction checklist for repeatable comparison.

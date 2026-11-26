@@ -39,10 +39,6 @@ const eslintConfig = defineConfig([
         "error",
         { allowConstantLoopConditions: true },
       ],
-      "@typescript-eslint/no-unnecessary-condition": [
-        "error",
-        { allowConstantLoopConditions: true },
-      ],
     },
   },
   {
