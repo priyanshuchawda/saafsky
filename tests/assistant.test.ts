@@ -187,6 +187,93 @@ test("assistant rejects numbers even when they match trusted values", () => {
   );
 });
 
+test("assistant rejects spelled-out numeric claims in English and Hindi", () => {
+  const actions: Recommendation[] = [
+    {
+      id: "monitor-conditions",
+      title: "Check current AQI",
+      description: "Review the forecast.",
+      priority: "low",
+      category: "health",
+      reasonCodes: ["available_air_data"],
+      evidenceIds: ["airnow-aqi"],
+    },
+  ];
+  const reply = {
+    referencedActionIds: ["monitor-conditions"],
+    sourceIds: ["airnow-aqi"],
+    uncertainty: "Forecast estimates can change.",
+  };
+
+  for (const answer of [
+    "The AQI is one hundred twenty today.",
+    "The peak is at five thirty PM.",
+    "This may last for three hours.",
+    "आज AQI एक सौ बीस है।",
+    "यह स्थिति तीन घंटे रह सकती है।",
+  ]) {
+    assert.throws(
+      () =>
+        validateAssistantReply(JSON.stringify({ ...reply, answer }), actions),
+      AssistantReplyValidationError,
+      answer,
+    );
+  }
+
+  assert.equal(
+    validateAssistantReply(
+      JSON.stringify({
+        ...reply,
+        answer: "One helpful step is to review the forecast.",
+      }),
+      actions,
+    ).answer,
+    "One helpful step is to review the forecast.",
+  );
+});
+
+test("assistant rejects unsupported qualitative safety and product claims", () => {
+  const actions: Recommendation[] = [
+    {
+      id: "monitor-conditions",
+      title: "Check current conditions",
+      description: "Review the forecast before flexible outdoor activity.",
+      priority: "low",
+      category: "health",
+      reasonCodes: ["available_air_data"],
+      evidenceIds: ["airnow-aqi"],
+    },
+  ];
+  const reply = {
+    referencedActionIds: ["monitor-conditions"],
+    sourceIds: ["airnow-aqi"],
+    uncertainty: "Forecast estimates can change.",
+  };
+
+  for (const answer of [
+    "Cycling is safe during rush hour.",
+    "An N95 mask guarantees clean air.",
+    "Houseplants eliminate indoor smoke.",
+  ]) {
+    assert.throws(
+      () =>
+        validateAssistantReply(JSON.stringify({ ...reply, answer }), actions),
+      AssistantReplyValidationError,
+      answer,
+    );
+  }
+  assert.equal(
+    validateAssistantReply(
+      JSON.stringify({
+        ...reply,
+        answer: "Review the forecast before going out.",
+      }),
+      actions,
+    ).answer,
+    "Review the forecast before going out.",
+  );
+});
+
 test("assistant rejects duplicate action or evidence references", () => {
   const actions: Recommendation[] = [
     {

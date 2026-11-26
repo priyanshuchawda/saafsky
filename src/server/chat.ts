@@ -140,7 +140,7 @@ export async function explainPlan({
       description,
       sources: evidenceIds.map((sourceId) => ({
         id: sourceId,
-        label: evidenceCatalog[sourceId]?.label ?? sourceId,
+        label: evidenceCatalog[sourceId].label,
       })),
     })),
   });

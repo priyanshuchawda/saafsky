@@ -128,12 +128,13 @@ This verifies an AI-mode response using the key and Upstash credentials in `.env
 
 Latest local verification on **November 26, 2026**:
 
-- **128 unit tests passed.** Coverage includes all production `src/**/*.ts` files, with 81.32% line, 94.19% branch, and 94.87% function coverage; configured minimums are 75%, 90%, and 90% respectively.
+- **138 unit tests passed.** Coverage includes all production `src/**/*.ts` files, with 95.53% line, 92.55% branch, and 93.13% function coverage; the enforced minimum is 90% for each measure. Direct jsdom tests exercise all four React hooks.
 - **60 production-browser tests passed**, covering both languages, in-flight search and assistant-error language changes, focused assistant announcements, air retry recovery, seven routes, keyboard-operated mobile navigation, household comparison, text-spacing overrides, forced-colors focus, key journeys, and responsive layouts.
 - **3 cross-browser production smoke tests passed** in Chromium, Firefox, and WebKit.
 - **2 public API protection tests passed**, verifying public request validation and required protection behavior.
 - **Live provider smoke on November 26:** Open-Meteo air and city lookup, plus local Gemini chat in AI mode, passed with configured Redis-backed request and AI budgets.
-- **Client JavaScript: 265.0 KiB gzip** across 16 emitted assets, within the enforced 300 KiB project budget.
+- **Distributed Redis concurrency smoke:** 24 simultaneous requests for one isolated visitor produced exactly one permit, and a second visitor received an independent permit. The unique verification keys expire within one minute.
+- **Client JavaScript: 265.7 KiB gzip** across 16 emitted assets, within the enforced 300 KiB project budget.
 
 Coverage includes all production TypeScript modules; React TSX rendering and browser-only behavior are verified separately with Playwright. API protection and bundle checks add evidence for request boundaries and resource size. Use `npm run check:bundle` to inspect the current production bundle.
 

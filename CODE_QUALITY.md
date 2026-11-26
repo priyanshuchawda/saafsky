@@ -30,6 +30,8 @@ API is migrated; it is not required to remain.
   enabled in `tsconfig.json`.
 - ESLint uses TypeScript project services for application source and rejects
   explicit `any`, floating promises, promise misuse, and awaiting non-thenables.
+  It also rejects unsafe argument/assignment/call/member-access/return flows,
+  unnecessary type assertions, and conditions TypeScript can prove redundant.
   The TypeScript architecture test guards internal layer dependencies and
   client/server boundaries.
 - Production source is held to executable limits: cyclomatic complexity 16 in
@@ -45,15 +47,16 @@ API is migrated; it is not required to remain.
 - Unit and browser tests exercise deterministic policy, API boundaries, language
   changes, assistant fallback, responsive layouts, and accessibility states.
 - The Node coverage gate includes every `src/**/*.ts` file, including modules
-  not imported by tests, and enforces 75% line, 90% branch, and 90% function
-  coverage. TSX rendering is covered separately by production browser tests.
+  not imported by tests, and enforces 90% line, branch, and function coverage.
+  Hook tests run in jsdom; TSX rendering is also covered by production browser
+  tests.
 - A duplication scan is reproducible with:
 
   ```powershell
   npx --yes jscpd@4.0.5 src --min-lines 8 --min-tokens 50 --reporters console
   ```
 
-  The November 26 scan found zero clones across 7,783 source lines at these
+  The November 26 scan found zero clones across 7,884 source lines at these
   thresholds. Shared recommendation rendering and household/commute controls
   were extracted after a first scan found repeated TSX blocks. This scoped
   result does not imply that no smaller repetitions exist.

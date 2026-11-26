@@ -15,6 +15,7 @@ type FailureCode =
   | "missing_evidence_reference"
   | "unknown_evidence_reference"
   | "unsupported_numeric_claim"
+  | "unsupported_qualitative_claim"
   | "upstream_http"
   | "upstream_contract"
   | "unexpected";

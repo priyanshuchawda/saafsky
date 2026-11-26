@@ -48,3 +48,10 @@ npm audit --omit=dev --audit-level=high
 The secret scan covers tracked files and does not print matched secret values.
 The dependency audit checks published advisories for production packages; it
 does not replace code review or a security assessment.
+
+Assistant output validation rejects numeric digits and spelled-out numerical
+claims when paired with AQI, time, duration, or measurement context. The prompt
+also treats user/history content as untrusted and limits safety guidance to the
+selected deterministic actions. Free-form language cannot be fully verified
+for every qualitative claim, so deterministic actions remain the trusted
+recommendation layer.

@@ -23,13 +23,11 @@ export function useImpactCalculator() {
       : baseline.trim()
         ? Number(baseline)
         : null;
-  const complete =
+  const result =
+    baselineFactor !== null &&
     distance.trim() !== "" &&
     days.trim() !== "" &&
-    baselineFactor !== null &&
-    (mode !== "custom" || custom.trim() !== "");
-  const result =
-    complete && baselineFactor !== null
+    (mode !== "custom" || custom.trim() !== "")
       ? monthlyImpact({
           distanceKm: Number(distance),
           days: Number(days),

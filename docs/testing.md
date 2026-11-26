@@ -1,6 +1,6 @@
 # Testing and verification
 
-SaafSky combines offline unit tests, provider-injected API tests, production-browser journeys, and a dedicated public-mode protection suite. The unit coverage command includes every production `src/**/*.ts` module and enforces minimums of 75% lines, 90% branches, and 90% functions. Mocked providers keep automated runs repeatable and quota-free.
+SaafSky combines offline unit tests, provider-injected API tests, production-browser journeys, and a dedicated public-mode protection suite. The unit coverage command includes every production `src/**/*.ts` module and enforces minimums of 90% lines, branches, and functions. Mocked providers keep automated runs repeatable and quota-free.
 
 Node.js 26.x matches the deployed runtime; Node.js 22.18 or newer is supported for local development. Install dependencies and run the core checks from the repository root:
 

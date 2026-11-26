@@ -35,17 +35,33 @@ npm run test:protection
 ## Coverage scope
 
 Node.js 26 coverage includes every production `src/**/*.ts` module, including
-modules not imported by a unit test. The configured floors are 75% lines, 90%
-branches, and 90% functions. React TSX rendering and browser-only behavior are
-verified in Playwright rather than being included in the Node coverage
-denominator. The release report records these scopes separately.
+modules not imported by a unit test. The configured floors are 90% lines, 90%
+branches, and 90% functions. React hooks have direct jsdom tests; TSX rendering
+and browser-only behavior are also verified in Playwright. Coverage measures
+executed code, while policy boundaries use explicit expected results.
 
 The suite exercises AQI policy boundaries, household decisions, time handling,
 forecast and provider schemas, request caching and cooldowns, emissions,
 Gemini output validation, model fallback, rate-limit orchestration, endpoint
 contracts, bilingual journeys, navigation, responsive layouts, and security
-headers. Adapter tests inject controlled dependencies; they do not claim to
-prove external provider uptime or distributed Redis atomicity.
+headers. Adapter tests inject controlled dependencies. The separate Redis smoke
+checks one fixed-window concurrency scenario against an isolated live key; it
+does not establish large-scale traffic fairness or provider uptime.
+
+## Controlled live Redis concurrency smoke
+
+When `.env.local` contains the Upstash REST URL and token, run:
+
+```powershell
+npm run smoke:redis
+```
+
+The script creates a unique verification prefix, sends concurrent requests to
+Upstash's distributed fixed-window limiter, checks the single-permit result and
+an independent client, and relies on the one-minute key expiry. It prints no
+credentials or identifiers and does not consume SaafSky's production limiter
+prefixes. This is an on-demand integration smoke, not part of ordinary unit
+tests.
 
 ## Browser and live checks
 

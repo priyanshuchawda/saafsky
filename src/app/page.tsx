@@ -34,7 +34,7 @@ export default function Home() {
           : "";
   const aqi =
     fresh &&
-    typeof air?.current?.us_aqi === "number" &&
+    typeof air?.current.us_aqi === "number" &&
     Number.isFinite(air.current.us_aqi)
       ? air.current.us_aqi
       : null;
