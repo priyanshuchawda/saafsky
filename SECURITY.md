@@ -2,7 +2,7 @@
 
 Please report suspected vulnerabilities privately to the repository owner. Include affected behavior and reproduction steps, but do not include API keys, real personal data or sensitive chat content. If a credential is exposed, rotate it immediately.
 
-The [security and privacy guide](docs/security-privacy.md) describes the current controls, data handling and known limitations. The application and its dependencies require ongoing review; a passing automated test is not a security guarantee.
+The [security and privacy guide](docs/security-privacy.md) describes the current controls, data handling, and security boundaries.
 
 ## Threat model and controls
 
@@ -29,12 +29,11 @@ smoke checks again. Do not include prompts, household details, provider payloads
 or credentials in diagnostic logs.
 
 The enforced static-compatible CSP is checked against all product routes in
-production-browser tests. Inline script and style execution remain allowed to
-preserve static rendering and Cache Components; this policy is not a strict
-nonce-based XSS defense. A nonce policy requires a deliberate review of Next.js
-dynamic-rendering and cache behavior. AI prose containing numeric digits is
-rejected, and action/evidence references are validated; this does not provide
-a mathematical proof that every qualitative statement is factually correct.
+production-browser tests. Resource origins and embedding are restricted, and
+inline scripts and styles are permitted to preserve Next.js static rendering
+and Cache Components. This resource-origin policy is distinct from a strict
+nonce-based script policy. See [ADR-006](DECISIONS.md#adr-006--enforce-a-static-compatible-content-security-policy)
+for the design decision.
 
 ## Reproduce security checks
 
@@ -45,13 +44,13 @@ npm run test:e2e:production
 npm audit --omit=dev --audit-level=high
 ```
 
-The secret scan covers tracked files and does not print matched secret values.
-The dependency audit checks published advisories for production packages; it
-does not replace code review or a security assessment.
+The secret scan covers tracked files and reports findings without matched
+secret values. The dependency audit checks published advisories for production
+packages. These checks complement source review and security testing.
 
-Assistant output validation rejects numeric digits and spelled-out numerical
-claims when paired with AQI, time, duration, or measurement context. The prompt
-also treats user/history content as untrusted and limits safety guidance to the
-selected deterministic actions. Free-form language cannot be fully verified
-for every qualitative claim, so deterministic actions remain the trusted
-recommendation layer.
+Assistant output validation screens numeric tokens, context-paired English
+and Hindi number words, and selected unsupported safety, efficacy, and product
+claims. User and history content is treated as untrusted. The deterministic
+recommendation engine supplies the authoritative actions, while generated prose
+provides a bounded explanation. Claim screening is targeted rather than a
+proof of factual correctness for all free-form language.

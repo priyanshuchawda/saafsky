@@ -2,7 +2,7 @@
 
 SaafSky combines offline unit tests, provider-injected API tests, production-browser journeys, and a dedicated public-mode protection suite. The unit coverage command includes every production `src/**/*.ts` module and enforces minimums of 90% lines, branches, and functions. Mocked providers keep automated runs repeatable and quota-free.
 
-Node.js 26.x matches the deployed runtime; Node.js 22.18 or newer is supported for local development. Install dependencies and run the core checks from the repository root:
+Node.js 26.x matches the deployed runtime and supports the complete release verification, including full-source coverage. Install dependencies and run the core checks from the repository root:
 
 ```sh
 npm ci
@@ -37,7 +37,7 @@ On Windows, `scripts/verify.ps1` provides a concise local release check:
 .\scripts\verify.ps1 -Browser
 ```
 
-The browser option runs production browser journeys and public API protection after lint, typecheck, coverage, and build. Provider smoke checks are performed separately when validating live credentials and provider availability; keeping those checks outside the routine suite preserves deterministic runs and free-tier quotas.
+The release check runs formatting, tracked-file secret scanning, lint, typecheck, coverage, build, and the bundle budget check. The browser option adds production-browser journeys, cross-browser smoke tests, and public API protection. Provider smoke checks are performed separately when validating live credentials and provider availability; keeping those checks outside the routine suite preserves deterministic runs and free-tier quotas.
 
 The release script also checks all emitted `.next/static/chunks/**/*.js` assets after the production build. It sums the gzip size of separately delivered assets and enforces a 300 KiB project-wide client JavaScript budget. This complements route-level browser testing with a clear resource-size target.
 

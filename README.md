@@ -39,7 +39,7 @@ flowchart LR
   Dashboard --> Rules[Deterministic decision engine]
   Rules --> Plan[Personalized actions and reasons]
   Plan --> Gemini[Gemini explanation]
-  Gemini --> Validation[Validate action and source references]
+  Gemini --> Validation[Validate output and evidence references]
   Validation --> Answer[Assistant response]
 ```
 
@@ -62,7 +62,7 @@ The recommendation engine also supplies the rule-based plan when the AI service 
 
 - **Practical decisions:** A deterministic recommendation engine selects actions before Gemini explains them.
 - **Connected experience:** The dashboard, planner, indoor guidance, and assistant use consistent city and household context.
-- **Evidence-aware AI:** Gemini receives a compact context; structured replies are validated, and action and source references are checked against the approved catalog.
+- **Evidence-aware AI:** Gemini receives a compact context. Structured replies are checked against the approved action and evidence catalog and screened for unsupported claims.
 - **Trustworthy data labels:** Forecasts identify the US AQI standard, model source, forecast time, and retrieval time.
 - **Built for resilience:** Core air planning, recommendation, scenario, and indoor guidance remain available independently of Gemini.
 - **Responsive and accessible:** Shared navigation, semantic controls, keyboard support, text labels alongside AQI colors, and generous touch targets work across mobile, tablet, and desktop layouts.
@@ -87,7 +87,7 @@ Recommendation and planning rules are deterministic TypeScript. Gemini explains 
 
 ## Run locally
 
-Use Node.js **26.x** to match the deployed runtime. Node.js 22.18 or newer is supported for local development.
+Use Node.js **26.x** to match the deployed runtime and reproduce the complete release verification, including full-source coverage.
 
 ```sh
 npm ci
@@ -116,7 +116,7 @@ On Windows, run the complete local release check from the repository root:
 .\scripts\verify.ps1 -Browser
 ```
 
-This runs ESLint, strict typechecking, unit coverage, a production build, compressed client-JavaScript budget checks, production-browser journeys, responsive and accessibility checks, and public API protection checks. Mocked provider responses keep these checks repeatable and quota-free.
+This runs formatting, tracked-file secret scanning, type-aware ESLint, strict typechecking, unit coverage, a production build, compressed client-JavaScript budget checks, production-browser journeys, cross-browser smoke tests, accessibility checks, and public API protection checks. Mocked provider responses keep routine verification repeatable and quota-free.
 
 For a separate live-provider check after a production build, run:
 
@@ -153,7 +153,7 @@ The interface supports keyboard navigation, visible focus, semantic controls, so
 - [Efficiency and performance](EFFICIENCY.md)
 - [Testing and verification](TESTING.md)
 - [Accessibility traceability](ACCESSIBILITY.md)
-- [Self-audit by judging criterion](SELF_AUDIT.md)
+- [Engineering quality evidence](SELF_AUDIT.md)
 - [Challenge requirement traceability](PROBLEM_ALIGNMENT.md)
 - [API reference](docs/api.md)
 - [Quality engineering and measured evidence](docs/quality.md)
@@ -162,6 +162,5 @@ The interface supports keyboard navigation, visible focus, semantic controls, so
 - [Security and privacy](docs/security-privacy.md)
 - [Accessibility](docs/accessibility.md)
 - [Testing and verification](docs/testing.md)
-- [Security reporting](SECURITY.md)
 
 SaafSky provides general air-quality decision support to help people plan their day. Follow existing clinician guidance for individual medical decisions.

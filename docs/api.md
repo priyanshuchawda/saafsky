@@ -72,7 +72,7 @@ Successful response:
 }
 ```
 
-`mode` is `ai` or `fallback`. The fallback uses the deterministic action plan when Gemini is unconfigured, unavailable, out of budget, or current air data is not fresh. AI output is schema-validated; action IDs must match actions generated for the request, and source IDs must belong to those actions. The browser maps validated source IDs to the approved evidence catalog and displays the resulting links with the answer.
+`mode` is `ai` or `fallback`. The fallback uses the deterministic action plan when Gemini is unconfigured, unavailable, out of budget, or current air data is not fresh. AI output is schema-validated; action IDs must match actions generated for the request, source IDs must belong to referenced actions, and duplicate references are rejected. The validator also screens numeric tokens, context-paired English/Hindi number words, and selected unsupported safety, efficacy, and product claims. Exact readings are presented through deterministic UI rather than generated prose. The browser maps validated source IDs to the approved evidence catalog and displays the resulting links with the answer.
 
 Invalid JSON or schema returns `400`; an oversized body returns `413`; a rejected origin or content type returns `403`; a request limit returns `429` with `Retry-After`; unavailable public request protection returns `503`. Gemini generation is bounded to 500 output tokens and a 12-second SDK timeout.
 

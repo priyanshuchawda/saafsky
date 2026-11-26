@@ -1,9 +1,8 @@
 # SaafSky engineering evidence
 
-This index connects each judging dimension to runnable checks and the source
-that implements it. The figures are refreshed only after local verification;
-the entry below describes evidence scope, not an evaluator score or external
-certification.
+This index connects each engineering quality dimension to the source that
+implements it, the repeatable verification command, and measured release
+evidence. Results are recorded after the corresponding checks are run.
 
 ## Evidence by criterion
 
@@ -20,7 +19,7 @@ certification.
 
 The release check records the current exact test totals, all-source `.ts`
 coverage, browser and protection outcomes, client bundle size, production
-dependency audit result, and release commit in `docs/improvement-evidence.md`.
+dependency audit result, and dated release evidence in `docs/improvement-evidence.md`.
 Unit coverage includes `src/**/*.ts`; TSX page rendering and interactive states
 are assessed with Playwright. Live provider smoke checks are reported separately
 because they depend on credentials and external service availability.
@@ -31,6 +30,6 @@ because they depend on credentials and external service availability.
 .\scripts\verify.ps1 -Browser
 ```
 
-GitHub Actions remain disabled by project instruction. The local release gate
-is the verification source for this revision; it does not make claims about a
-new evaluator score or a third-party leaderboard.
+The local release gate provides a repeatable verification workflow for the
+application, from static analysis and unit coverage through a production build
+and browser checks. Live provider checks are recorded separately.

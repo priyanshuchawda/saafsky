@@ -24,7 +24,7 @@ Run from the repository root on Windows:
 .\scripts\verify.ps1 -Browser
 ```
 
-The script runs ESLint, strict typechecking, unit tests with coverage thresholds, the production build, the compressed client bundle check, production-browser tests, and public API protection tests. It prints concise summaries while preserving failure diagnostics. See [testing and verification](testing.md) for individual commands and coverage scope.
+The script runs formatting, tracked-file secret scanning, type-aware ESLint, strict typechecking, unit tests with coverage thresholds, the production build, the compressed client bundle check, production-browser tests, cross-browser smoke tests, and public API protection tests. It prints concise summaries while preserving failure diagnostics. See [testing and verification](testing.md) for individual commands and coverage scope.
 
 ## Current measured evidence
 
@@ -42,7 +42,7 @@ Verified locally against the production build on **November 26, 2026**:
 - **Production smoke passed** on November 26 at [saafsky.vercel.app](https://saafsky.vercel.app): the site, air endpoint, city lookup, and Gemini chat in AI mode all returned successfully.
 - **Local live smoke passed** on November 26 for Open-Meteo air data, Open-Meteo city lookup, and the SaafSky chat route in AI mode. The run also exercised configured Redis-backed request and AI-attempt budgets. The reusable [live smoke script](../scripts/smoke-live.ps1) prints no secrets or generated answer text.
 
-Coverage reports quantify modules imported by the unit suite. Browser, API-protection, bundle, cross-engine, and live-provider checks add complementary evidence for rendered behavior, request boundaries, resource size, and external integration. The project owner also reported successful hands-on review of keyboard operation, assistive-technology output, English/Hindi content, mobile/desktop layouts, and zoom/reflow on November 26, 2026; see [accessibility review](accessibility.md). Future release reviews can add device metadata for repeatable comparison.
+Coverage reports quantify every production `src/**/*.ts` module, including unexecuted modules; TSX rendering is assessed separately through browser tests. Browser, API-protection, bundle, cross-engine, and live-provider checks add complementary evidence for rendered behavior, request boundaries, resource size, and external integration. The project owner also reported successful hands-on review of keyboard operation, assistive-technology output, English/Hindi content, mobile/desktop layouts, and zoom/reflow on November 26, 2026; see [accessibility review](accessibility.md).
 
 ## Change discipline
 

@@ -22,7 +22,9 @@ The Windows release command is `./scripts/verify.ps1 -Browser`. On November 26,
 lint, TypeScript, the 90% coverage gate, production build, bundle budget,
 production-browser tests, cross-browser smoke, and public API protection tests.
 The measured coverage was 95.53% lines, 92.55% branches, and 93.13% functions
-across every production `src/**/*.ts` file.
+across every production `src/**/*.ts` file. The release measurements describe
+the application and test source introduced through commit `8e632b4`; subsequent
+changes to documentation and lint configuration preserve that application source.
 
 `npm audit --audit-level=high` reported zero known vulnerabilities in the
 installed dependency tree. The production smoke exercised Open-Meteo air and

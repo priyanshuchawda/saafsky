@@ -15,8 +15,8 @@ On Windows, run the complete local release check:
 
 This runs formatting, tracked-file secret scanning, ESLint, strict TypeScript,
 all-source unit coverage, a production build, the compressed bundle budget,
-production-browser tests, and public API protection tests. GitHub Actions remain
-disabled; this local command is the release quality gate.
+production-browser tests, cross-browser smoke tests, and public API protection
+tests. This command provides the repeatable local release quality gate.
 
 Individual checks:
 
@@ -29,6 +29,7 @@ npm run test:coverage
 npm run build
 npm run check:bundle
 npm run test:e2e:production
+npm run test:e2e:compat
 npm run test:protection
 ```
 
@@ -44,9 +45,9 @@ The suite exercises AQI policy boundaries, household decisions, time handling,
 forecast and provider schemas, request caching and cooldowns, emissions,
 Gemini output validation, model fallback, rate-limit orchestration, endpoint
 contracts, bilingual journeys, navigation, responsive layouts, and security
-headers. Adapter tests inject controlled dependencies. The separate Redis smoke
-checks one fixed-window concurrency scenario against an isolated live key; it
-does not establish large-scale traffic fairness or provider uptime.
+headers. Adapter tests inject controlled dependencies. The separate Redis smoke verifies fixed-window admission under concurrent
+requests and independent visitor permits using an isolated live key. Its
+measurement scope is the bounded scenario described below.
 
 ## Controlled live Redis concurrency smoke
 

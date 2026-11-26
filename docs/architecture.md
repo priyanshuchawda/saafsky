@@ -15,7 +15,7 @@ flowchart LR
 
 ## Product flow
 
-The browser stores the selected city in local storage and household choices in session storage. Chat history stays in page memory. A chat request carries the question, up to two previous exchanges, and limited air-quality context. The server creates the action list, then validates the model's action and evidence references. The browser resolves approved evidence IDs to source links before displaying an answer. For privacy, keep questions focused on air quality and daily routines, using generalized household context.
+The browser stores the selected city in local storage and household choices in session storage. Chat history stays in page memory. A chat request carries the question, up to two previous exchanges, and limited air-quality context. The server creates the action list, then validates the model's structured output, unique action and evidence references, and selected numerical and qualitative claims. The browser resolves approved evidence IDs to source links before displaying an answer. For privacy, keep questions focused on air quality and daily routines, using generalized household context.
 
 The shared application shell gives every route consistent desktop and mobile navigation. English and Hindi labels, guidance, and assistant language follow the selected preference. Seven product routes cover the dashboard, outing planner, indoor advisor, commute impact, assistant, scenario explorer, and settings.
 

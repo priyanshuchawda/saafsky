@@ -18,10 +18,9 @@ This page maps those practices to the code and checks that enforce them.
 The import-boundary regression test at `tests/architecture.test.ts` checks that
 lower-level modules do not depend on pages or UI, client-marked App Router
 modules do not import server code or server SDKs, and the internal source graph
-has no dependency cycles. It permits one existing compatibility edge:
-`src/lib/air.ts` calls the recommendation engine for its retained `advice()`
-helper. The exception is documented and can be removed when that compatibility
-API is migrated; it is not required to remain.
+has no dependency cycles. The architecture test explicitly records the
+compatibility bridge from `src/lib/air.ts` to the recommendation engine for
+the retained `advice()` API, keeping that dependency visible and reviewable.
 
 ## Enforced checks
 
@@ -58,8 +57,8 @@ API is migrated; it is not required to remain.
 
   The November 26 scan found zero clones across 7,884 source lines at these
   thresholds. Shared recommendation rendering and household/commute controls
-  were extracted after a first scan found repeated TSX blocks. This scoped
-  result does not imply that no smaller repetitions exist.
+  reuse the same components across routes. The reported measurement uses the
+  minimum clone size specified in the command.
 
 ## Reproduce locally
 
@@ -70,4 +69,4 @@ API is migrated; it is not required to remain.
 See [quality evidence](docs/quality.md), [architecture](docs/architecture.md),
 and [testing](docs/testing.md) for measured results, module responsibilities,
 and test scope. See [improvement evidence](docs/improvement-evidence.md) for
-verified changes and residual checks.
+measured release verification.

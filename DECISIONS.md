@@ -8,17 +8,17 @@ and verification documents.
 
 **Decision:** Use one Next.js App Router application for UI and API routes.
 
-**Reason:** The project already has working route handlers, Cache Components,
-production-browser coverage, and a typed domain model. A second backend or a
-framework rewrite would add a new deployment boundary without improving the
-air-quality decision policy.
+**Reason:** One application provides typed route handlers, Cache Components,
+shared domain contracts, and a unified production-browser verification path.
+The deployment boundary keeps provider credentials and infrastructure access
+server-side while supporting cohesive product navigation.
 
 **Evidence:** `src/app/`, `src/server/`, `tests/architecture.test.ts`.
 
 ## ADR-002 — Use modeled city forecasts and label their provenance
 
-**Decision:** Use Open-Meteo air-quality and geocoding services for the free
-MVP, and identify the AQI standard and modeled/forecast nature in the product.
+**Decision:** Use Open-Meteo air-quality and geocoding services, and identify
+the AQI standard, data provenance, and forecast nature in the product.
 
 **Reason:** This provides broad location coverage without API credentials while
 preserving a clear distinction between modeled city estimates and station
@@ -40,13 +40,16 @@ recommendations stay reproducible and directly testable.
 
 ## ADR-004 — Validate generated assistant output at the boundary
 
-**Decision:** Require structured JSON, action and evidence IDs from the
-approved catalog, unique references, bounded text, and numeric tokens found in
-the supplied AQI, forecast, or action context.
+**Decision:** Require structured JSON, bounded text, unique action and evidence
+references from the approved catalog, and claim screening. The validator
+rejects detected numeric tokens, context-paired English/Hindi number words,
+and selected unsupported safety, efficacy, and product claims. Exact air
+readings and forecast times are displayed separately by deterministic UI.
 
-**Reason:** A valid JSON shape alone is insufficient for factual responses.
-When the answer fails validation, the deterministic personalized fallback is
-returned.
+**Reason:** Separating authoritative readings and actions from generated prose
+keeps the factual presentation reproducible. A validated explanation is
+shown when available; otherwise the deterministic personalized plan remains
+available.
 
 **Evidence:** `src/features/assistant/validate.ts`,
 `tests/assistant.test.ts`, `tests/gemini-adapter.test.ts`.
@@ -65,15 +68,18 @@ so repeated visitor rejections do not consume shared capacity.
 `src/server/rate-limit-stages.ts`,
 `tests/rate-limit-adapter.test.ts`, `tests/rate-limit-stages.test.ts`.
 
-## ADR-006 — Preserve cache efficiency while evaluating strict CSP
+## ADR-006 — Enforce a static-compatible content security policy
 
-**Decision:** Keep a compatible enforced baseline and deliver the broader
-script policy in report-only mode while checking all seven routes.
+**Decision:** Enforce a same-origin resource policy with explicit restrictions
+on scripts, styles, connections, images, fonts, workers, frames, forms, base
+URLs, and embedded objects. Inline scripts and styles are permitted for
+Next.js static rendering. Report-only behavior is exercised separately by a
+browser test.
 
-**Reason:** Next.js nonce-based CSP requires per-request dynamic rendering and
-changes static caching and Partial Prerendering behavior. The current route
-configuration depends on Cache Components; compatibility is verified before
-changing that trade-off.
+**Reason:** This policy provides resource-origin and embedding restrictions
+while preserving Cache Components, static rendering, and navigation.
+Nonce-based script restrictions require per-request rendering and a separate
+performance and compatibility assessment.
 
 **Evidence:** `next.config.ts`, `tests/e2e/csp-experiment.spec.ts`,
-`tests/e2e/security.spec.ts`, and the locally bundled Next.js CSP guide.
+`tests/e2e/security.spec.ts`, and the [Next.js CSP guide](https://nextjs.org/docs/app/guides/content-security-policy).
