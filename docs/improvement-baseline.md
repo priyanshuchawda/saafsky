@@ -49,13 +49,13 @@ could reach a provider; no live-provider result was checked or claimed.
 
 ## Traceability
 
-| Area | Local evidence |
-| --- | --- |
-| Code quality | Strict TypeScript, lint, focused domain and integration tests |
-| Security | Bounded request parsing, origin checks, quotas, API protection tests, dependency audit |
-| Efficiency | Production build and compressed JavaScript budget |
-| Testing | Unit coverage plus production browser and public-mode suites |
-| Accessibility | Axe checks, keyboard journeys, mobile and responsive tests |
-| Problem alignment | Existing seven routes, domain tests, and browser journeys |
+| Area              | Local evidence                                                                         |
+| ----------------- | -------------------------------------------------------------------------------------- |
+| Code quality      | Strict TypeScript, lint, focused domain and integration tests                          |
+| Security          | Bounded request parsing, origin checks, quotas, API protection tests, dependency audit |
+| Efficiency        | Production build and compressed JavaScript budget                                      |
+| Testing           | Unit coverage plus production browser and public-mode suites                           |
+| Accessibility     | Axe checks, keyboard journeys, mobile and responsive tests                             |
+| Problem alignment | Existing seven routes, domain tests, and browser journeys                              |
 
 These signals are not a prediction of an external evaluation score.

@@ -10,7 +10,7 @@ export function DailyTimeline({
   language: Language;
 }) {
   return (
-    <section className="plan scenario-result" aria-live="polite">
+    <section className="plan scenario-result">
       <p className="eyebrow">{translate(language, "dailyPlan")}</p>
       <h2>
         {translate(language, "morningToEvening")}{" "}

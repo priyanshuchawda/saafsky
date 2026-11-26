@@ -30,12 +30,20 @@ API is migrated; it is not required to remain.
   enabled in `tsconfig.json`.
 - ESLint rejects explicit `any` types, and the TypeScript architecture test
   guards internal layer dependencies and client/server boundaries.
+- Production modules are held to executable complexity limits: complexity 12,
+  maximum nesting depth 4, four parameters, 100 nonblank lines per function,
+  and 350 nonblank lines per source file. Non-null assertions are prohibited in
+  application source. These limits guide responsibility boundaries without
+  imposing artificial byte-size targets on translation catalogues.
 - ESLint and Prettier run before the release verification finishes.
 - Runtime schemas validate external air data, API inputs, and assistant output.
 - Stable recommendation IDs connect the rules engine to an exhaustive Hindi
   translation catalogue.
 - Unit and browser tests exercise deterministic policy, API boundaries, language
   changes, assistant fallback, responsive layouts, and accessibility states.
+- The Node coverage gate includes every `src/**/*.ts` file, including modules
+  not imported by tests, and enforces 75% line, 90% branch, and 90% function
+  coverage. TSX rendering is covered separately by production browser tests.
 
 ## Reproduce locally
 

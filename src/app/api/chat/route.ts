@@ -96,15 +96,15 @@ export async function POST(request: Request) {
         ),
       checkAiBudget,
       explain: (context, actions) =>
-        explainPlan(
+        explainPlan({
           question,
-          context.aqi,
+          aqi: context.aqi,
           actions,
           history,
-          checkAiBudget,
-          context.forecast,
+          reserveAttempt: checkAiBudget,
+          forecast: context.forecast,
           language,
-        ),
+        }),
     }),
   );
 }

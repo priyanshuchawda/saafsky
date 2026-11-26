@@ -33,7 +33,9 @@ export function ActionReason({
         {evidence.map((source, index) => (
           <span key={source.url}>
             {index > 0 && " · "}
-            <a href={source.url}>{source.label}</a>
+            <a className="inline-flex min-h-6 items-center" href={source.url}>
+              {source.label}
+            </a>
           </span>
         ))}
       </p>

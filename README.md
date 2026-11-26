@@ -128,13 +128,13 @@ This verifies an AI-mode response using the key and Upstash credentials in `.env
 
 Latest local verification on **November 26, 2026**:
 
-- **113 unit tests passed.** The coverage run measured 98.52% lines, 95.42% branches, and 97.48% functions across modules loaded by the unit suite; configured minimums are 90%, 85%, and 90% respectively.
-- **52 production-browser tests passed**, covering both languages, in-flight search and assistant-error language changes, focused assistant announcements, air retry recovery, seven routes, keyboard-operated mobile navigation, household comparison, key journeys, and layouts from 320px through 1440px.
+- **125 unit tests passed.** Coverage includes all production `src/**/*.ts` files, with 80.09% line, 94.45% branch, and 94.44% function coverage; configured minimums are 75%, 90%, and 90% respectively.
+- **55 production-browser tests passed**, covering both languages, in-flight search and assistant-error language changes, focused assistant announcements, air retry recovery, seven routes, keyboard-operated mobile navigation, household comparison, key journeys, and layouts from 320px through 1440px.
 - **2 public API protection tests passed**, verifying public request validation and required protection behavior.
 - **Production smoke on November 18** at [saafsky.vercel.app](https://saafsky.vercel.app): page, air API, city lookup, and Gemini chat in AI mode returned successfully for that deployment.
-- **Client JavaScript: 263.3 KiB gzip** across 16 emitted assets, within the enforced 300 KiB project budget.
+- **Client JavaScript: 264.5 KiB gzip** across 16 emitted assets, within the enforced 300 KiB project budget.
 
-Coverage describes modules loaded by the unit suite; the browser, API protection, bundle, and live-provider checks add separate evidence for rendered behavior, request boundaries, resource size, and external integrations. Use `npm run check:bundle` to inspect the current production bundle.
+Coverage includes all production TypeScript modules; React TSX rendering and browser-only behavior are verified separately with Playwright. API protection and bundle checks add evidence for request boundaries and resource size. Use `npm run check:bundle` to inspect the current production bundle.
 
 ## Privacy-forward design
 
@@ -146,6 +146,12 @@ The interface supports keyboard navigation, visible focus, semantic controls, so
 
 - [Architecture and data flow](docs/architecture.md)
 - [Code quality practices](CODE_QUALITY.md)
+- [Engineering decisions](DECISIONS.md)
+- [Security evidence](SECURITY.md)
+- [Efficiency and performance](EFFICIENCY.md)
+- [Testing and verification](TESTING.md)
+- [Accessibility traceability](ACCESSIBILITY.md)
+- [Self-audit by judging criterion](SELF_AUDIT.md)
 - [Challenge requirement traceability](PROBLEM_ALIGNMENT.md)
 - [API reference](docs/api.md)
 - [Quality engineering and measured evidence](docs/quality.md)

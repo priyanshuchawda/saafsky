@@ -3,16 +3,22 @@
 import { useEffect, useState } from "react";
 import { isFresh } from "@/lib/freshness";
 import { airResponseSchema } from "@/lib/schemas";
-import { RateLimitError, throwIfHttpError } from "@/lib/api-errors";
+import {
+  RateLimitError,
+  retryMessage,
+  throwIfHttpError,
+} from "@/lib/api-errors";
 import { createRequestCache } from "@/lib/request-cache";
+import { createRetryCooldownStore } from "@/lib/retry-cooldown";
 import type { Air, City } from "@/types/air";
 
 const REFRESH_INTERVAL_MS = 30 * 60_000;
 const REQUEST_TIMEOUT_MS = 10_000;
 type AirResponse = ReturnType<typeof airResponseSchema.parse>;
 const airResponseCache = createRequestCache<AirResponse>(REFRESH_INTERVAL_MS);
+const airRetryCooldowns = createRetryCooldownStore();
 
-type AirState =
+export type AirQualityState =
   | { kind: "loading" }
   | {
       kind: "error";
@@ -29,7 +35,7 @@ type AirState =
     };
 
 type AirQualityResource = {
-  state: AirState;
+  state: AirQualityState;
   retry(): void;
   retryDisabled: boolean;
 };
@@ -74,11 +80,13 @@ export function useAirQuality(city: City | null): AirQualityResource {
       ? `${latitude},${longitude}`
       : "pending";
   const [retryAttempt, setRetryAttempt] = useState(0);
-  const [result, setResult] = useState<{ key: string; state: AirState }>({
-    key,
-    state: { kind: "loading" },
-  });
-  const state: AirState =
+  const [result, setResult] = useState<{ key: string; state: AirQualityState }>(
+    {
+      key,
+      state: { kind: "loading" },
+    },
+  );
+  const state: AirQualityState =
     result.key === key ? result.state : { kind: "loading" };
 
   useEffect(() => {
@@ -96,6 +104,26 @@ export function useAirQuality(city: City | null): AirQualityResource {
         currentLongitude === undefined
       )
         return;
+      const sharedRetryAt = airRetryCooldowns.get(key);
+      if (sharedRetryAt !== null) {
+        const retryAfterSeconds = Math.max(
+          1,
+          Math.ceil((sharedRetryAt - Date.now()) / 1000),
+        );
+        setResult({
+          key,
+          state: {
+            kind: "error",
+            message: retryMessage(String(retryAfterSeconds)),
+            rateLimit: new RateLimitError(
+              retryMessage(String(retryAfterSeconds)),
+              retryAfterSeconds,
+            ),
+            retryAt: sharedRetryAt,
+          },
+        });
+        return;
+      }
       if (force) airResponseCache.invalidate(key);
       lastAttempt = Date.now();
       requestPending = true;
@@ -123,6 +151,11 @@ export function useAirQuality(city: City | null): AirQualityResource {
           if (disposed) return;
           const rateLimit = error instanceof RateLimitError ? error : null;
           const retryAfterSeconds = rateLimit?.retryAfterSeconds;
+          const retryAt =
+            retryAfterSeconds === null || retryAfterSeconds === undefined
+              ? null
+              : Date.now() + retryAfterSeconds * 1000;
+          if (retryAt !== null) airRetryCooldowns.set(key, retryAt);
           setResult({
             key,
             state: {
@@ -131,10 +164,7 @@ export function useAirQuality(city: City | null): AirQualityResource {
               message:
                 rateLimit?.message ??
                 "Air data is unavailable. Please try again later.",
-              retryAt:
-                retryAfterSeconds == null
-                  ? null
-                  : Date.now() + retryAfterSeconds * 1000,
+              retryAt,
             },
           });
         })

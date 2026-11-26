@@ -1,50 +1,47 @@
 "use client";
 
 import Link from "next/link";
-import { parseCommuteMode } from "@/features/preferences/commute";
 import { useState } from "react";
 import { DailyTimeline } from "@/components/planner/daily-timeline";
-import { LocationSearch } from "@/components/location-search";
-import { useAirQuality } from "@/hooks/use-air-quality";
+import { PlannerControls } from "@/components/planner/planner-controls";
+import { PlannerWindowResult } from "@/components/planner/planner-window-result";
+import { generateDailyPlan } from "@/features/planner/daily";
 import {
   findActivityWindow,
   nextForecastRange,
 } from "@/features/planner/activity-window";
-import { generateDailyPlan } from "@/features/planner/daily";
-import { upcomingForecast } from "@/lib/air";
-import { translateAqiCategory } from "@/features/i18n/aqi";
-import { localMinuteAt } from "@/lib/freshness";
+import { useAirQuality } from "@/hooks/use-air-quality";
 import { useCity, useHousehold, useLanguage } from "@/hooks/use-preferences";
-import { displayCity } from "@/features/i18n/city";
+import { upcomingForecast } from "@/lib/air";
+import { localMinuteAt } from "@/lib/freshness";
 import { translate } from "@/features/i18n/messages";
-import { localizeAirError } from "@/features/i18n/errors";
 
 export default function Planner() {
   const [language] = useLanguage();
   const [city, setCity, cityReady] = useCity();
+  const [profile, setProfile] = useHousehold();
   const [start, setStart] = useState("");
   const [end, setEnd] = useState("");
   const [durationHours, setDurationHours] = useState(1);
   const [essential, setEssential] = useState(false);
   const [busyStart, setBusyStart] = useState("");
   const [busyEnd, setBusyEnd] = useState("");
-  const [profile, setProfile] = useHousehold();
   const { state } = useAirQuality(cityReady ? city : null);
   const air = state.kind === "success" && state.fresh ? state.data : null;
   const localNow =
     state.kind === "success"
       ? localMinuteAt(state.checkedAt, state.data.timezone)
       : null;
-  const hours =
+  const forecastHours =
     air && localNow
       ? upcomingForecast(air.hourly.time, air.hourly.us_aqi, localNow)
       : [];
-  const suggestedRange = nextForecastRange(hours);
+  const suggestedRange = nextForecastRange(forecastHours);
   const partialCommitment = Boolean(busyStart) !== Boolean(busyEnd);
   const invalidCommitment = Boolean(
     busyStart && busyEnd && busyEnd <= busyStart,
   );
-  const result = findActivityWindow(hours, {
+  const result = findActivityWindow(forecastHours, {
     start,
     end,
     durationHours,
@@ -53,6 +50,15 @@ export default function Planner() {
     busy: busyStart && busyEnd ? [{ start: busyStart, end: busyEnd }] : [],
   });
   const steps = generateDailyPlan(air?.current.us_aqi ?? null, profile);
+
+  function handleCitySelect(nextCity: NonNullable<typeof city>) {
+    setCity(nextCity);
+    setStart("");
+    setEnd("");
+    setBusyStart("");
+    setBusyEnd("");
+  }
+
   return (
     <main id="main-content" tabIndex={-1} className="shell scenario">
       <p className="eyebrow">{translate(language, "plannerEyebrow")}</p>
@@ -61,235 +67,42 @@ export default function Planner() {
         <em>{translate(language, "betterWindow")}</em>
       </h1>
       <p className="lead">{translate(language, "plannerLead")}</p>
-      <div className="toolbar impact-form">
-        <LocationSearch
-          onSelect={(nextCity) => {
-            setCity(nextCity);
-            setStart("");
-            setEnd("");
-            setBusyStart("");
-            setBusyEnd("");
-          }}
-        />
-        <div className="profile">
-          <label htmlFor="plan-profile">
-            {translate(language, "household")}
-          </label>
-          <select
-            id="plan-profile"
-            value={profile.sensitive ? "sensitive" : "general"}
-            onChange={(event) =>
-              setProfile({
-                ...profile,
-                sensitive: event.target.value === "sensitive",
-              })
-            }
-          >
-            <option value="general">
-              {translate(language, "generalGuidance")}
-            </option>
-            <option value="sensitive">
-              {translate(language, "sensitiveHousehold")}
-            </option>
-          </select>
-        </div>
-        <div className="profile">
-          <label htmlFor="plan-commute">
-            {translate(language, "commuteLabel")}
-          </label>
-          <select
-            id="plan-commute"
-            value={profile.commute}
-            onChange={(event) =>
-              setProfile({
-                ...profile,
-                commute:
-                  parseCommuteMode(event.target.value) ?? profile.commute,
-              })
-            }
-          >
-            <option value="none">{translate(language, "noneSelected")}</option>
-            <option value="walk">{translate(language, "walk")}</option>
-            <option value="bike">{translate(language, "bicycle")}</option>
-            <option value="public">
-              {translate(language, "publicTransport")}
-            </option>
-            <option value="car">{translate(language, "car")}</option>
-          </select>
-        </div>
-        <div className="profile">
-          <label htmlFor="window-start">
-            {translate(language, "earliestTime")}
-          </label>
-          <input
-            id="window-start"
-            type="datetime-local"
-            value={start}
-            onChange={(event) => setStart(event.target.value)}
-          />
-        </div>
-        <div className="profile">
-          <label htmlFor="window-end">
-            {translate(language, "latestTime")}
-          </label>
-          <input
-            id="window-end"
-            type="datetime-local"
-            value={end}
-            onChange={(event) => setEnd(event.target.value)}
-          />
-        </div>
-        <div className="profile">
-          <label htmlFor="activity-duration">
-            {translate(language, "timeNeeded")}
-          </label>
-          <select
-            id="activity-duration"
-            value={durationHours}
-            onChange={(event) => setDurationHours(Number(event.target.value))}
-          >
-            <option value={1}>{translate(language, "oneHour")}</option>
-            <option value={2}>{translate(language, "twoHours")}</option>
-            <option value={3}>{translate(language, "threeHours")}</option>
-            <option value={4}>{translate(language, "fourHours")}</option>
-          </select>
-        </div>
-        <div className="profile">
-          <label htmlFor="activity-essential">
-            {translate(language, "outingPostponed")}
-          </label>
-          <select
-            id="activity-essential"
-            value={essential ? "essential" : "flexible"}
-            onChange={(event) =>
-              setEssential(event.target.value === "essential")
-            }
-          >
-            <option value="flexible">
-              {translate(language, "flexibleYes")}
-            </option>
-            <option value="essential">
-              {translate(language, "essentialNo")}
-            </option>
-          </select>
-        </div>
-        <div className="profile">
-          <label htmlFor="busy-start">
-            {translate(language, "commitmentStart")}
-          </label>
-          <input
-            id="busy-start"
-            type="datetime-local"
-            value={busyStart}
-            aria-describedby={
-              invalidCommitment
-                ? "busy-help busy-error"
-                : partialCommitment && !busyStart
-                  ? "busy-help busy-missing"
-                  : "busy-help"
-            }
-            aria-invalid={
-              invalidCommitment || (partialCommitment && !busyStart)
-            }
-            onChange={(event) => setBusyStart(event.target.value)}
-          />
-        </div>
-        <div className="profile">
-          <label htmlFor="busy-end">
-            {translate(language, "commitmentEnd")}
-          </label>
-          <input
-            id="busy-end"
-            type="datetime-local"
-            value={busyEnd}
-            aria-describedby={
-              invalidCommitment
-                ? "busy-help busy-error"
-                : partialCommitment && !busyEnd
-                  ? "busy-help busy-missing"
-                  : "busy-help"
-            }
-            aria-invalid={invalidCommitment || (partialCommitment && !busyEnd)}
-            onChange={(event) => setBusyEnd(event.target.value)}
-          />
-        </div>
-      </div>
-      {suggestedRange && (
-        <div className="planner-quick-range">
-          <button
-            className="action-button"
-            type="button"
-            onClick={() => {
-              setStart(suggestedRange.start);
-              setEnd(suggestedRange.end);
-            }}
-          >
-            {translate(language, "useForecastRange")}
-          </button>
-          <p className="fine">{translate(language, "forecastRangeHelp")}</p>
-        </div>
-      )}
-      <p id="busy-help" className="fine">
-        {translate(language, "commitmentHelp")}
-      </p>
+      <PlannerControls
+        language={language}
+        profile={profile}
+        onProfileChange={setProfile}
+        onCitySelect={handleCitySelect}
+        start={start}
+        onStartChange={setStart}
+        end={end}
+        onEndChange={setEnd}
+        durationHours={durationHours}
+        onDurationChange={setDurationHours}
+        essential={essential}
+        onEssentialChange={setEssential}
+        busyStart={busyStart}
+        onBusyStartChange={setBusyStart}
+        busyEnd={busyEnd}
+        onBusyEndChange={setBusyEnd}
+        suggestedRange={suggestedRange}
+        onUseSuggestedRange={(range) => {
+          setStart(range.start);
+          setEnd(range.end);
+        }}
+      />
       <DailyTimeline steps={steps} language={language} />
-      <section className="plan scenario-result" aria-live="polite">
-        <p className="eyebrow">
-          {translate(language, "forecastFor")}{" "}
-          {cityReady ? displayCity(city, language).toUpperCase() : "…"}
-        </p>
-        <h2>
-          {translate(language, "availableWindow")}{" "}
-          <em>{translate(language, "window")}</em>
-        </h2>
-        <p className="muted">
-          {translate(language, "enterTimesIn")}{" "}
-          {air?.timezone ?? translate(language, "localTime")}.{" "}
-          {translate(language, "forecastWindowInputHint")}
-        </p>
-        {state.kind === "loading" && (
-          <p>{translate(language, "loadingForecast")}</p>
-        )}
-        {state.kind === "error" && (
-          <p>{localizeAirError(language, state.rateLimit)}</p>
-        )}
-        {state.kind === "success" && !state.fresh && (
-          <p>{translate(language, "forecastStale")}</p>
-        )}
-        {partialCommitment && (
-          <p id="busy-missing">
-            {translate(language, "enterBothCommitmentTimes")}
-          </p>
-        )}
-        {invalidCommitment && (
-          <p id="busy-error">
-            {translate(language, "commitmentEndAfterStart")}
-          </p>
-        )}
-        {air &&
-          !partialCommitment &&
-          !invalidCommitment &&
-          start &&
-          end &&
-          (result.kind === "available" || result.kind === "elevated" ? (
-            <p>
-              {result.kind === "elevated"
-                ? translate(language, "allOptionsAboveThreshold")
-                : translate(language, "lowestPeak")}{" "}
-              <strong>
-                {result.start.replace("T", " ")}–{result.end.replace("T", " ")}
-              </strong>{" "}
-              · {translate(language, "peakUsAqi")} {Math.round(result.peakAqi)}{" "}
-              ({translateAqiCategory(language, result.peakAqi)}).{" "}
-              {translate(language, "estimateNotSafe")}
-            </p>
-          ) : result.kind === "no-suitable" ? (
-            <p>{translate(language, "completeWindowsElevated")}</p>
-          ) : (
-            <p>{translate(language, "completeWindow")}</p>
-          ))}
-        <p className="fine">{translate(language, "plannerModelNote")}</p>
-      </section>
+      <PlannerWindowResult
+        language={language}
+        city={city}
+        cityReady={cityReady}
+        state={state}
+        air={air}
+        result={result}
+        partialCommitment={partialCommitment}
+        invalidCommitment={invalidCommitment}
+        start={start}
+        end={end}
+      />
       <footer>
         <Link href="/">{translate(language, "backDashboard")}</Link>
       </footer>

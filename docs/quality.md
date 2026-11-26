@@ -30,10 +30,10 @@ The script runs ESLint, strict typechecking, unit tests with coverage thresholds
 
 Verified locally against the production build on **November 26, 2026**:
 
-- **113 unit tests passed.** The coverage command enforces minimums of 90% lines, 85% branches, and 90% functions. The run measured 98.52% lines, 95.42% branches, and 97.48% functions across the modules loaded by the unit suite.
-- **52 production-browser tests passed**, including English and Hindi journeys, language changes during pending searches and rate-limit errors, focused assistant announcements, air retry recovery, household comparison, all-page navigation, 320px through 1440px responsive layouts, touch-target sizing, axe checks, mobile keyboard navigation, and primary user journeys.
+- **125 unit tests passed.** Coverage includes every production `src/**/*.ts` file; the run measured 80.09% lines, 94.45% branches, and 94.44% functions against configured floors of 75%, 90%, and 90%.
+- **55 production-browser tests passed**, including English and Hindi journeys, language changes during pending searches and rate-limit errors, focused assistant announcements, air retry recovery, household comparison, all-page navigation, 320px through 1440px responsive layouts, touch-target sizing, axe checks, mobile keyboard navigation, and primary user journeys.
 - **2 public API protection tests passed**, checking fail-closed public behavior and request validation before provider access.
-- **Client JavaScript measured 263.3 KiB gzip across 16 emitted chunks**, below the enforced 300 KiB project-wide budget. This counts all emitted client chunks and is not a per-route first-load estimate.
+- **Client JavaScript measured 264.5 KiB gzip across 16 emitted chunks**, below the enforced 300 KiB project-wide budget. This counts all emitted client chunks and is not a per-route first-load estimate.
 - **Architecture-boundary regression passed**, checking TypeScript imports across application layers and documenting the retained compatibility bridge.
 - **Production dependency audit** on November 25 reported zero known vulnerabilities with `npm audit --omit=dev --audit-level=high` against the current lockfile. This checks known advisories and is not a complete security assessment.
 - **Production smoke passed** on November 18 at [saafsky.vercel.app](https://saafsky.vercel.app): the site, air endpoint, city lookup, and Gemini chat in AI mode all returned successfully.

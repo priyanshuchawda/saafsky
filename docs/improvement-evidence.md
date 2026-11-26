@@ -67,15 +67,14 @@ is implied by these checks.
 
 ## Local verification on 2026-11-26
 
-Formatting, lint, TypeScript, 113 unit tests, the production build, the bundle
-budget, 52 production-browser tests, and two public-mode API protection tests
-passed with `./scripts/verify.ps1 -Browser`. This suite run did not include a
-live-provider smoke test. Unit coverage of modules loaded by the
-suite was 98.52% lines, 95.42% branches and 97.48% functions; other production
-modules are not represented by those percentages. The client JavaScript total
-was 263.3 KiB gzip across 16 assets, compared with 252.9 KiB at baseline. The
-additional product functionality contributes to the increase; the configured
-limit is 300 KiB. This run does not verify live provider or Redis behavior.
+Formatting, tracked-file secret scanning, lint, TypeScript, 125 unit tests, the
+production build, the bundle budget, 55 production-browser tests, and two
+public-mode API protection tests passed with `./scripts/verify.ps1 -Browser`.
+Coverage includes every production `src/**/*.ts` file and measured 80.09% lines,
+94.45% branches, and 94.44% functions. React TSX rendering is covered separately
+by browser tests. The client JavaScript total was 264.5 KiB gzip across 16
+assets, within the 300 KiB budget. This automated run uses controlled providers
+and does not exercise live provider or Redis services.
 `npm audit --omit=dev --audit-level=high` also completed with zero reported
 production dependency advisories on this date.
 
@@ -84,7 +83,7 @@ production dependency advisories on this date.
 | Code quality      | Domain-owned recommendation IDs, exhaustive Hindi recommendation mapping, shared response types, common AQI validity, a passing import-boundary regression, and passing static checks. | Continue time-handling and adapter-boundary review.                    |
 | Security          | Validated public protection configuration, request protection tests, typed/validated IDs, a partial CSP and dependency audit.                                                          | Stricter script policy, real concurrency and live deployment review.   |
 | Efficiency        | Production build and compressed bundle budget.                                                                                                                                         | Per-route performance and network profiling.                           |
-| Testing           | 113 unit tests, 52 production-browser tests, accessibility journeys, and two public-mode protection tests passed locally.                                                              | Add remaining provider and real-infrastructure failure cases.          |
+| Testing           | 125 unit tests, 55 production-browser tests, accessibility journeys, all-source TypeScript coverage, and two public-mode protection tests passed locally.                              | Validate separately against authorized live infrastructure.            |
 | Accessibility     | Focused assistant announcements, language-aware pending city search, keyboard journeys, control-border checks and bilingual axe scans.                                                 | Manual screen-reader, zoom, focus, and broader contrast review.        |
 | Problem alignment | All seven route entry points and existing browser journeys remain covered.                                                                                                             | Live providers and AI credentials were not exercised in the final run. |
 

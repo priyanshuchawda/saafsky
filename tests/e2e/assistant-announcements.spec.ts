@@ -47,3 +47,17 @@ test("assistant announces only request status and the latest answer", async ({
     release();
   }
 });
+
+test("planner keeps its forecast updates in a focused status region", async ({
+  page,
+}) => {
+  await page.route("**/api/air?**", (route) =>
+    route.fulfill({ status: 503, json: { error: "Unavailable" } }),
+  );
+  await page.goto("/planner", { waitUntil: "networkidle" });
+
+  await expect(page.locator("section.plan[aria-live]")).toHaveCount(0);
+  await expect(
+    page.locator("section.plan.scenario-result").last().getByRole("status"),
+  ).toContainText(/unavailable/i);
+});

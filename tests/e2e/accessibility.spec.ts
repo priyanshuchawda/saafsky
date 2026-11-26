@@ -16,7 +16,7 @@ for (const route of [
     );
     await page.goto(route, { waitUntil: "networkidle" });
     const results = await new AxeBuilder({ page })
-      .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
+      .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"])
       .analyze();
     expect(
       results.violations.map((violation) => ({
@@ -27,6 +27,26 @@ for (const route of [
     ).toEqual([]);
   });
 }
+
+test("accessibility scan detects a deliberately introduced low-contrast state", async ({
+  page,
+}) => {
+  await page.setContent(`
+    <html lang="en">
+      <head><title>Contrast regression probe</title></head>
+      <body>
+        <main><p style="color:#aaa;background:#fff">Low contrast text</p></main>
+      </body>
+    </html>
+  `);
+  const results = await new AxeBuilder({ page })
+    .withTags(["wcag2aa"])
+    .analyze();
+
+  expect(results.violations.map((violation) => violation.id)).toContain(
+    "color-contrast",
+  );
+});
 
 test("keyboard users can skip repeated navigation", async ({ page }) => {
   await page.route("**/api/air?**", (route) =>
@@ -213,7 +233,7 @@ test("assistant response remains accessible after a conversation", async ({
   await expect(page.getByText("RULE-BASED FALLBACK")).toBeVisible();
   await page.getByText("Sources for this answer").click();
   const results = await new AxeBuilder({ page })
-    .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
+    .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"])
     .analyze();
   expect(
     results.violations.map((violation) => ({
@@ -229,7 +249,7 @@ test("expanded recommendation explanations remain accessible", async ({
   await page.goto("/scenarios", { waitUntil: "networkidle" });
   await page.getByText("Why this action?").first().click();
   const results = await new AxeBuilder({ page })
-    .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
+    .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"])
     .analyze();
   expect(
     results.violations.map((violation) => ({
@@ -250,7 +270,7 @@ test("household comparison remains accessible on a narrow screen", async ({
     await page.evaluate(() => document.documentElement.scrollWidth),
   ).toBeLessThanOrEqual(320);
   const results = await new AxeBuilder({ page })
-    .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
+    .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"])
     .analyze();
   expect(results.violations.map((violation) => violation.id)).toEqual([]);
 });

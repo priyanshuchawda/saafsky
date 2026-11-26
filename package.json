@@ -7,16 +7,17 @@
     "dev": "next dev",
     "build": "next build",
     "check:bundle": "node scripts/check-bundle.mjs",
+    "check:secrets": "node scripts/check-secrets.mjs",
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "test": "node --test tests/*.test.ts",
-    "test:coverage": "node --experimental-test-coverage --test-coverage-lines=90 --test-coverage-branches=85 --test-coverage-functions=90 --test tests/*.test.ts",
+    "test:coverage": "node --experimental-test-coverage --test-coverage-include-all --test-coverage-include=src/**/*.ts --test-coverage-lines=75 --test-coverage-branches=90 --test-coverage-functions=90 --test tests/*.test.ts",
     "test:e2e": "playwright test",
     "test:e2e:production": "playwright test --config playwright.production.config.ts",
     "test:protection": "playwright test --config playwright.protection.config.ts",
-    "format:check": "prettier --check \"src/**/*.{ts,tsx,css}\" \"tests/**/*.ts\" \"scripts/**/*.mjs\" README.md CODE_QUALITY.md PROBLEM_ALIGNMENT.md docs/quality.md docs/improvement-evidence.md docs/accessibility.md docs/api.md eslint.config.mjs next.config.ts tsconfig.json playwright.config.ts playwright.production.config.ts playwright.protection.config.ts",
-    "format": "prettier --write \"src/**/*.{ts,tsx,css}\" \"tests/**/*.ts\" \"scripts/**/*.mjs\" README.md CODE_QUALITY.md PROBLEM_ALIGNMENT.md docs/quality.md docs/improvement-evidence.md docs/accessibility.md docs/api.md eslint.config.mjs next.config.ts tsconfig.json playwright.config.ts playwright.production.config.ts playwright.protection.config.ts"
+    "format:check": "prettier --check \"src/**/*.{ts,tsx,css}\" \"tests/**/*.{ts,tsx}\" \"scripts/**/*.mjs\" \"docs/**/*.md\" README.md CODE_QUALITY.md PROBLEM_ALIGNMENT.md SECURITY.md EFFICIENCY.md TESTING.md ACCESSIBILITY.md DECISIONS.md SELF_AUDIT.md package.json eslint.config.mjs next.config.ts tsconfig.json playwright.config.ts playwright.production.config.ts playwright.protection.config.ts",
+    "format": "prettier --write \"src/**/*.{ts,tsx,css}\" \"tests/**/*.{ts,tsx}\" \"scripts/**/*.mjs\" \"docs/**/*.md\" README.md CODE_QUALITY.md PROBLEM_ALIGNMENT.md SECURITY.md EFFICIENCY.md TESTING.md ACCESSIBILITY.md DECISIONS.md SELF_AUDIT.md package.json eslint.config.mjs next.config.ts tsconfig.json playwright.config.ts playwright.production.config.ts playwright.protection.config.ts"
   },
   "dependencies": {
     "@google/genai": "^3.4.0",

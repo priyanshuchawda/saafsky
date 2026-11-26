@@ -1,6 +1,6 @@
 # Testing and verification
 
-SaafSky combines offline unit tests, provider-injected API tests, production-browser journeys, and a dedicated public-mode protection suite. The unit coverage command enforces minimums of 90% lines, 85% branches, and 90% functions across modules loaded by the suite. Mocked providers keep automated runs repeatable and quota-free.
+SaafSky combines offline unit tests, provider-injected API tests, production-browser journeys, and a dedicated public-mode protection suite. The unit coverage command includes every production `src/**/*.ts` module and enforces minimums of 75% lines, 90% branches, and 90% functions. Mocked providers keep automated runs repeatable and quota-free.
 
 Node.js 26.x matches the deployed runtime; Node.js 22.18 or newer is supported for local development. Install dependencies and run the core checks from the repository root:
 
@@ -14,7 +14,7 @@ npm run build
 
 The unit suite covers domain calculations, AQI boundaries, freshness and time zones, recommendation policy, indoor advice, planner constraints, emissions arithmetic, request schemas, bounded request bodies, rate-limit decisions, and provider failures. API endpoint tests inject provider and limiter dependencies so success, validation, rate-limit, and upstream-error responses stay deterministic and free of live network calls.
 
-The coverage report quantifies modules loaded by the unit suite. Browser and protection tests complement it with rendered-page journeys, API responses, keyboard and mobile interactions, security headers, and public-mode protection behavior.
+The coverage report quantifies all production TypeScript modules. Browser and protection tests complement it with rendered-page journeys, API responses, keyboard and mobile interactions, security headers, and public-mode protection behavior. React TSX is verified through browser tests rather than counted in the Node coverage denominator.
 
 Run the browser suites with:
 

@@ -1,6 +1,9 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { GoogleGenAI } from "@google/genai";
+import { geminiResponseSchema } from "../src/features/assistant/response-format.ts";
 import {
+  createGeminiSdkAdapter,
   explainPlan,
   type GeminiInteractionRequest,
 } from "../src/server/chat.ts";
@@ -23,17 +26,56 @@ const validReply = JSON.stringify({
   uncertainty: "Forecasts can change.",
 });
 
+test("Gemini SDK adapter applies bounded, non-stored structured interaction options", async () => {
+  let received: unknown;
+  const sdk = {
+    interactions: {
+      create: async (input: unknown, options: unknown) => {
+        received = { input, options };
+        return { output_text: validReply };
+      },
+    },
+  } as unknown as Pick<GoogleGenAI, "interactions">;
+  const adapter = createGeminiSdkAdapter(sdk);
+
+  const output = await adapter.createInteraction({
+    model: "gemini-test",
+    input: "validated context",
+    systemInstruction: "Use supplied facts.",
+    responseSchema: geminiResponseSchema,
+    maxOutputTokens: 300,
+    timeoutMs: 5000,
+  });
+
+  assert.equal(output, validReply);
+  assert.deepEqual(received, {
+    input: {
+      model: "gemini-test",
+      store: false,
+      system_instruction: "Use supplied facts.",
+      input: "validated context",
+      generation_config: { max_output_tokens: 300 },
+      response_format: {
+        type: "text",
+        mime_type: "application/json",
+        schema: geminiResponseSchema,
+      },
+    },
+    options: { timeout_ms: 5000, retries: { strategy: "none" } },
+  });
+});
+
 test("Gemini adapter passes bounded, stateless structured requests to an injected client", async () => {
   let request: GeminiInteractionRequest | undefined;
-  const reply = await explainPlan(
-    "Should I go outside?",
-    120,
-    [action],
-    [],
-    async () => false,
-    null,
-    "en",
-    {
+  const reply = await explainPlan({
+    question: "Should I go outside?",
+    aqi: 120,
+    actions: [action],
+    history: [],
+    reserveAttempt: async () => false,
+    forecast: null,
+    language: "en",
+    dependencies: {
       env: { GEMINI_API_KEY: "test-key", GEMINI_MODEL: "gemini-test" },
       createClient: () => ({
         createInteraction: async (input) => {
@@ -42,7 +84,7 @@ test("Gemini adapter passes bounded, stateless structured requests to an injecte
         },
       }),
     },
-  );
+  });
 
   assert.equal(reply.answer, "Check the forecast before your trip.");
   assert.equal(request?.model, "gemini-test");
@@ -54,11 +96,20 @@ test("Gemini adapter passes bounded, stateless structured requests to an injecte
 
 test("Gemini adapter rejects malformed output from the injected provider", async () => {
   await assert.rejects(
-    explainPlan("Question", 100, [action], [], async () => false, null, "en", {
-      env: { GEMINI_API_KEY: "test-key" },
-      createClient: () => ({
-        createInteraction: async () => "not JSON",
-      }),
+    explainPlan({
+      question: "Question",
+      aqi: 100,
+      actions: [action],
+      history: [],
+      reserveAttempt: async () => false,
+      forecast: null,
+      language: "en",
+      dependencies: {
+        env: { GEMINI_API_KEY: "test-key" },
+        createClient: () => ({
+          createInteraction: async () => "not JSON",
+        }),
+      },
     }),
   );
 });
@@ -66,18 +117,18 @@ test("Gemini adapter rejects malformed output from the injected provider", async
 test("Gemini adapter uses one reserved fallback attempt after a retryable model failure", async () => {
   const models: string[] = [];
   let reservations = 0;
-  await explainPlan(
-    "Question",
-    100,
-    [action],
-    [],
-    async () => {
+  await explainPlan({
+    question: "Question",
+    aqi: 100,
+    actions: [action],
+    history: [],
+    reserveAttempt: async () => {
       reservations++;
       return true;
     },
-    null,
-    "en",
-    {
+    forecast: null,
+    language: "en",
+    dependencies: {
       env: {
         GEMINI_API_KEY: "test-key",
         GEMINI_MODEL: "primary",
@@ -95,7 +146,7 @@ test("Gemini adapter uses one reserved fallback attempt after a retryable model 
         },
       }),
     },
-  );
+  });
 
   assert.deepEqual(models, ["primary", "fallback"]);
   assert.equal(reservations, 1);
@@ -104,11 +155,20 @@ test("Gemini adapter uses one reserved fallback attempt after a retryable model 
 test("Gemini adapter never constructs a client when credentials are missing", async () => {
   let clientCreated = false;
   await assert.rejects(
-    explainPlan("Question", 100, [action], [], async () => false, null, "en", {
-      env: {},
-      createClient: () => {
-        clientCreated = true;
-        return { createInteraction: async () => validReply };
+    explainPlan({
+      question: "Question",
+      aqi: 100,
+      actions: [action],
+      history: [],
+      reserveAttempt: async () => false,
+      forecast: null,
+      language: "en",
+      dependencies: {
+        env: {},
+        createClient: () => {
+          clientCreated = true;
+          return { createInteraction: async () => validReply };
+        },
       },
     }),
   );

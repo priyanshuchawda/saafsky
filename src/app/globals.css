@@ -118,7 +118,7 @@ textarea:focus-visible {
   line-height: 1.6;
 }
 .profile input[type="datetime-local"] {
-  border: 1px solid #64776e;
+  border: 1px solid #5b6d63;
   background: white;
   border-radius: 6px;
   padding: 13px;
@@ -135,7 +135,7 @@ textarea:focus-visible {
   min-width: 0;
 }
 .impact-form input {
-  border: 1px solid #64776e;
+  border: 1px solid #5b6d63;
   background: white;
   border-radius: 6px;
   padding: 13px;
@@ -146,7 +146,7 @@ textarea:focus-visible {
 .plan textarea {
   display: block;
   width: 100%;
-  border: 1px solid #64776e;
+  border: 1px solid #5b6d63;
   border-radius: 6px;
   padding: 12px;
   margin: 10px 0;
@@ -167,7 +167,7 @@ textarea:focus-visible {
 }
 :root {
   --ink: #18372f;
-  --muted: #64776e;
+  --muted: #5b6d63;
 }
 * {
   box-sizing: border-box;
@@ -251,7 +251,7 @@ a {
 .language-selector select {
   min-height: 48px;
   min-width: 112px;
-  border: 1px solid #64776e;
+  border: 1px solid #5b6d63;
   border-radius: 6px;
   padding: 8px 12px;
   background: white;
@@ -346,7 +346,7 @@ h3 em {
 }
 .search input,
 .profile select {
-  border: 1px solid #64776e;
+  border: 1px solid #5b6d63;
   background: white;
   border-radius: 6px;
   padding: 13px;

@@ -54,3 +54,29 @@ test("air-data retry waits for Retry-After and recovers after the user retries",
   await expect(retry).toHaveCount(0);
   expect(requests).toBe(2);
 });
+
+test("air-data Retry-After is preserved while navigating between pages", async ({
+  page,
+}) => {
+  let requests = 0;
+  await page.route("**/api/air?**", async (route) => {
+    requests++;
+    await route.fulfill({
+      status: 429,
+      headers: { "Retry-After": "5" },
+      json: { error: "Request limit reached." },
+    });
+  });
+
+  await page.goto("/");
+  const retry = page.getByRole("button", {
+    name: /Please wait before retrying/,
+  });
+  await expect(retry).toBeDisabled();
+  await page.getByRole("link", { name: /Daily planner/ }).click();
+  await page.getByRole("link", { name: /Dashboard/ }).click();
+  await expect(
+    page.getByRole("button", { name: /Please wait before retrying/ }),
+  ).toBeDisabled();
+  expect(requests).toBe(1);
+});

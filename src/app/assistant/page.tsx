@@ -109,7 +109,12 @@ export default function Assistant() {
                       const source = findEvidence(sourceId);
                       return source ? (
                         <li key={sourceId}>
-                          <a href={source.url}>{source.label}</a>
+                          <a
+                            className="inline-flex min-h-6 items-center"
+                            href={source.url}
+                          >
+                            {source.label}
+                          </a>
                         </li>
                       ) : null;
                     })}

@@ -118,3 +118,101 @@ test("assistant rejects forged references and oversized generated text", () => {
     ),
   );
 });
+
+test("assistant rejects numerical claims absent from trusted context", () => {
+  const actions: Recommendation[] = [
+    {
+      id: "monitor-conditions",
+      title: "Check current AQI",
+      description: "Review the forecast.",
+      priority: "low",
+      category: "health",
+      reasonCodes: ["available_air_data"],
+      evidenceIds: ["airnow-aqi"],
+    },
+  ];
+  const reply = {
+    referencedActionIds: ["monitor-conditions"],
+    sourceIds: ["airnow-aqi"],
+    uncertainty: "Forecast estimates can change.",
+  };
+
+  assert.throws(
+    () =>
+      validateAssistantReply(
+        JSON.stringify({ ...reply, answer: "The AQI is 42 today." }),
+        actions,
+        [120, "18:00"],
+      ),
+    /Unsupported numerical claim/,
+  );
+  assert.throws(
+    () =>
+      validateAssistantReply(
+        JSON.stringify({ ...reply, answer: "आज AQI ४२ है।" }),
+        actions,
+        [120],
+      ),
+    /Unsupported numerical claim/,
+  );
+});
+
+test("assistant accepts numerical claims that match trusted AQI and forecast data", () => {
+  const actions: Recommendation[] = [
+    {
+      id: "monitor-conditions",
+      title: "Check current AQI",
+      description: "Review the forecast.",
+      priority: "low",
+      category: "health",
+      reasonCodes: ["available_air_data"],
+      evidenceIds: ["airnow-aqi"],
+    },
+  ];
+
+  assert.equal(
+    validateAssistantReply(
+      JSON.stringify({
+        answer: "The current AQI is 120; the lower forecast is at 18:00.",
+        referencedActionIds: ["monitor-conditions"],
+        sourceIds: ["airnow-aqi"],
+        uncertainty: "Estimates can change.",
+      }),
+      actions,
+      [120, "18:00"],
+    ).answer,
+    "The current AQI is 120; the lower forecast is at 18:00.",
+  );
+});
+
+test("assistant rejects duplicate action or evidence references", () => {
+  const actions: Recommendation[] = [
+    {
+      id: "monitor-conditions",
+      title: "Check current AQI",
+      description: "Review the forecast.",
+      priority: "low",
+      category: "health",
+      reasonCodes: ["available_air_data"],
+      evidenceIds: ["airnow-aqi"],
+    },
+  ];
+  const reply = {
+    answer: "Review current conditions.",
+    referencedActionIds: ["monitor-conditions", "monitor-conditions"],
+    sourceIds: ["airnow-aqi"],
+    uncertainty: "Estimates can change.",
+  };
+
+  assert.throws(() => validateAssistantReply(JSON.stringify(reply), actions));
+  assert.throws(() =>
+    validateAssistantReply(
+      JSON.stringify({
+        ...reply,
+        referencedActionIds: ["monitor-conditions"],
+        sourceIds: ["airnow-aqi", "airnow-aqi"],
+      }),
+      actions,
+    ),
+  );
+});
